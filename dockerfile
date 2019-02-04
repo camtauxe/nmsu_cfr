@@ -9,7 +9,6 @@ ADD apache_config.conf /etc/apache2/sites-available/this_site.conf
 RUN rm /etc/apache2/sites-enabled/000-default.conf
 RUN ln /etc/apache2/sites-available/this_site.conf /etc/apache2/sites-enabled/this_site.conf
 
-ADD ./static /srv/
-ADD ./python/ /srv/
+ADD ./content /srv/
 
 CMD ["apachectl", "-DFOREGROUND"]
