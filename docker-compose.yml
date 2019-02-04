@@ -1,0 +1,8 @@
+version: '3'
+services:
+  nmsu_cfr:
+    build: .
+    image: nmsu_cfr:latest
+    container_name: cfr
+    ports:
+      - 80:80
