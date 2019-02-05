@@ -1,8 +1,3 @@
-"""
-Contains functions for creating BeautifulSoup soups 
-and writing soups to byte strings for output
-"""
-
 from pathlib import Path
 from bs4 import BeautifulSoup
 

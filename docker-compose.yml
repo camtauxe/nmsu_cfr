@@ -7,4 +7,3 @@ services:
     env_file: cfr.env
     ports:
       - 80:80
-    network_mode: "host"
