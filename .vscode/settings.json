@@ -6,7 +6,7 @@
         "editor.rulers": [80]
     },
     "[javascript]": {
-        "editor.rulers": [80]
+        "editor.rulers": [100]
     },
     "[html]" : {
         "editor.rulers": [120]

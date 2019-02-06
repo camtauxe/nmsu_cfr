@@ -1,0 +1,72 @@
+/*
+ * Stylesheet for most pages on the site
+ *
+ * For colors, typefaces, and stuff, please refer to the NMSU
+ * brand guidelines:
+ * https://brand.nmsu.edu
+*/
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+
+    font-family: 'Open Sans', 'Helvetica', 'Sans'; /* Official NMSU typefaces*/
+    background: whitesmoke;
+}
+
+/**
+ * The pagecontainer fills the entire page and contains
+ * the header, content and footer
+**/
+#pagecontainer {
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/**
+ * The pageheader appears across the top of every page
+**/
+#pageheader {
+    background: #882345; /* Official NMSU Crimson */
+    color: whitesmoke;
+    padding: 10px 4px;
+}
+
+#pageheader h1 {
+    margin: initial;
+}
+
+/**
+ * The pagecontent is what contains the main content of each page.
+ * Basically everything but the header and footer.
+ *
+ * It has a maximum width and when the window goes beyond that width,
+ * it is centered in the available space.
+**/
+#pagecontent {
+    max-width: 9in;
+    margin: 0 auto 0 auto;
+    padding: 5px;
+
+    /* NOTE: If you change this, change #pagefooter height too!!! */
+    padding-bottom: 20px;
+}
+
+/**
+ * The pagefooter stretches across the bottom of every page.
+ * If the pagecontent is smaller than the size of the window,
+ * the footer will stay at the bottom of the window
+**/
+#pagefooter {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    /* NOTE: If you change this, change #pagecontent padding-bottom too!!! */
+    height: 20px;
+
+    background: #222222;
+    color: whitesmoke;
+    padding: 10px 3px;
+}

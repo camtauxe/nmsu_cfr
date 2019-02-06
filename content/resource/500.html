@@ -1,13 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>NMSU CFR Testing Page</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
-    <h1>500 Internal Server Error</h1>
-    <div id="message"></div>
-</body>
-</html>
+<!-- Contents for a 500 Error page -->
+<h1>500 Internal Server Error</h1>
+<p>
+    Something went wrong :(
+    <br>
+    Please contact a system administrator.
+</p>
+<!--
+    This div contains debug information that will be inserted by the error_handling.py script.
+    However, if the environment variable 'DEBUG' is not 'yes', this div will be removed entirely.
+-->
+<div id=debugonly>
+    <h2>Debug Information:</h2>
+    <ul>
+        <li><b>Time: </b><span id="datetime"></span></li>
+        <li><b>Error type: </b><span id="errortype"></span></li>
+    </ul>
+    <textarea id="stacktrace" cols="120" rows="10" style="resize:none" readonly></textarea>
+</div>
