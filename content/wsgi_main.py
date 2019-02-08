@@ -75,10 +75,7 @@ def application(environ, start_response):
             error_page = error_handling.build_404_error_page()
             yield page_builder.soup_to_bytes(error_page)
 
-        exit(0)
-
     except Exception as err:
         respond(status="500 Internal Server Error")
         error_page = error_handling.build_500_error_page(err)
         yield page_builder.soup_to_bytes(error_page)
-        exit(1)
