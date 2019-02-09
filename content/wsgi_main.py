@@ -2,10 +2,12 @@
 import os
 import traceback
 import mysql.connector
+import json
 from pathlib import PurePath
 from utils import page_builder
 from utils import sql_connection
 from utils import error_handling
+from utils import sql_utils
 
 def application(environ, start_response):
     """
@@ -61,6 +63,12 @@ def application(environ, start_response):
             page = page_builder.build_page_from_file("lorem_ipsum.html")
             respond()
             yield page_builder.soup_to_bytes(page)
+
+        # For 'db_info' return a JSON describing the database
+        elif top == 'db_info':
+            respond(mime = "text/json; charset=utf-8")
+            info = sql_utils.get_database_info()
+            yield json.dumps(info, indent=4).encode('utf-8')
 
         # For 'error' throw an error to test the the error-catching system.
         elif top == 'error':
