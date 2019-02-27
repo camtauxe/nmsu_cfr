@@ -1,0 +1,1 @@
+function getOffsetRect(d){var g=d.getBoundingClientRect();var h=document.body;var b=document.documentElement;var a=window.pageYOffset||b.scrollTop||h.scrollTop;var e=window.pageXOffset||b.scrollLeft||h.scrollLeft;var f=b.clientTop||h.clientTop||0;var i=b.clientLeft||h.clientLeft||0;var j=g.top+a-f;var c=g.left+e-i;return{top:Math.round(j),left:Math.round(c)}};
