@@ -60,7 +60,17 @@ def application(environ, start_response):
         # For 'lorem' (or if no path was provided), build and send back
         # a lorem ipsum page
         if top == '/' or top == 'lorem':
-            page = page_builder.build_page_from_file("lorem_ipsum.html")
+            page = page_builder.build_page_from_file("index.html")
+            respond()
+            yield page_builder.soup_to_bytes(page)    
+
+        elif top == 'cfr' or top == '/cfr':
+            page = page_builder.build_page_from_file("cfr.html")
+            respond()
+            yield page_builder.soup_to_bytes(page)
+
+        elif top == 'salary_saving' or top == '/salary_saving':
+            page = page_builder.build_page_from_file("salary_saving.html")
             respond()
             yield page_builder.soup_to_bytes(page)
 

@@ -11,17 +11,41 @@
     <title>NMSU CFR</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="/static/css/main.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="/static/css/bootstrap-nmsu.min.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="/static/css/bootstrap-print.min.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="/static/css/nmsu.2.min.css" />
+
 </head>
 <body>
     <div id="pagecontainer">
-        <header id="pageheader">
+        <div id="pageheader">
+            <div class="nav navbar-nav navbar-right" style="padding-right: 50px; padding-left: 50px; padding-top: 10px"> 
+                <button onclick="location.href = 'lorem';" type="submit"class="btn btn-primary">Logout</button>
+            </div>
+            <img src="../static/images/logo-new.png">
             <h1>NMSU Course Funding Request Portal</h1>
-        </header>
-        <section id="pagecontent">
-        </section>
-        <footer id="pagefooter">
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+
+  </div>
+        </div>
+        <nav class="navbar1 navbar-main navbar-static-top" id="main-navigation" role="navigation">
+            <div class="container">
+                <div class="collapse navbar-collapse" id="main-navigation-options">
+                    <ul class="nav navbar-nav">
+                        <li><a href="cfr" onclick="ga('send', 'event', 'Home', 'Click', 'About NMSU');">Course Funding Request</a></li>
+                        <li><a href="salary_saving" onclick="ga('send', 'event', 'Home', 'Click', 'Admissions');">Sources of Salary Saving</a></li>
+                        <li><a href="academics.html" onclick="ga('send', 'event', 'Home', 'Click', 'Academics');">Current Semester Revisions</a></li>
+                        <li><a href="studentlife.html" onclick="ga('send', 'event', 'Home', 'Click', 'Student Life');">Previous Semester CFRs</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav> 
+        <div id="pagecontent">
+        </div>
+        <div id="pagefooter">
             <span>Copyright New Mexico State University &copy; 2019</span>
-        </footer>
+        </div>
     </div>
 </body>
 </html>
