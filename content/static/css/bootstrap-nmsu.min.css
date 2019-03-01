@@ -5005,7 +5005,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
 .navbar {
     position: relative;
     min-height: 50px;
-    margin-bottom: 22px;
+    margin-bottom: 0px;
     border: 1px solid transparent
 }
 
@@ -5024,7 +5024,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
 .navbar-collapse {
     overflow-x: visible;
     padding-right: 15px;
-    padding-left: 15px;
+    padding-left: 0px;
     border-top: 1px solid transparent;
     -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
