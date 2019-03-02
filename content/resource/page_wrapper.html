@@ -14,13 +14,13 @@
     <link rel="stylesheet" type="text/css" media="screen" href="/static/css/bootstrap-nmsu.min.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="/static/css/bootstrap-print.min.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="/static/css/nmsu.2.min.css" />
-
+    <link rel="shortcut icon" type="image/x-icon" href="static/images/favicon.ico">
 </head>
 <body>
     <div id="pagecontainer">
         <div id="pageheader">
             <div class="nav navbar-nav navbar-right" style="padding-right: 50px; padding-left: 50px; padding-top: 10px"> 
-                <button onclick="location.href = 'lorem';" type="submit"class="btn btn-primary">Logout</button>
+                <button onclick="location.href = '/';" type="submit"class="btn btn-primary">Logout &nbsp<img src="/static/images/logout.png" style="height: 15px; vertical-align: text-top;"></button>
             </div>
             <img src="../static/images/logo-new.png">
             <h1>NMSU Course Funding Request Portal</h1>
@@ -30,21 +30,19 @@
   </div>
         </div>
         <nav class="navbar1 navbar-main navbar-static-top" id="main-navigation" role="navigation">
-            <div class="container">
-                <div class="collapse navbar-collapse" id="main-navigation-options">
-                    <ul class="nav navbar-nav">
-                        <li><a href="cfr" onclick="ga('send', 'event', 'Home', 'Click', 'About NMSU');">Course Funding Request</a></li>
-                        <li><a href="salary_saving" onclick="ga('send', 'event', 'Home', 'Click', 'Admissions');">Sources of Salary Saving</a></li>
-                        <li><a href="academics.html" onclick="ga('send', 'event', 'Home', 'Click', 'Academics');">Current Semester Revisions</a></li>
-                        <li><a href="studentlife.html" onclick="ga('send', 'event', 'Home', 'Click', 'Student Life');">Previous Semester CFRs</a></li>
-                    </ul>
-                </div>
+            <div class="collapse navbar-collapse" id="main-navigation-options">
+                <ul class="nav navbar-nav" style="background-color: whitesmoke;">
+                    <li><a href="cfr" onclick="ga('send', 'event', 'Home', 'Click', 'About NMSU');">Course Funding Request</a></li>
+                    <li><a href="salary_saving" onclick="ga('send', 'event', 'Home', 'Click', 'Admissions');">Sources of Salary Saving</a></li>
+                    <li><a href="academics.html" onclick="ga('send', 'event', 'Home', 'Click', 'Academics');">Current Semester Revisions</a></li>
+                    <li><a href="studentlife.html" onclick="ga('send', 'event', 'Home', 'Click', 'Student Life');">Previous Semester CFRs</a></li>
+                </ul>
             </div>
         </nav> 
         <div id="pagecontent">
         </div>
         <div id="pagefooter">
-            <span>Copyright New Mexico State University &copy; 2019</span>
+            <span>&copy; 2019 New Mexico State University</span>
         </div>
     </div>
 </body>

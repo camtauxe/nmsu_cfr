@@ -420,7 +420,7 @@ body.fix-top-scroll #affix-side-nav ul.affix {
 
 #scroll-top.nav>li>a:active,
 #scroll-top.nav>li>a:hover {
-    background-color: #ebebeb
+    background-color: #6a1b36
 }
 
 #scroll-top a,
@@ -503,7 +503,7 @@ body>footer {
 }
 
 .bg-grey .nav>li>a:hover {
-    background-color: #d7d7d7
+    background-color: #6a1b36
 }
 
 body {

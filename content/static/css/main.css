@@ -29,6 +29,7 @@ h1 {
     min-height: 100vh;
     position: relative;
     overflow: hidden;
+    background: #efefef;
 }
 
 /**
@@ -59,7 +60,7 @@ h1 {
     padding: 5px;
     color: black;
     /* NOTE: If you change this, change #pagefooter height too!!! */
-    padding-bottom: 20px;
+    padding-bottom: 50px;
 }
 
 /**
@@ -74,7 +75,7 @@ h1 {
     /* NOTE: If you change this, change #pagecontent padding-bottom too!!! */
     height: 40px;
 
-    background: #222222;
+    background: #882345;
     color: whitesmoke;
-    padding: 10px 3px;
+    padding: 10px 10px;
 }
