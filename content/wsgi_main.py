@@ -74,6 +74,16 @@ def application(environ, start_response):
             respond()
             yield page_builder.soup_to_bytes(page)
 
+        elif top == 'revisions' or top == '/revisions':
+            page = page_builder.build_page_from_file("revisions.html")
+            respond()
+            yield page_builder.soup_to_bytes(page)
+
+        elif top == 'previous_semesters' or top == '/previous_semesters':
+            page = page_builder.build_page_from_file("previous_semesters.html")
+            respond()
+            yield page_builder.soup_to_bytes(page)
+
         # For 'db_info' return a JSON describing the database
         elif top == 'db_info':
             respond(mime = "text/json; charset=utf-8")
