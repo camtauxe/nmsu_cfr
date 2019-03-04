@@ -8,6 +8,7 @@ from utils import page_builder
 from utils import sql_connection
 from utils import error_handling
 from utils import sql_utils
+from utils import cfrenv
 
 def application(environ, start_response):
     """
@@ -25,7 +26,6 @@ def application(environ, start_response):
     Please see the WSGI standard for more information:
     https://www.python.org/dev/peps/pep-3333/
     """
-
     def respond(
         status: str     = "200 OK",
         mime: str       = "text/html; charset=utf-8",
@@ -43,6 +43,8 @@ def application(environ, start_response):
         '200 OK' and 'text/html' respectively.
         """
         start_response(status, [('Content-Type',mime)]+list(additional_headers))
+
+    cfrenv.init_environ(environ)
 
     # Most of the execution is wrapped in a try/catch. If an exception
     # is thrown, it will be caught and passed to the error handler

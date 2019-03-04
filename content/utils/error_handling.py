@@ -6,8 +6,9 @@ Can build pages to display information about HTTP errors.
 import os
 import traceback
 from datetime import datetime
-from . import page_builder as builder
 from bs4 import BeautifulSoup
+from . import page_builder as builder
+from . import cfrenv
 
 def build_500_error_page(exception) -> BeautifulSoup:
     """
@@ -20,7 +21,7 @@ def build_500_error_page(exception) -> BeautifulSoup:
     """
     page = builder.build_page_from_file("500.html")
 
-    if os.environ.get('DEBUG') != 'yes':
+    if cfrenv.getenv('DEBUG') != 'yes':
         page.find(id="debugonly").extract()
     else:
         builder.insert_at_id(page, "datetime", str(datetime.now()), raw_text=True)

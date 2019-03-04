@@ -4,6 +4,7 @@ Functions to manage the connection to the MySQL server
 import os
 import mysql.connector as conn
 from typing import List
+from . import cfrenv
 
 # Global variable for the MySQL Connection.
 _connection: conn.MySQLConnection = None
@@ -19,10 +20,10 @@ def connect():
     global _connection, _tablenames
     if _connection is None:
         _connection = conn.connect(
-            user        = os.getenv('DB_USER'),
-            passwd      = os.getenv('DB_PASS'),
-            host        = os.getenv('DB_HOST'),
-            database    = os.getenv('DB_DATABASE')
+            user        = cfrenv.getenv('DB_USER'),
+            passwd      = cfrenv.getenv('DB_PASS'),
+            host        = cfrenv.getenv('DB_HOST'),
+            database    = cfrenv.getenv('DB_DATABASE')
         )
         # Get tablenames
         cursor = _connection.cursor()
