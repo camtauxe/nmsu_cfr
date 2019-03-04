@@ -44,6 +44,7 @@ def application(environ, start_response):
         """
         start_response(status, [('Content-Type',mime)]+list(additional_headers))
 
+    # Initialize the CFR environment
     cfrenv.init_environ(environ)
 
     # Most of the execution is wrapped in a try/catch. If an exception

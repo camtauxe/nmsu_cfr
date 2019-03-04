@@ -30,11 +30,24 @@ import os
 environ = {}
 
 def _init_var(varname: str, wsgi_environ: dict):
+    """
+    Initialize a variable with the given name.
+
+    The initialized values will look first to the OS environ for variables and use
+    the WSGI environ if a variable is not defined there. If a variable
+    is not defined in either, it will have a value of None.
+    """
     environ[varname] = os.getenv(varname)
     if environ[varname] is None and varname in wsgi_environ:
         environ[varname] = wsgi_environ[varname]
 
 def init_environ(wsgi_environ: dict):
+    """
+    Initialize the variables in the CFR environment.
+
+    After initialization, every value is gaurenteed to exist 
+    but may have a value of None.
+    """
     _init_var('DB_HOST',        wsgi_environ)
     _init_var('DB_USER',        wsgi_environ)
     _init_var('DB_PASS',        wsgi_environ)
@@ -43,6 +56,10 @@ def init_environ(wsgi_environ: dict):
     _init_var('DEBUG',          wsgi_environ)
 
 def getenv(varname):
+    """
+    Get the value for the variable with the given name from
+    the CFR environment, or None if the variable does not exist.
+    """
     if varname in environ:
         return environ[varname]
     else:
