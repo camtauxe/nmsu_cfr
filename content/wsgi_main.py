@@ -3,11 +3,13 @@ import os
 import traceback
 import mysql.connector
 import json
+from urllib.parse import parse_qs
 from pathlib import PurePath
 from utils import page_builder
 from utils import sql_connection
 from utils import error_handling
 from utils import sql_utils
+from utils import authentication
 
 def application(environ, start_response):
     """
@@ -57,12 +59,29 @@ def application(environ, start_response):
         else:
             top = path.parts[1]
 
-        # For 'lorem' (or if no path was provided), build and send back
-        # a lorem ipsum page
-        if top == '/' or top == 'lorem':
-            page = page_builder.build_page_from_file("index.html")
+        # If no path was provided, check if the user is logged in
+        # (with a cookie) and send back a home page if they are.
+        # If not, send back the login page
+        if top == '/':
+            page = page_builder.build_page_from_file("login.html")
             respond()
-            yield page_builder.soup_to_bytes(page)    
+            yield page_builder.soup_to_bytes(page)
+
+        # For 'login' use the provided URL parameters to authenticate the
+        # user. If successful send back a home page with a set-cookie
+        # header to log the user in. If unsuccessful, send back the
+        # login page
+        elif top == 'login':
+            if 'QUERY_STRING' in environ:
+                query = parse_qs(environ['environ'])
+                if 'username' in query:
+                    user = authentication.authenticate(query['username'])
+
+        # For 'lorem' build and send back a lorem ipsum page
+        elif top == 'lorem':
+            page = page_builder.build_page_from_file("lorem.html")
+            respond()
+            yield page_builder.soup_to_bytes(page)
 
         elif top == 'cfr' or top == '/cfr':
             page = page_builder.build_page_from_file("cfr.html")
