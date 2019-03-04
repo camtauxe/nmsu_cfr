@@ -46,6 +46,12 @@ def application(environ, start_response):
 
     # Initialize the CFR environment
     cfrenv.init_environ(environ)
+    # If the environment is not configured correctly. Respond
+    # with an error page immediately.
+    if not cfrenv.verify_environ():
+        respond(status="500 Internal Server Error")
+        error_page = page_builder.build_page_from_file('config_error.html')
+        yield page_builder.soup_to_bytes(error_page)
 
     # Most of the execution is wrapped in a try/catch. If an exception
     # is thrown, it will be caught and passed to the error handler

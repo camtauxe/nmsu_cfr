@@ -64,3 +64,18 @@ def getenv(varname):
         return environ[varname]
     else:
         return None
+
+def verify_environ() -> bool:
+    """
+    Verify that all required environment variables are present
+    and not None.
+    """
+    valid = True
+    
+    valid = valid and environ['DB_HOST'] is not None
+    valid = valid and environ['DB_USER'] is not None
+    valid = valid and environ['DB_PASS'] is not None
+    valid = valid and environ['DB_DATABASE'] is not None
+
+    return valid
+
