@@ -64,7 +64,7 @@ def simulate_request(url) -> ResponseSummary:
     environ['SCRIPT_NAME']      = wsgi_main.__file__
     query_index = url.find('?')
     if query_index != -1:
-        environ['QUERY_STRING']     = url[query_index:]
+        environ['QUERY_STRING']     = url[query_index+1:]
     environ['SERVER_NAME']      = 'localhost'
     environ['SERVER_PORT']      = 80
     environ['SERVER_PROTOCOL']  = 'HTTP/1.0'
