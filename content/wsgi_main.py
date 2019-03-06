@@ -31,7 +31,7 @@ def application(environ, start_response):
     def respond(
         status: str     = "200 OK",
         mime: str       = "text/html; charset=utf-8",
-        *additional_headers
+        additional_headers: list = []
     ):
         """
         Call start_response with the given status, and content-type
@@ -44,7 +44,7 @@ def application(environ, start_response):
         If no status or MIME Type is provided, they will default to
         '200 OK' and 'text/html' respectively.
         """
-        start_response(status, [('Content-Type',mime)]+list(additional_headers))
+        start_response(status, [('Content-Type',mime)]+additional_headers)
 
     # Most of the execution is wrapped in a try/catch. If an exception
     # is thrown, it will be caught and passed to the error handler
@@ -53,7 +53,7 @@ def application(environ, start_response):
         # Get the top part of the path supplied in the request's URL.
         # If no path was given, this will simply be '/'.
         # This will be used to determine what function the server does
-        path = PurePath(environ.get('PATH_INFO'))
+        path = PurePath(environ.get('PATH_INFO').split('?')[0])
         if len(path.parts) < 2:
             top = '/'
         else:
@@ -72,16 +72,20 @@ def application(environ, start_response):
         # header to log the user in. If unsuccessful, send back the
         # login page
         elif top == 'login':
+            logged_in = False
             if 'QUERY_STRING' in environ:
-                query = parse_qs(environ['environ'])
+                query = parse_qs(environ['QUERY_STRING'])
                 if 'username' in query:
-                    user = authentication.authenticate(query['username'])
-
-        # For 'lorem' build and send back a lorem ipsum page
-        elif top == 'lorem':
-            page = page_builder.build_page_from_file("lorem.html")
-            respond()
-            yield page_builder.soup_to_bytes(page)
+                    user = authentication.authenticate(query['username'][0])
+                    if user is not None:
+                        respond(
+                            additional_headers = [('Set-Cookie','username='+user['username'])]
+                        )
+                        page = page_builder.build_page_from_file("cfr.html")
+                        logged_in = True
+                        yield page_builder.soup_to_bytes(page)
+            if not logged_in:
+                raise RuntimeError("Could not log in!!")
 
         elif top == 'cfr' or top == '/cfr':
             page = page_builder.build_page_from_file("cfr.html")

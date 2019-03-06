@@ -4,7 +4,7 @@ Functions related to authenticating a user
 from . import sql_connection as sql
 
 
-def authenticate(username):
+def authenticate(username) -> dict:
     """
     Authenticate with the given credintials and returns a dictionary
     of user information if successful, otherwise returns None
