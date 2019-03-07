@@ -10,10 +10,16 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-
     font-family: 'Open Sans', 'Helvetica', 'Sans'; /* Official NMSU typefaces*/
-    background: whitesmoke;
 }
+
+h1 {
+    align-self: center;
+    text-align: center;
+    padding-top: 20px; 
+    padding-bottom: 20px
+}
+
 
 /**
  * The pagecontainer fills the entire page and contains
@@ -23,6 +29,7 @@ html, body {
     min-height: 100vh;
     position: relative;
     overflow: hidden;
+    background: #efefef;
 }
 
 /**
@@ -31,11 +38,13 @@ html, body {
 #pageheader {
     background: #882345; /* Official NMSU Crimson */
     color: whitesmoke;
-    padding: 10px 4px;
+    padding: 10px 10px;
+   /* text-align: center;*/
 }
 
 #pageheader h1 {
     margin: initial;
+    text-align: center;
 }
 
 /**
@@ -49,9 +58,9 @@ html, body {
     max-width: 9in;
     margin: 0 auto 0 auto;
     padding: 5px;
-
+    color: black;
     /* NOTE: If you change this, change #pagefooter height too!!! */
-    padding-bottom: 20px;
+    padding-bottom: 50px;
 }
 
 /**
@@ -64,9 +73,9 @@ html, body {
     width: 100%;
     bottom: 0;
     /* NOTE: If you change this, change #pagecontent padding-bottom too!!! */
-    height: 20px;
+    height: 40px;
 
-    background: #222222;
+    background: #882345;
     color: whitesmoke;
-    padding: 10px 3px;
+    padding: 10px 10px;
 }
