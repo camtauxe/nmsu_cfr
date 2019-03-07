@@ -10,6 +10,7 @@ from utils import sql_connection
 from utils import error_handling
 from utils import sql_utils
 from utils import authentication
+from utils import home_page
 
 def application(environ, start_response):
     """
@@ -63,9 +64,18 @@ def application(environ, start_response):
         # (with a cookie) and send back a home page if they are.
         # If not, send back the login page
         if top == '/':
-            page = page_builder.build_page_from_file("login.html")
-            respond()
-            yield page_builder.soup_to_bytes(page)
+            logged_in = False
+            if 'HTTP_COOKIE' in environ:
+                user = authentication.authenticate_from_cookie(environ['HTTP_COOKIE'])
+                if user is not None:
+                    logged_in = True
+                    page = home_page.build_home_page(user)
+                    respond()
+                    yield page_builder.soup_to_bytes(page)
+            if not logged_in:
+                page = page_builder.build_page_from_file("login.html")
+                respond()
+                yield page_builder.soup_to_bytes(page)
 
         # For 'login' use the provided URL parameters to authenticate the
         # user. If successful send back a home page with a set-cookie
@@ -79,13 +89,17 @@ def application(environ, start_response):
                     user = authentication.authenticate(query['username'][0])
                     if user is not None:
                         respond(
-                            additional_headers = [('Set-Cookie','username='+user['username'])]
+                            additional_headers = [('Set-Cookie',authentication.create_cookie(user))]
                         )
-                        page = page_builder.build_page_from_file("cfr.html")
+                        page = home_page.build_home_page(user)
                         logged_in = True
                         yield page_builder.soup_to_bytes(page)
             if not logged_in:
-                raise RuntimeError("Could not log in!!")
+                respond(
+                    additional_headers = [('Set-Cookie',authentication.clear_cookie())]
+                )
+                page = page_builder.build_page_from_file("login.html")
+                yield page_builder.soup_to_bytes(page)
 
         elif top == 'cfr' or top == '/cfr':
             page = page_builder.build_page_from_file("cfr.html")
