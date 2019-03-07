@@ -11,6 +11,7 @@ from utils import error_handling
 from utils import sql_utils
 from utils import authentication
 from utils import home_page
+from utils import cfrenv
 
 def application(environ, start_response):
     """
@@ -28,7 +29,6 @@ def application(environ, start_response):
     Please see the WSGI standard for more information:
     https://www.python.org/dev/peps/pep-3333/
     """
-
     def respond(
         status: str     = "200 OK",
         mime: str       = "text/html; charset=utf-8",
@@ -46,6 +46,15 @@ def application(environ, start_response):
         '200 OK' and 'text/html' respectively.
         """
         start_response(status, [('Content-Type',mime)]+additional_headers)
+
+    # Initialize the CFR environment
+    cfrenv.init_environ(environ)
+    # If the environment is not configured correctly. Respond
+    # with an error page immediately.
+    if not cfrenv.verify_environ():
+        respond(status="500 Internal Server Error")
+        error_page = page_builder.build_page_from_file('config_error.html')
+        yield page_builder.soup_to_bytes(error_page)
 
     # Most of the execution is wrapped in a try/catch. If an exception
     # is thrown, it will be caught and passed to the error handler
