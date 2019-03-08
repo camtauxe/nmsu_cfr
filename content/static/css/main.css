@@ -79,3 +79,49 @@ h1 {
     color: whitesmoke;
     padding: 10px 10px;
 }
+
+/***************
+ * BOOTSTRAP OVERRIDES
+****************/
+
+.navbar {
+    margin-bottom: 0px
+}
+
+.nav>li>a:hover,
+.nav>li>a:focus {
+    background-color: #6a1b36;
+    color: white;
+}
+
+.pager li>a:hover,
+.pager li>a:focus {
+    background-color: #ebebeb;
+}
+
+.pagination>li>a:hover,
+.pagination>li>span:hover,
+.pagination>li>a:focus,
+.pagination>li>span:focus {
+    background-color: #4b1326;
+}
+
+.list-group-item.active,
+.list-group-item.active:hover,
+.list-group-item.active:focus {
+    background-color: #ebebeb;
+}
+
+td,
+th {
+    padding: 2
+}
+
+#scroll-top.nav>li>a:active,
+#scroll-top.nav>li>a:hover {
+    background-color: #6a1b36
+}
+
+.bg-grey .nav>li>a:hover {
+    background-color: #6a1b36
+}
