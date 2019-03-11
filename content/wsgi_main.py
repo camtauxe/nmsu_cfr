@@ -47,6 +47,98 @@ def application(environ, start_response):
         """
         start_response(status, [('Content-Type',mime)]+additional_headers)
 
+    ###########################################
+    # RESPONSE HANDLERS
+    #   Each function should respond to a particular request and return
+    #   a byte seqence to return. (Each one should also call respond() at
+    #   some point)
+    ############################################
+
+    # If no path was provided, check if the user is logged in
+    # (with a cookie) and send back a home page if they are.
+    # If not, send back the login page
+    def handle_root():
+        logged_in = False
+        if 'HTTP_COOKIE' in environ:
+            user = authentication.authenticate_from_cookie(environ['HTTP_COOKIE'])
+            if user is not None:
+                logged_in = True
+                page = home_page.build_home_page(user)
+                respond()
+                return page_builder.soup_to_bytes(page)
+        if not logged_in:
+            page = page_builder.build_page_from_file("login.html")
+            respond()
+            return page_builder.soup_to_bytes(page)
+
+    # For 'login' use the provided URL parameters to authenticate the
+    # user. If successful send back a home page with a set-cookie
+    # header to log the user in. If unsuccessful, send back the
+    # login page
+    def handle_login():
+        logged_in = False
+        if 'QUERY_STRING' in environ:
+            query = parse_qs(environ['QUERY_STRING'])
+            if 'username' in query:
+                user = authentication.authenticate(query['username'][0])
+                if user is not None:
+                    respond(
+                        additional_headers = [('Set-Cookie',authentication.create_cookie(user))]
+                    )
+                    page = home_page.build_home_page(user)
+                    logged_in = True
+                    return page_builder.soup_to_bytes(page)
+        if not logged_in:
+            respond(
+                additional_headers = [('Set-Cookie',authentication.clear_cookie())]
+            )
+            page = page_builder.build_page_from_file("login.html")
+            return page_builder.soup_to_bytes(page)
+
+    def handle_cfr():
+        page = page_builder.build_page_from_file("cfr.html")
+        respond()
+        return page_builder.soup_to_bytes(page)
+
+    def handle_salary_saving():
+        page = page_builder.build_page_from_file("salary_saving.html")
+        respond()
+        return page_builder.soup_to_bytes(page)
+
+    def handle_previous_semesters():
+        page = page_builder.build_page_from_file("previous_semesters.html")
+        respond()
+        return page_builder.soup_to_bytes(page)
+
+    def handle_revisions():
+        page = page_builder.build_page_from_file("revisions.html")
+        respond()
+        return page_builder.soup_to_bytes(page)
+
+    # For 'db_info' return a JSON describing the database
+    def handle_db_info():
+        respond(mime = "text/json; charset=utf-8")
+        info = sql_utils.get_database_info()
+        return json.dumps(info, indent=4).encode('utf-8')
+
+    # For 'error' throw an error to test the the error-catching system.
+    def handle_error():
+        raise RuntimeError(
+            "This was supposed to happen because you selected 'error'"
+        )
+
+    # Register handlers into a dictionary
+    handlers = {
+        '/':                    handle_root,
+        'login':                handle_login,
+        'cfr':                  handle_cfr,
+        'salary_saving':        handle_salary_saving,
+        'previous_semesters':   handle_previous_semesters,
+        'revisions':            handle_revisions,
+        'db_info':              handle_db_info,
+        'error':                handle_error
+    }
+
     # Initialize the CFR environment
     cfrenv.init_environ(environ)
     # If the environment is not configured correctly. Respond
@@ -54,7 +146,7 @@ def application(environ, start_response):
     if not cfrenv.verify_environ():
         respond(status="500 Internal Server Error")
         error_page = page_builder.build_page_from_file('config_error.html')
-        yield page_builder.soup_to_bytes(error_page)
+        return page_builder.soup_to_bytes(error_page)
 
     # Most of the execution is wrapped in a try/catch. If an exception
     # is thrown, it will be caught and passed to the error handler
@@ -69,79 +161,8 @@ def application(environ, start_response):
         else:
             top = path.parts[1]
 
-        # If no path was provided, check if the user is logged in
-        # (with a cookie) and send back a home page if they are.
-        # If not, send back the login page
-        if top == '/':
-            logged_in = False
-            if 'HTTP_COOKIE' in environ:
-                user = authentication.authenticate_from_cookie(environ['HTTP_COOKIE'])
-                if user is not None:
-                    logged_in = True
-                    page = home_page.build_home_page(user)
-                    respond()
-                    yield page_builder.soup_to_bytes(page)
-            if not logged_in:
-                page = page_builder.build_page_from_file("login.html")
-                respond()
-                yield page_builder.soup_to_bytes(page)
-
-        # For 'login' use the provided URL parameters to authenticate the
-        # user. If successful send back a home page with a set-cookie
-        # header to log the user in. If unsuccessful, send back the
-        # login page
-        elif top == 'login':
-            logged_in = False
-            if 'QUERY_STRING' in environ:
-                query = parse_qs(environ['QUERY_STRING'])
-                if 'username' in query:
-                    user = authentication.authenticate(query['username'][0])
-                    if user is not None:
-                        respond(
-                            additional_headers = [('Set-Cookie',authentication.create_cookie(user))]
-                        )
-                        page = home_page.build_home_page(user)
-                        logged_in = True
-                        yield page_builder.soup_to_bytes(page)
-            if not logged_in:
-                respond(
-                    additional_headers = [('Set-Cookie',authentication.clear_cookie())]
-                )
-                page = page_builder.build_page_from_file("login.html")
-                yield page_builder.soup_to_bytes(page)
-
-        elif top == 'cfr' or top == '/cfr':
-            page = page_builder.build_page_from_file("cfr.html")
-            respond()
-            yield page_builder.soup_to_bytes(page)
-
-        elif top == 'salary_saving' or top == '/salary_saving':
-            page = page_builder.build_page_from_file("salary_saving.html")
-            respond()
-            yield page_builder.soup_to_bytes(page)
-
-        elif top == 'revisions' or top == '/revisions':
-            page = page_builder.build_page_from_file("revisions.html")
-            respond()
-            yield page_builder.soup_to_bytes(page)
-
-        elif top == 'previous_semesters' or top == '/previous_semesters':
-            page = page_builder.build_page_from_file("previous_semesters.html")
-            respond()
-            yield page_builder.soup_to_bytes(page)
-
-        # For 'db_info' return a JSON describing the database
-        elif top == 'db_info':
-            respond(mime = "text/json; charset=utf-8")
-            info = sql_utils.get_database_info()
-            yield json.dumps(info, indent=4).encode('utf-8')
-
-        # For 'error' throw an error to test the the error-catching system.
-        elif top == 'error':
-            raise RuntimeError(
-                "This was supposed to happen because you selected 'error'"
-            )
-
+        if top in handlers:
+            yield handlers[top]()
         # If the top part of the path was not recognized, send back
         # a 404 page.
         else:
