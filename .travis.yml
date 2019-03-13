@@ -1,6 +1,9 @@
+language: python
+
 services:
   - docker
 
 script:
+  - "cp cfr.env.example cfr.env"
   - "docker-compose up -d --build"
   - "[[ $(curl -s -o /dev/null -w '%{http_code}' localhost) == 200 ]]"
