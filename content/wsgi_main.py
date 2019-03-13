@@ -79,19 +79,20 @@ def application(environ, start_response):
         logged_in = False
         if 'QUERY_STRING' in environ:
             query = parse_qs(environ['QUERY_STRING'])
-            if 'username' in query:
-                user = authentication.authenticate(query['username'][0])
+            if 'username' in query and 'password' in query:
+                username = query['username'][0]
+                password = query['password'][0]
+                user = authentication.authenticate(username,password)
                 if user is not None:
-                    respond(
-                        additional_headers = [('Set-Cookie',authentication.create_cookie(user))]
-                    )
+                    cookies = [('Set-Cookie',c) for c in authentication.create_cookies(user)]
+                    respond(additional_headers = cookies)
+
                     page = home_page.build_home_page(user)
                     logged_in = True
                     return page_builder.soup_to_bytes(page)
         if not logged_in:
-            respond(
-                additional_headers = [('Set-Cookie',authentication.clear_cookie())]
-            )
+            cookies = [('Set-Cookie', c) for c in authentication.clear_cookies()]
+            respond(additional_headers = cookies)
             page = page_builder.build_page_from_file("login.html")
             return page_builder.soup_to_bytes(page)
 

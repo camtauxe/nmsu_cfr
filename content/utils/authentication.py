@@ -26,20 +26,23 @@ class User:
         returned by a query to the user table in the database
         """
         self.username   = user_dict['username']
-        self.role       = UserRole[user_dict['role']]
+        self.role       = UserRole[user_dict['type'].upper()]
+        self.password   = user_dict['usr_password']
 
-def authenticate(username) -> User:
+def authenticate(username, password) -> User:
     """
     Authenticate with the given credintials and returns an instance
     of User if successful, otherwise returns None
 
-    Right now, this literally only checks that the given username is
-    in the users table. This is just for testing purposes and will later
-    have to be imlpemented with passwords and actual security stuff
+    Right now, this uses plaintext passwords in the database, and
+    will be expanded to be more secure later.
     """
 
     cursor = sql.new_cursor(dictionary=True)
-    cursor.execute('SELECT username, role FROM user WHERE username = %s', (username,))
+    cursor.execute(
+        'SELECT username, type, usr_password FROM user WHERE username = %s AND usr_password = %s',
+        (username, password)
+    )
 
     result = cursor.fetchone()
 
@@ -58,20 +61,31 @@ def authenticate_from_cookie(cookies_header: str) -> User:
     cookie = cookies.SimpleCookie()
     cookie.load(cookies_header)
     username = cookie['username'].value
-    return authenticate(username)
+    password = cookie['password'].value
+    return authenticate(username, password)
 
-def create_cookie(user: User) -> str:
+def create_cookies(user: User) -> str:
     """
-    Create a cookie that will set the logged-in user to the given user.
-    Cookie is set to expire in one day. The returned string is the
-    content of the "Set-Cookie" header in the response.
-    """
-    return "username={}; Max-Age={}".format(user.username, SECONDS_PER_DAY)
+    Returns a list of cookies used to store the user's login credintials.
+    The cookies are set to expire in one day.
 
-def clear_cookie() -> str:
+    The returned cookies are in the form of a list where each element
+    is the content of a 'Set-Cookie' header in the response.
     """
-    Create a cookie that will clear the logged in user (By setting to a blank
-    value with an max-age of zero seconds). The returned string is the
-    content of the "Set-Cookie" header in the response.
+    return [
+        "username={}; Max-Age={}".format(user.username, SECONDS_PER_DAY),
+        "password={}; Max-Age={}".format(user.password, SECONDS_PER_DAY)
+    ]
+
+def clear_cookies() -> str:
     """
-    return "username=; Max-Age=0"
+    Creates a set of cookies to clear the user's creditinals. This is done
+    by creating cookies with an empty value and a maximum age of 0.
+
+    The returned cookies are in the form of a list where each element
+    is the content of a 'Set-Cookie' header in the response.
+    """
+    return [
+        "username=; Max-Age=0",
+        "password=; Max-Age=0"
+    ]
