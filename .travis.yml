@@ -2,5 +2,5 @@ services:
   - docker
 
 script:
-  - docker-compose up -d --build
-  - [[ $(curl -s -o /dev/null -w "%{http_code}" localhost) == 200 ]]
+  - "docker-compose up -d --build"
+  - "[[ $(curl -s -o /dev/null -w '%{http_code}' localhost) == 200 ]]"
