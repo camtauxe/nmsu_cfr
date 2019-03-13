@@ -64,6 +64,16 @@ create table sal_savings
        references cfr_department(dept_name, semester, cal_year, revision_num)
    );
 
+create table dummy_data 
+   (
+      name     varchar(24),
+      value1   int,
+      value2   int,
+      value3   int,
+
+      primary key (name)
+   );
+
 
 
 
