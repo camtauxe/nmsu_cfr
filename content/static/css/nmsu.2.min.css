@@ -748,11 +748,13 @@ a.inverted:hover {
     }
 }
 
+
 .striped>tbody>tr:nth-of-type(odd),
 .zebra-table>tbody>tr:nth-of-type(odd),
-.zebra-table>tr:nth-of-type(odd) {
+.zebra-table>tr:nth-of-type(odd){
     background-color: #f9f9f9
 }
+
 
 .info,
 .success,

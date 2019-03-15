@@ -20,7 +20,9 @@ h1 {
     padding-bottom: 20px
 }
 
-
+tbody tr:hover {
+    color: #882345;
+}
 /**
  * The pagecontainer fills the entire page and contains
  * the header, content and footer
