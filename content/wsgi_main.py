@@ -122,6 +122,12 @@ def application(environ, start_response):
         info = sql_utils.get_database_info()
         return json.dumps(info, indent=4).encode('utf-8')
 
+    # For 'echo' send the request body back as plain text
+    def handle_echo():
+        respond(mime = "text/plain; charset=utf-8")
+        text = environ['wsgi.input'].read()
+        return text.encode('utf-8')
+
     # For 'error' throw an error to test the the error-catching system.
     def handle_error():
         raise RuntimeError(
@@ -137,6 +143,7 @@ def application(environ, start_response):
         'previous_semesters':   handle_previous_semesters,
         'revisions':            handle_revisions,
         'db_info':              handle_db_info,
+        'echo':                 handle_echo,
         'error':                handle_error
     }
 
