@@ -1,6 +1,7 @@
 """
 Functions related to authenticating a user
 """
+import hashlib
 import http.cookies as cookies
 from . import sql_connection as sql
 from enum import Enum, auto
@@ -20,14 +21,15 @@ class User:
     """
     Class representing an authenticated user
     """
-    def __init__(self, user_dict: dict):
+    def __init__(self, user_tup: tuple, password):
         """
-        Initialize a User. user_dict is a dictionary 
-        returned by a query to the user table in the database
+        Initialize a User. user_tup is the tuple
+        (OF RAW DATA) returned by the MySQL cursor.
         """
-        self.username   = user_dict['username']
-        self.role       = UserRole[user_dict['type'].upper()]
-        self.password   = user_dict['usr_password']
+        self.username   = user_tup[0].decode('utf-8')
+        self.role       = UserRole[user_tup[1].decode('utf-8').upper()]
+        self.password_hash   = user_tup[2]
+        self.password   = password
 
 def authenticate(username, password) -> User:
     """
@@ -37,11 +39,12 @@ def authenticate(username, password) -> User:
     Right now, this uses plaintext passwords in the database, and
     will be expanded to be more secure later.
     """
+    hash = hashlib.md5(password.encode('utf-8'))
 
-    cursor = sql.new_cursor(dictionary=True)
+    cursor = sql.new_cursor(raw=True)
     cursor.execute(
         'SELECT username, type, usr_password FROM user WHERE username = %s AND usr_password = %s',
-        (username, password)
+        (username, hash.digest())
     )
 
     result = cursor.fetchone()
@@ -49,7 +52,7 @@ def authenticate(username, password) -> User:
     if result is None:
         return None
     else:
-        return User(result)
+        return User(result, password)
 
 def authenticate_from_cookie(cookies_header: str) -> User:
     """
