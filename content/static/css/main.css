@@ -20,9 +20,6 @@ h1 {
     padding-bottom: 20px
 }
 
-tbody tr:hover {
-    color: #882345;
-}
 
 tbody td:hover {
     text-decoration: underline;
