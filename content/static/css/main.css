@@ -23,6 +23,10 @@ h1 {
 tbody tr:hover {
     color: #882345;
 }
+
+tbody td:hover {
+    text-decoration: underline;
+}
 /**
  * The pagecontainer fills the entire page and contains
  * the header, content and footer
