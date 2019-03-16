@@ -36,10 +36,11 @@ def authenticate(username, password) -> User:
     Authenticate with the given credintials and returns an instance
     of User if successful, otherwise returns None
 
-    Right now, this uses plaintext passwords in the database, and
-    will be expanded to be more secure later.
+    Passwords are currently compared with hash values in the
+    database. Passwords are hashed using SHA3 (512-bit output)
+    which is FIPS PUB 202 certified.
     """
-    hash = hashlib.md5(password.encode('utf-8'))
+    hash = hashlib.sha3_512(password.encode('utf-8'))
 
     cursor = sql.new_cursor(raw=True)
     cursor.execute(
