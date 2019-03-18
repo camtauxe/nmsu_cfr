@@ -40,12 +40,11 @@ def authenticate(username, password) -> User:
     database. Passwords are hashed using SHA3 (512-bit output)
     which is FIPS PUB 202 certified.
     """
-    hash = hashlib.sha3_512(password.encode('utf-8'))
 
     cursor = sql.new_cursor(raw=True)
     cursor.execute(
         'SELECT username, type, usr_password FROM user WHERE username = %s AND usr_password = %s',
-        (username, hash.digest())
+        (username, hash_password(password))
     )
 
     result = cursor.fetchone()
@@ -67,6 +66,14 @@ def authenticate_from_cookie(cookies_header: str) -> User:
     username = cookie['username'].value
     password = cookie['password'].value
     return authenticate(username, password)
+
+def hash_password(plaintext: str) -> bytes:
+    """
+    Hash the given plaintext password and return
+    the digest as bytes
+    """
+    hash = hashlib.sha3_512(plaintext.encode('utf-8'))
+    return hash.digest()
 
 def create_cookies(user: User) -> str:
     """

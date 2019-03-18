@@ -131,7 +131,6 @@ def application(environ, start_response):
 
     #For 'new_user' create a new user
     def handle_new_user():
-        
         if 'QUERY_STRING' in environ:
             query = parse_qs(environ['QUERY_STRING'])
             if 'username' in query and 'password' in query and 'id' in query and 'usr_role' in query:
@@ -140,9 +139,8 @@ def application(environ, start_response):
                 banner_id = query['id'][0]
                 user_role = query['usr_role'][0]
                 rows_inserted = create_user.create_user(username, password, banner_id, user_role)
-                return_val = "%s row(s) inserted" % (rows_inserted)
-                respond()
-                return return_val.encode('utf-8')
+                respond(mime = 'text/plain')
+                return f"{rows_inserted} user(s) inserted.".encode('utf-8')
 
     # Register handlers into a dictionary
     handlers = {
