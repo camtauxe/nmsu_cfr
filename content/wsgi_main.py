@@ -12,6 +12,7 @@ from utils import sql_utils
 from utils import authentication
 from utils import home_page
 from utils import cfrenv
+from utils import create_user
 
 def application(environ, start_response):
     """
@@ -134,6 +135,19 @@ def application(environ, start_response):
             "This was supposed to happen because you selected 'error'"
         )
 
+    #For 'new_user' create a new user
+    def handle_new_user():
+        if 'QUERY_STRING' in environ:
+            query = parse_qs(environ['QUERY_STRING'])
+            if 'username' in query and 'password' in query and 'id' in query and 'usr_role' in query:
+                username = query['username'][0]
+                password = query['password'][0]
+                banner_id = query['id'][0]
+                user_role = query['usr_role'][0]
+                rows_inserted = create_user.create_user(username, password, banner_id, user_role)
+                respond(mime = 'text/plain')
+                return f"{rows_inserted} user(s) inserted.".encode('utf-8')
+
     # Register handlers into a dictionary
     handlers = {
         '/':                    handle_root,
@@ -144,7 +158,8 @@ def application(environ, start_response):
         'revisions':            handle_revisions,
         'db_info':              handle_db_info,
         'echo':                 handle_echo,
-        'error':                handle_error
+        'error':                handle_error,
+        'new_user':             handle_new_user
     }
 
     # Initialize the CFR environment

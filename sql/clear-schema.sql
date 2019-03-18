@@ -1,10 +1,10 @@
 set foreign_key_checks = 0;
 
-drop table user;
-drop table submitter;
-drop table cfr_department;
-drop table request;
-drop table sal_savings;
-drop table dummy_data;
+DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS submitter;
+DROP TABLE IF EXISTS cfr_department;
+DROP TABLE IF EXISTS request;
+DROP TABLE IF EXISTS sal_savings;
+DROP TABLE IF EXISTS dummy_data;
 
 set foreign_key_checks = 1;
