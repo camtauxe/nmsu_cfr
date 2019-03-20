@@ -13,6 +13,8 @@ from utils import authentication
 from utils import home_page
 from utils import cfrenv
 from utils import create_user
+from utils import request
+
 
 def application(environ, start_response):
     """
@@ -148,6 +150,34 @@ def application(environ, start_response):
                 respond(mime = 'text/plain')
                 return f"{rows_inserted} user(s) inserted.".encode('utf-8')
 
+    #For 'create_cfr' create a new cfr for a department
+    def handle_create_cfr():
+        if 'QUERY_STRING' in environ:
+            query = parse_qs(environ['QUERY_STRING'])
+            if 'dept' in query and 'sem' in query and 'year' in query and 'sub' in query:
+                dept = query['dept'][0]
+                sem = query['sem'][0]
+                year = query['year'][0]
+                sub = query['sub'][0]
+                rows_inserted = request.create_cfr(dept, sem, year, sub)
+                respond(mime = 'text/plain')
+                return f"{rows_inserted} CFR(s) created.".encode('utf-8')
+
+
+    #For 'add_course' add a course to a cfr
+    def handle_add_course():
+        data = environ['wsgi.input'].read()
+        rows_inserted = request.add_course(data)
+        respond(mime = 'text/plain')
+        return f"{rows_inserted} course(s) inserted.".encode('utf-8')
+
+    #For 'add_sal_savings' add salary savings to a cfr
+    def handle_add_sal_savings():
+        data = environ['wsgi.input'].read()
+        rows_inserted = request.add_sal_savings(data)
+        respond(mime = 'text/plain')
+        return f"{rows_inserted} salary savings inserted.".encode('utf-8')
+
     # Register handlers into a dictionary
     handlers = {
         '/':                    handle_root,
@@ -159,7 +189,10 @@ def application(environ, start_response):
         'db_info':              handle_db_info,
         'echo':                 handle_echo,
         'error':                handle_error,
-        'new_user':             handle_new_user
+        'new_user':             handle_new_user,
+        'create_cfr':           handle_create_cfr,
+        'add_course':           handle_add_course,
+        'add_sal_savings':      handle_add_sal_savings
     }
 
     # Initialize the CFR environment
