@@ -8,7 +8,7 @@
 #create users
 INSERT INTO user 
 VALUES ('submitter1', 'password', 800000000, 'submitter'),
-	   ('submitter2', 'password', 800000001, 'submitter'),
+		('submitter2', 'password', 800000001, 'submitter'),
        ('submitter3', 'password', 800000002, 'submitter'),
        ('submitter4', 'password', 800000003, 'submitter'),
        ('submitter5', 'password', 800000004, 'submitter'),
@@ -19,7 +19,7 @@ VALUES ('submitter1', 'password', 800000000, 'submitter'),
        ('approver3', 'password', 800000009, 'approver');       
 INSERT INTO submitter
 VALUES ('submitter1', 'Astronomy'),
-	   ('submitter2', 'Biology'),
+	     ('submitter2', 'Biology'),
        ('submitter3', 'Physics'),
        ('submitter4', 'Art'),
        ('submitter5', 'History'),
