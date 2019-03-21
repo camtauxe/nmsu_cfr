@@ -13,6 +13,7 @@ from utils import authentication
 from utils import home_page
 from utils import cfrenv
 from utils import create_user
+from utils import dummy
 
 def application(environ, start_response):
     """
@@ -117,6 +118,12 @@ def application(environ, start_response):
         respond()
         return page_builder.soup_to_bytes(page)
 
+    def handle_add_dummy():
+        text = environ['wsgi.input'].read()
+        dummy.insert_dummy_data(text)
+        respond(mime = "text/plain")
+        return "OK".encode('utf-8')
+
     # For 'db_info' return a JSON describing the database
     def handle_db_info():
         respond(mime = "text/json; charset=utf-8")
@@ -159,7 +166,8 @@ def application(environ, start_response):
         'db_info':              handle_db_info,
         'echo':                 handle_echo,
         'error':                handle_error,
-        'new_user':             handle_new_user
+        'new_user':             handle_new_user,
+        'add_dummy':            handle_add_dummy
     }
 
     # Initialize the CFR environment
