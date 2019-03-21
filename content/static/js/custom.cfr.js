@@ -29,6 +29,7 @@ function submitCFR() {
   dummy = { name1: document.getElementById("cfrName").value, num1: document.getElementById("cfrNum1").value,
   num2: document.getElementById("cfrNum2").value, num3: document.getElementById("cfrNum3").value};
   dummyJSON = JSON.stringify(dummy);
+  localStorage.setItem("dummyJSONtest", dummyJSON);
 
 
     if (testing == "true"){
