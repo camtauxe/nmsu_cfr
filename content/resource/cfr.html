@@ -1,9 +1,10 @@
-     
+
 <h1>Course Funding Request</h1>
+
 
 <!-- CFR Table -->
 <h2>Submitted CFRs</h2>
-<table class="table table-bordered table-striped table-hover">
+<table class="table table-bordered table-striped table-hover" id="cfrTable">
 	<!-- Optional Table Caption -->
 	<caption></caption>
 	<thead>
@@ -58,23 +59,39 @@
 
 <!-- CFR Submitter Form -->
 <h2>Create New CFR</h2>
-<form class="form-inline">
-    <div class="form-group">
-        <label for="inlineInputName">Name</label>
-        <input type="text" class="form-control" id="inlineInputName">
-    </div> 
-    <div class="form-group">
-        <label for="inlineInputEmail">Int 1</label>
-        <input type="number" class="form-control" id="inlineInputEmail">
-    </div>
-    <div class="form-group">
-        <label for="inlineInputEmail">Int 2</label>
-        <input type="number" class="form-control" id="inlineInputEmail">
-    </div> 
-    <div class="form-group">
-        <label for="inlineInputEmail">Int 3</label>
-        <input type="number" class="form-control" id="inlineInputEmail">
-    </div> 
+<form class="form-inline" id="cfrSubmitForm">
+        <div class="form-group">
+            <label for="inlineInputName">Name</label>
+            <input type="text" class="form-control" id="cfrName">
+        </div> 
+        <div class="form-group">
+            <label for="inlineInputEmail">Int 1</label>
+            <input type="number" class="form-control" id="cfrNum1">
+        </div>
+        <div class="form-group">
+            <label for="inlineInputEmail">Int 2</label>
+            <input type="number" class="form-control" id="cfrNum2">
+        </div> 
+        <div class="form-group">
+            <label for="inlineInputEmail">Int 3</label>
+            <input type="number" class="form-control" id="cfrNum3">
+        </div> 
+
+    <button type="button" onclick="submitCFR()" class="btn btn-primary" style="margin-top: 15px;">Save</button>
 </form>
-    <br>
-    <button type="submit" class="btn btn-primary">Save</button>
+<p id="cfrOutput"></p>
+<p>     
+   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam faucibus luctus eros, vel tempor ipsum tincidunt sollicitudin. Aliquam sit amet ultrices ligula. Maecenas pretium odio nec ullamcorper posuere. Quisque tristique turpis in venenatis rutrum. Praesent nunc neque, posuere sit amet arcu at, aliquet ornare dui. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc ultrices nisi vel euismod elementum. Cras id diam nisi. Integer accumsan sit amet turpis vitae molestie. In magna urna, vestibulum vel imperdiet et, ultrices vel urna. Nulla dui dolor, blandit ut pulvinar nec, aliquet in velit. Donec faucibus diam ornare, auctor mi eget, molestie orci. Duis a risus scelerisque, luctus metus non, consequat metus.
+</p>
+
+<p>     
+   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam faucibus luctus eros, vel tempor ipsum tincidunt sollicitudin. Aliquam sit amet ultrices ligula. Maecenas pretium odio nec ullamcorper posuere. Quisque tristique turpis in venenatis rutrum. Praesent nunc neque, posuere sit amet arcu at, aliquet ornare dui. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc ultrices nisi vel euismod elementum. Cras id diam nisi. Integer accumsan sit amet turpis vitae molestie. In magna urna, vestibulum vel imperdiet et, ultrices vel urna. Nulla dui dolor, blandit ut pulvinar nec, aliquet in velit. Donec faucibus diam ornare, auctor mi eget, molestie orci. Duis a risus scelerisque, luctus metus non, consequat metus.
+</p>
+
+<p>     
+   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam faucibus luctus eros, vel tempor ipsum tincidunt sollicitudin. Aliquam sit amet ultrices ligula. Maecenas pretium odio nec ullamcorper posuere. Quisque tristique turpis in venenatis rutrum. Praesent nunc neque, posuere sit amet arcu at, aliquet ornare dui. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc ultrices nisi vel euismod elementum. Cras id diam nisi. Integer accumsan sit amet turpis vitae molestie. In magna urna, vestibulum vel imperdiet et, ultrices vel urna. Nulla dui dolor, blandit ut pulvinar nec, aliquet in velit. Donec faucibus diam ornare, auctor mi eget, molestie orci. Duis a risus scelerisque, luctus metus non, consequat metus.
+</p>
+
+<p>     
+   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam faucibus luctus eros, vel tempor ipsum tincidunt sollicitudin. Aliquam sit amet ultrices ligula. Maecenas pretium odio nec ullamcorper posuere. Quisque tristique turpis in venenatis rutrum. Praesent nunc neque, posuere sit amet arcu at, aliquet ornare dui. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc ultrices nisi vel euismod elementum. Cras id diam nisi. Integer accumsan sit amet turpis vitae molestie. In magna urna, vestibulum vel imperdiet et, ultrices vel urna. Nulla dui dolor, blandit ut pulvinar nec, aliquet in velit. Donec faucibus diam ornare, auctor mi eget, molestie orci. Duis a risus scelerisque, luctus metus non, consequat metus.
+</p>
