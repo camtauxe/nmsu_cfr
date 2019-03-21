@@ -1,60 +1,87 @@
 """
 Create json files with the needed fields for to add a course or salary savings
 to a cfr. Used to test the add_course and add_sal_savings functions.
-
--currently, it will only add the information for one course in a file called
- req_data.json and one the information for one salary savings in a file called
- sal_data.json. Eventually it will create jsons with the information for several
- courses and salary savings to test the functionality of more than one entry being
- made at a time.
+ 
+-now creates json files formatted as a list of dictionaries. Each dictionary
+ corresponds the data to be inserted into a row in the database. There are some 
+ usage examples at the bottom of the file
 """
 import json
+from enum import Enum, auto
 
-def course_req_json(fields):
-    data = {
-        "request" : {
-            "priority" : fields[0],
-            "course" : fields[1],
-            "sec" : fields[2],
-            "mini_session" : fields[3],
-            "online_course" : fields[4],
-            "num_students" : fields[5],
-            "instructor" : fields[6],
-            "banner_id" : fields[7],
-            "inst_rank" : fields[8],
-            "cost" : fields[9],
-            "reason" : fields[10],
-            "dept_name" : fields[11],
-            "semester" : fields[12],
-            "cal_year" : fields[13],
-            "revision_num" : fields[14]
-        }
-    }
+
+class req_fields(Enum):
+    """
+    Enum representation of course request fields
+    """
+    priority = auto()
+    course = auto()
+    sec = auto()
+    mini_session = auto()
+    online_course = auto()
+    num_students = auto()
+    instructor = auto()
+    banner_id = auto()
+    inst_rank = auto()
+    cost = auto()
+    reason = auto()
+    dept_name = auto()
+    semester = auto()
+    cal_year = auto()
+    revision_num = auto()
+
+class sav_fields(Enum):
+    """
+    Enum representation of salary savings fields
+    """
+    leave_type = auto()
+    inst_name = auto()
+    savings = auto()
+    notes = auto()
+    dept_name = auto()
+    semester = auto()
+    cal_year = auto()
+    revision_num = auto()
+
+def course_req_json(val):
     
-    with open("req_data.json", "w") as write_file:
+    data = dict_list(val, req_fields)
+
+    with open("mul_req_data.json", "w") as write_file:
         json.dump(data,write_file)
 
-def sav_req_json(fields):
-    data = {
-        "savings" : {
-            "leave_type" : fields[0],
-            "inst_name" : fields[1],
-            "savings" : fields[2],
-            "notes" : fields[3],
-            "dept_name" : fields[4],
-            "semester" : fields[5],
-            "cal_year" : fields[6],
-            "revision_num" : fields[7]
-        }
-    }
-    
-    with open("sav_data.json", "w") as write_file:
-        json.dump(data,write_file)
-    
+def sal_sav_json(val):
 
-req_data = ["1","CS253","M01","No","No","25","Cooper","800152344","NULL","1234.33", "NULL","Computer Science","Spring","2019","0"]
-sav_data = ["sabbatical", "Zhang", "40124.23", "NULL", "Sociology", "Spring", "2019", "0"]
-sav_req_json(sav_data)
+    data = dict_list(val, sav_fields)
+
+    with open("mul_sav_data.json", "w") as write_file:
+        json.dump(data, write_file)
+
+def dict_list(val, dict_type):
+    data = []
+    for i in range(len(val)):
+        dict_data = {}
+        for j in range(len(val[0])):
+            dict_data[dict_type(j + 1).name] = val[i][j]
+        data.append(dict_data)
+    
+    return data
+
+"""
+req_data = [["1","CS253","M02","No","No","25","Cooper","800152344","NULL","1234.33", "NULL","Computer Science","Spring","2019","0"],
+            ["2", "PSY105", "D10", "No", "No", "22", "Miller", "800112231", "NULL", "2000.12", "NULL", "Psychology", "Spring", "2019", "0"]]
+
+#accepts a list of lists with data corresponding to a course request insertion
 course_req_json(req_data)
 
 
+
+sav_data = [["Sabbatical", "Leung", "30123.11", "NULL", "Computer Science", "Spring", "2019", "0"],
+            ["Other", "Wilson", "100000.22", "NULL", "Psychology", "Spring", "2019", "0"],
+            ["Sabbatical", "Marquez", "30223.11", "NULL", "Biology", "Spring", "2019", "0"]]
+
+single_sav = [["Other", "Miller", "10023", "NULL", "Computer Science", "Spring", "2019", "0"]]
+
+#accepts a list of lists with data corresponding to a salary savings insertion
+sal_sav_json(single_sav)
+"""

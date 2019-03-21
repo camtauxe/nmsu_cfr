@@ -2,8 +2,41 @@
 Functions related to submitting a request
 """
 import json
+from enum import Enum, auto
 from . import sql_connection as sql 
 
+class req_fields(Enum):
+    """
+    Enum representation of course request fields
+    """
+    priority = auto()
+    course = auto()
+    sec = auto()
+    mini_session = auto()
+    online_course = auto()
+    num_students = auto()
+    instructor = auto()
+    banner_id = auto()
+    inst_rank = auto()
+    cost = auto()
+    reason = auto()
+    dept_name = auto()
+    semester = auto()
+    cal_year = auto()
+    revision_num = auto()
+
+class sav_fields(Enum):
+    """
+    Enum representation of salary savings fields
+    """
+    leave_type = auto()
+    inst_name = auto()
+    savings = auto()
+    notes = auto()
+    dept_name = auto()
+    semester = auto()
+    cal_year = auto()
+    revision_num = auto()
 
 def create_cfr(dept_name, semester, cal_year, submitter):
     """
@@ -27,26 +60,32 @@ def add_course(data):
     """
     Add a course to a cfr
     -parameter should be a json string containing a list of dictionaries 
-     containing the input information for the course request
+     containing the input information for the course requests
 
-    -at the moment it only reads in one dictionary in the list called 'request'
-     but it will eventually read in more than one dictionary and add a course 
-     for each.
+    -can now insert multiple records at a time
     """
 
-    #load the string to a json string and parse the dictionary called 'request'
+    #load the string to a json string containing data in a list of dictionaries 
     json_data = json.loads(data)
-    request = json_data['request']
+    data_ls = []
+
+    #loop through each dictionary and extract the values and insert them into tuples
+    for i in range(len(json_data)):
+        data_req = ()
+        request = json_data[i]
+        for j in range(len(request)):
+            data_req = data_req + (request[req_fields(j+1).name], )
+
+        #apend each tuple to a list of tuples
+        data_ls.append(data_req) 
+
 
     cursor = sql.new_cursor()
     add_req = ("INSERT INTO request "
                "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
-    data_req = (request['priority'], request['course'], request['sec'], request['mini_session'], 
-                request['online_course'], request['num_students'], request['instructor'], request['banner_id'], 
-                request['inst_rank'], request['cost'], request['reason'], request['dept_name'], 
-                request['semester'], request['cal_year'], request['revision_num'])
+   
     
-    cursor.execute(add_req, data_req)
+    cursor.executemany(add_req, data_ls)
 
     sql.get_connection().commit()
     rows_inserted = cursor.rowcount
@@ -62,20 +101,29 @@ def add_sal_savings(data):
     -Parameter is a json string containing a list of dictionaries containing 
      the input data for the salary savings record.
 
-    -At the moment it only reads in one dictionary called 'savings'
+    -can now insert multiple records at a time
     """
 
     #load the string into a json string and parse the dictionary called 'savings'
     json_data = json.loads(data)
-    savings = json_data['savings']
+    data_ls = []
+
+    #loop through list of dictionaries, extract values and put them into tuples
+    for i in range(len(json_data)):
+        data_sav = ()
+        savings = json_data[i]
+        for j in range(len(savings)):
+            data_sav = data_sav + (savings[sav_fields(j+1).name], )
+
+        #create a list of tuples
+        data_ls.append(data_sav)
+    
 
     cursor = sql.new_cursor()
     add_sav = ("INSERT INTO sal_savings "
                "VALUES (%s, %s, %s, NULL, %s, %s, %s, %s, %s)")
-    data_sav = (savings['leave_type'], savings['inst_name'], savings['savings'], savings['notes'],
-                savings['dept_name'], savings['semester'], savings['cal_year'], savings['revision_num'])
-
-    cursor.execute(add_sav, data_sav)
+   
+    cursor.executemany(add_sav, data_ls)
     
     sql.get_connection().commit()
     rows_inserted = cursor.rowcount
