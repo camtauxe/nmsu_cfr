@@ -1,7 +1,4 @@
 /************************************************** NMSU CFR ADDITIONAL SCRIPTS **************************************************/
-var testing = "true";
-var simData = "true";
-
 function hideNavbar() {
   var navbar = document.getElementById("main-navigation");
   navbar.style.display = "none";

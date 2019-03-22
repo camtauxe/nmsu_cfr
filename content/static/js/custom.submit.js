@@ -1,9 +1,11 @@
 /************************************************** SUBMIT CFR ADDITIONAL SCRIPTS **************************************************/
 
+var testing = "true";
+var simData = "true";
 var dummy, dummy2, dummyJSON, txt, x, xmlhttp;
 
 function submitCFR() {
-  dummy = { name1: document.getElementById("cfrName").value, num1: document.getElementById("cfrNum1").value,
+  dummy = {name1: document.getElementById("cfrName").value, num1: document.getElementById("cfrNum1").value,
   num2: document.getElementById("cfrNum2").value, num3: document.getElementById("cfrNum3").value};
   dummyJSON = JSON.stringify(dummy);
   xmlhttp = new XMLHttpRequest();
