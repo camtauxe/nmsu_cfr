@@ -86,7 +86,7 @@ def application(environ, start_response):
                 user = authentication.authenticate(username,password)
                 if user is not None:
                     cookies = [('Set-Cookie',c) for c in authentication.create_cookies(user)]
-                    respond(additional_headers = cookies)
+                    start_response('303 See Other',[('Location','/#')]+cookies)
 
                     page = home_page.build_home_page(user)
                     logged_in = True
