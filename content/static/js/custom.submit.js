@@ -5,14 +5,20 @@ var simData = "true";
 var dummy, dummy2, dummyJSON, txt, x, xmlhttp;
 
 function submitCFR() {
-  dummy = {name1: document.getElementById("cfrName").value, num1: document.getElementById("cfrNum1").value,
-  num2: document.getElementById("cfrNum2").value, num3: document.getElementById("cfrNum3").value};
+  dummy = [
+    {
+      name1: document.getElementById("cfrName").value, 
+      num1: document.getElementById("cfrNum1").value,
+      num2: document.getElementById("cfrNum2").value, 
+      num3: document.getElementById("cfrNum3").value
+    }
+    ];
   dummyJSON = JSON.stringify(dummy);
   xmlhttp = new XMLHttpRequest();
 
   if (testing == "true"){
     dummy2 = JSON.parse(dummyJSON);
-    txt = "<i>added " + dummy.name1 + " " + dummy.num1 + " " + dummy.num2 + " " + dummy.num3 + " to CFR</i>";
+    txt = "<i>added " + dummy[0].name1 + " " + dummy[0].num1 + " " + dummy[0].num2 + " " + dummy[0].num3 + " to CFR</i>";
     x = document.createElement("P");
     x.innerHTML = txt;
     document.getElementById("cfrOutput").appendChild(x);
@@ -30,10 +36,10 @@ function submitCFR() {
     cell2.contentEditable = "true";
     cell3.contentEditable = "true";
     cell4.contentEditable = "true";
-    cell1.innerHTML = dummy2.name1;
-    cell2.innerHTML = dummy2.num1;
-    cell3.innerHTML = dummy2.num2;
-    cell4.innerHTML = dummy2.num3;
+    cell1.innerHTML = dummy2[0].name1;
+    cell2.innerHTML = dummy2[0].num1;
+    cell3.innerHTML = dummy2[0].num2;
+    cell4.innerHTML = dummy2[0].num3;
   }
 
   xmlhttp.onreadystatechange = function() {
