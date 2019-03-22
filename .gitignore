@@ -4,3 +4,4 @@ cfr.env
 .DS_Store
 *.vscode
 compose.bash
+testfiles/

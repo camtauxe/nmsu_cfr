@@ -19,7 +19,7 @@ VALUES ('submitter1', 0xba75e5b5235c647fe1fc9474727032ebaceab0f1260b811aaae21c63
        ('approver3', 0x475700a5b9f9c1798abc11c5a1d87e3a9a18b0791ff992b4ac61c271982f6a7e0997c096f9151eb255b6b58ee13f5433673c78c8290e8201ffb0e832cad35e98, 800000009, 'approver');       
 INSERT INTO submitter
 VALUES ('submitter1', 'Astronomy'),
-	   ('submitter2', 'Biology'),
+	     ('submitter2', 'Biology'),
        ('submitter3', 'Physics'),
        ('submitter4', 'Art'),
        ('submitter5', 'History'),
