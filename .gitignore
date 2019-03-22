@@ -2,3 +2,6 @@ __pycache__/
 .vscode/.ropeproject/
 cfr.env
 .DS_Store
+*.vscode
+compose.bash
+testfiles/

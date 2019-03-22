@@ -12,6 +12,8 @@ from utils import sql_utils
 from utils import authentication
 from utils import home_page
 from utils import cfrenv
+from utils import create_user
+from utils import dummy
 
 def application(environ, start_response):
     """
@@ -116,17 +118,42 @@ def application(environ, start_response):
         respond()
         return page_builder.soup_to_bytes(page)
 
+    def handle_add_dummy():
+        text = environ['wsgi.input'].read()
+        dummy.insert_dummy_data(text)
+        respond(mime = "text/plain")
+        return "OK".encode('utf-8')
+
     # For 'db_info' return a JSON describing the database
     def handle_db_info():
         respond(mime = "text/json; charset=utf-8")
         info = sql_utils.get_database_info()
         return json.dumps(info, indent=4).encode('utf-8')
 
+    # For 'echo' send the request body back as plain text
+    def handle_echo():
+        respond(mime = "text/plain; charset=utf-8")
+        text = environ['wsgi.input'].read()
+        return text.encode('utf-8')
+
     # For 'error' throw an error to test the the error-catching system.
     def handle_error():
         raise RuntimeError(
             "This was supposed to happen because you selected 'error'"
         )
+
+    #For 'new_user' create a new user
+    def handle_new_user():
+        if 'QUERY_STRING' in environ:
+            query = parse_qs(environ['QUERY_STRING'])
+            if 'username' in query and 'password' in query and 'id' in query and 'usr_role' in query:
+                username = query['username'][0]
+                password = query['password'][0]
+                banner_id = query['id'][0]
+                user_role = query['usr_role'][0]
+                rows_inserted = create_user.create_user(username, password, banner_id, user_role)
+                respond(mime = 'text/plain')
+                return f"{rows_inserted} user(s) inserted.".encode('utf-8')
 
     # Register handlers into a dictionary
     handlers = {
@@ -137,7 +164,10 @@ def application(environ, start_response):
         'previous_semesters':   handle_previous_semesters,
         'revisions':            handle_revisions,
         'db_info':              handle_db_info,
-        'error':                handle_error
+        'echo':                 handle_echo,
+        'error':                handle_error,
+        'new_user':             handle_new_user,
+        'add_dummy':            handle_add_dummy
     }
 
     # Initialize the CFR environment

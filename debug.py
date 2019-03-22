@@ -30,10 +30,12 @@ class ResponseSummary():
         string += self.body
         return string
 
-def simulate_request(url) -> ResponseSummary:
+def simulate_request(url, body_file = None) -> ResponseSummary:
     """
     Send the given url to the wsgi application and return its response
     in a ResponseSummary
+    Optionally takes body_file which is the name of a file to be used
+    as the body of the sent request
     """
     response_started = False
     status = None
@@ -51,7 +53,14 @@ def simulate_request(url) -> ResponseSummary:
 
     # Prepare the environ
     environ = dict(os.environ.items())
-    environ['wsgi.input']           = sys.stdin
+    if body_file is not None:
+        try:
+            environ['wsgi.input']       = open(body_file)
+        except (IOError):
+            print("Could not open {}!!".format(body_file))
+            environ['wsgi.input']       = None
+    else:
+        environ['wsgi.input']       = None
     environ['wsgi.errors']          = sys.stderr
     environ['wsgi.version']         = (1, 0)
     environ['wsgi.multithread']     = False
@@ -96,9 +105,9 @@ def interactive_mode():
 
     # Send a request wrapped in a try/catch to catch any exceptions
     # that the server code failed to catch itself
-    def request(url):
+    def request(url, body_file = None):
         try:
-            return simulate_request(url)
+            return simulate_request(url, body_file)
         except Exception as e:
             print("The server code threw an exception and didn't catch it!")
             print(e)
@@ -114,14 +123,17 @@ def interactive_mode():
         print("{:^80}".format("Welcome to the interactive debugger!"))
         print("="*80)
         print("")
+        print("Enter a URL:")
+        print("(Enter a filename after the URL to use a file for the request body)")
+        answer = input("> ").split()
+        if len(answer) < 2:
+            last_response = request(answer[0])
+        else:
+            last_response = request(answer[0], answer[1])
 
     # Main loop
     while not should_exit:
-        if last_response is None:
-            url = input("Enter a URL: ")
-            last_response = request(url)
-            continue
-
+        print("\n")
         print("Status: "+last_response.status)
         print(
             "Please enter a URL or select the number for an option below:\n"
@@ -129,7 +141,8 @@ def interactive_mode():
             "2) See response headers\n"
             "3) Exit"
         )
-        choice = input("> ")
+        answer = input("> ").split()
+        choice = answer[0]
 
         if choice == '1':
             print("="*80)
@@ -147,7 +160,13 @@ def interactive_mode():
             should_exit = True
             continue
 
-        last_response = request(choice)
+        # If the user's answer doesn't match any choice, 
+        # interpret it as a URL (with possibly a filename
+        # for the request body)
+        if len(answer) < 2:
+            last_response = request(answer[0])
+        else:
+            last_response = request(answer[0], answer[1])
 
 # Run in interactive mode if the file was run on the command line
 if __name__ == "__main__":

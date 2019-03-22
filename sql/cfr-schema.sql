@@ -1,6 +1,6 @@
 create table user
    (username      varchar(32),
-    usr_password      varchar(64) not null,
+    usr_password      varbinary(64) not null,
     banner_id      numeric(9,0) not null,
     type      enum('submitter', 'approver', 'admin') NOT NULL,
     primary key (username)
