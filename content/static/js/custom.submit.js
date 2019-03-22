@@ -1,6 +1,5 @@
 /************************************************** SUBMIT CFR ADDITIONAL SCRIPTS **************************************************/
 
-
 var testing = true;
 var simData = true;
 
@@ -54,4 +53,3 @@ function submitCFR() {
   xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
   xmlhttp.send("x=" + dummyJSON);
 }
-
