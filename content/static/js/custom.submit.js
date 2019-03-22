@@ -54,10 +54,6 @@ function insertSuccessMessage() {
   dummy2 = JSON.parse(dummyJSON);
   for (i in dummy2) {
     txt = "<i>added " + dummy2[i].name1 + " " + dummy2[i].num1 + " " + dummy2[i].num2 + " " + dummy2[i].num3 + " to CFR</i>";
-    x = document.createElement("P");
-    x.innerHTML = txt;
-    document.getElementById("cfrOutput").appendChild(x);
+    console.log(txt);
   }
 }
-
-*/
