@@ -1,7 +1,5 @@
 /************************************************** SUBMIT CFR ADDITIONAL SCRIPTS **************************************************/
 
-var testing = "true";
-var simData = "true";
 var dummy, dummy2, dummyJSON, txt, x, xmlhttp;
 
 function submitCFR() {
@@ -12,8 +10,10 @@ function submitCFR() {
       num2: document.getElementById("cfrNum2").value, 
       num3: document.getElementById("cfrNum3").value
     }
-    ];
+  ];
+  
   dummyJSON = JSON.stringify(dummy);
+  
   xmlhttp = new XMLHttpRequest();
 
   insertSuccessMessage();
@@ -21,12 +21,13 @@ function submitCFR() {
 
   xmlhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
+      
     }
   };
 
   xmlhttp.open("POST", "/add_dummy", true);
-  xmlhttp.setRequestHeader("Content-Type", "text/json");
-  xmlhttp.send("x=" + dummyJSON);
+  xmlhttp.setRequestHeader("Content-Type", "text/json; charset=utf-8");
+  xmlhttp.send(dummyJSON);
 };
 
 function insertNewRow() {
