@@ -2,6 +2,8 @@
 
 var dummy, dummy2, dummyJSON, txt, x, xmlhttp;
 
+/* Function: submitCFR()
+   Purpose: executes when the submit button on the cfr.html is clicked*/
 function submitCFR() {
   dummy = [
     {
@@ -16,10 +18,10 @@ function submitCFR() {
   
   xmlhttp = new XMLHttpRequest();
 
-  insertSuccessMessage();
+  logSuccessMessage();
   insertIntoTable();
 
-    xmlhttp.onreadystatechange = function() {
+  xmlhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       
     }
@@ -30,19 +32,34 @@ function submitCFR() {
   xmlhttp.send(dummyJSON);
 };
 
+/* Function: insertIntoTable()
+   Purpose: Inserts data from JSON object into the end of the table */
 function insertIntoTable() {
+  //creates a regular javascript object from the JSON object
   dummy2 = JSON.parse(dummyJSON);
+
+  //interates through each entry in the array
   for (i in dummy2) {
+
+    //selects the cfr table element from cfr.html
     var table = document.getElementById("cfrTable");
+
+    //creates a new row and adds it to the end of the table
     var row = table.insertRow(-1);
+
+    //creates new cells and inserts them into the row
     var cell1 = row.insertCell(0);
     var cell2 = row.insertCell(1);
     var cell3 = row.insertCell(2);
     var cell4 = row.insertCell(3);
+
+    //makes cell contents editable
     cell1.contentEditable = "true";
     cell2.contentEditable = "true";
     cell3.contentEditable = "true";
     cell4.contentEditable = "true";
+
+    //populates calls with data orginally in JSON object
     cell1.innerHTML = dummy2[i].name1;
     cell2.innerHTML = dummy2[i].num1;
     cell3.innerHTML = dummy2[i].num2;
@@ -50,10 +67,12 @@ function insertIntoTable() {
     }
 };
 
-function insertSuccessMessage() {
+/* Function: logSuccessMessage()
+   Purpose: logs new table additions to the console*/
+function logSuccessMessage() {
   dummy2 = JSON.parse(dummyJSON);
   for (i in dummy2) {
-    txt = "<i>added " + dummy2[i].name1 + " " + dummy2[i].num1 + " " + dummy2[i].num2 + " " + dummy2[i].num3 + " to CFR</i>";
+    txt = "added " + dummy2[i].name1 + " " + dummy2[i].num1 + " " + dummy2[i].num2 + " " + dummy2[i].num3 + " to CFR";
     console.log(txt);
   }
 }
