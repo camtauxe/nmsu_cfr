@@ -30,21 +30,30 @@ function submitCFR() {
   xmlhttp.send(dummyJSON);
 };
 
+/* Function: insertNewRow() */
+/* Purpose: Insert a new table row with data input by a submitter role */
 function insertNewRow() {
+  
+  // Copy of dummy data
   dummy2 = JSON.parse(dummyJSON);
   
+  // Select the table
   var table = document.getElementById("cfrTable");
+  
+  // Insert row and corresponding cells
   var row = table.insertRow(-1);
   var cell1 = row.insertCell(0);
   var cell2 = row.insertCell(1);
   var cell3 = row.insertCell(2);
   var cell4 = row.insertCell(3);
   
+  // Make each of the cells editable
   cell1.contentEditable = "true";
   cell2.contentEditable = "true";
   cell3.contentEditable = "true";
   cell4.contentEditable = "true";
   
+  // Input the data from the user
   cell1.innerHTML = dummy2[0].name1;
   cell2.innerHTML = dummy2[0].num1;
   cell3.innerHTML = dummy2[0].num2;
