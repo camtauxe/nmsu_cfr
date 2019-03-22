@@ -17,7 +17,7 @@ function submitCFR() {
   xmlhttp = new XMLHttpRequest();
 
   insertSuccessMessage();
-  insertNewRow();
+  insertIntoTable();
 
     xmlhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
@@ -30,7 +30,7 @@ function submitCFR() {
   xmlhttp.send(dummyJSON);
 };
 
-function insertNewRow() {
+function insertIntoTable() {
   dummy2 = JSON.parse(dummyJSON);
   for (i in dummy2) {
     var table = document.getElementById("cfrTable");
