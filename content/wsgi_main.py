@@ -8,7 +8,6 @@ from pathlib import PurePath
 from utils import page_builder
 from utils import sql_connection
 from utils import error_handling
-from utils import sql_utils
 from utils import authentication
 from utils import home_page
 from utils import cfrenv
@@ -124,12 +123,6 @@ def application(environ, start_response):
         respond(mime = "text/plain")
         return "OK".encode('utf-8')
 
-    # For 'db_info' return a JSON describing the database
-    def handle_db_info():
-        respond(mime = "text/json; charset=utf-8")
-        info = sql_utils.get_database_info()
-        return json.dumps(info, indent=4).encode('utf-8')
-
     # For 'echo' send the request body back as plain text
     def handle_echo():
         respond(mime = "text/plain; charset=utf-8")
@@ -163,7 +156,6 @@ def application(environ, start_response):
         'salary_saving':        handle_salary_saving,
         'previous_semesters':   handle_previous_semesters,
         'revisions':            handle_revisions,
-        'db_info':              handle_db_info,
         'echo':                 handle_echo,
         'error':                handle_error,
         'new_user':             handle_new_user,
