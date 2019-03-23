@@ -3,11 +3,22 @@ Functions related to authenticating a user
 """
 import hashlib
 import http.cookies as cookies
-from . import sql_connection as sql
+from .sql_connection import Transaction
 from enum import Enum, auto
 
 # Number of seconds in a day. Used for specifying the Max-Age of cookies
 SECONDS_PER_DAY = 86400
+
+# Query used to select a user from the database.
+# Returns username, type and usr_password
+# Parameters are username and usr_password
+SELECT_USER_QUERY = """
+SELECT username, type, usr_password
+FROM user 
+WHERE 
+    username = %s AND
+    usr_password = %s
+"""
 
 class UserRole(Enum):
     """
@@ -24,12 +35,12 @@ class User:
     def __init__(self, user_tup: tuple, password):
         """
         Initialize a User. user_tup is the tuple
-        (OF RAW DATA) returned by the MySQL cursor.
+        (OF RAW BYTES) returned by the MySQL cursor.
         """
-        self.username   = user_tup[0].decode('utf-8')
-        self.role       = UserRole[user_tup[1].decode('utf-8').upper()]
-        self.password_hash   = user_tup[2]
-        self.password   = password
+        self.username       = user_tup[0].decode('utf-8')
+        self.role           = UserRole[user_tup[1].decode('utf-8').upper()]
+        self.password_hash  = user_tup[2]
+        self.password       = password
 
 def authenticate(username, password) -> User:
     """
@@ -41,13 +52,11 @@ def authenticate(username, password) -> User:
     which is FIPS PUB 202 certified.
     """
 
-    cursor = sql.new_cursor(raw=True)
-    cursor.execute(
-        'SELECT username, type, usr_password FROM user WHERE username = %s AND usr_password = %s',
-        (username, hash_password(password))
-    )
+    hashed = hash_password(password)
 
-    result = cursor.fetchone()
+    with Transaction(raw=True, buffered=True) as cursor:
+        cursor.execute(SELECT_USER_QUERY, (username, hashed))
+        result = cursor.fetchone()
 
     if result is None:
         return None

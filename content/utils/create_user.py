@@ -1,26 +1,29 @@
 """
 Functions related to creating a new user
 """
-from . import sql_connection as sql
+from .sql_connection import Transaction
 from .authentication import hash_password
+
+# Query to insert a new user into the database
+# Parameters are username, usr_password, banner_id and type (role)
+ADD_USER_QUERY = """
+INSERT INTO user VALUES (
+    %s, %s, %s, %s
+)
+"""
 
 def create_user(username, usr_password, banner_id, usr_role):
     """
-    Insert a new user into the user table
+    Insert a new user into the user table.
+    If successful, returns the number of rows (users) that were inserted
+    (really should just be one, but we might change this function to allow
+    inserting more than one user at a time in the future)
     """
-    cursor = sql.new_cursor()
-    add_user = ("INSERT INTO user "
-                "VALUES (%s, %s, %s, %s)")
-    data_user = (username, hash_password(usr_password), banner_id, usr_role)
+    with Transaction() as cursor:
+        data_user = (username, hash_password(usr_password), banner_id, usr_role)
+        cursor.execute(ADD_USER_QUERY, data_user)
+        rows_inserted = cursor.rowcount
 
-    #insert new user
-    cursor.execute(add_user, data_user)
-
-    #commit data to database
-    sql.get_connection().commit()
-    rows_inserted = cursor.rowcount
-    cursor.close()
-    sql.disconnect()
     return rows_inserted
 
 
