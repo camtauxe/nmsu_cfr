@@ -51,10 +51,25 @@ function addRow() {
     cell.innerHTML = "";
     //the last column is the delete checkbox
     if (i == 12){
-      cell.innerHTML = "<input type='checkbox'>";
+      cell.innerHTML = "<input type='checkbox' id='checkCFR'>";
     }
   }
 };
+
+
+function deleteRows() {
+var aObj=document.getElementById('cfrTable').getElementsByTagName('tr');
+var i=aObj.length; 
+while(i--) { 
+    if(aObj[i].getElementsByTagName('input')[0].checked) {
+        aObj[i].parentNode.removeChild(aObj[i]);
+        }
+}
+};
+
+
+
+
 
 /* Function: insertIntoTable()
    Purpose: Inserts data from JSON object into the end of the table */

@@ -1,8 +1,9 @@
 
 <h1>Course Funding Request</h1>
 
+<h2>View/Edit CFRs</h2>
 <!-- CFR Table -->
-<table class="table table-bordered table-striped table-hover" id="cfrTable">
+<table class="table table-bordered table-striped table-hover">
     <caption></caption>
     <thead>
         <tr>
@@ -34,7 +35,7 @@
             </th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="cfrTable">
         <tr>
             <td></td>
             <td contenteditable="true"></td>
@@ -48,7 +49,7 @@
             <td contenteditable="true"></td>
             <td contenteditable="true"></td>
             <td contenteditable="true"></td>
-            <td><input type="checkbox"></td>
+            <td><input type="checkbox" id="checkCFR"></td>
         </tr>
     </tbody>
     <tfoot>
@@ -59,7 +60,7 @@
     <img src="/static/images/plus-icon.png" style="height: 15px; vertical-align: text-top;">
 </button>
 <!-- Modify CFR Button -->
-<button type="submit" class="btn btn-primary">Modify</button>
+<button type="submit" onclick="deleteRows()"class="btn btn-primary">Modify</button>
 
 
 
