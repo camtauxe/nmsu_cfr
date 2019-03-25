@@ -32,6 +32,30 @@ function submitCFR() {
   xmlhttp.send(dummyJSON);
 };
 
+/* Function: addRow()
+    Purpose: Adds row to CFR table when the add row button is clicked*/
+function addRow() {
+  //selects the cfr table eleemnt from cfr.html
+  var table = document.getElementById("cfrTable");
+
+  //creates a new row and adds it to the end of the table
+  var row = table.insertRow(-1);
+  
+  //creates proper number of cells for each row
+  var i;
+  for (i=0; i<13; i++) {
+    var cell = row.insertCell(i);
+    if (i != 0 && i!=12){
+      cell.contentEditable = "true";
+    }
+    cell.innerHTML = "";
+    //the last column is the delete checkbox
+    if (i == 12){
+      cell.innerHTML = "<input type='checkbox'>";
+    }
+  }
+};
+
 /* Function: insertIntoTable()
    Purpose: Inserts data from JSON object into the end of the table */
 function insertIntoTable() {
@@ -42,7 +66,7 @@ function insertIntoTable() {
   for (i in dummy2) {
 
     //selects the cfr table element from cfr.html
-    var table = document.getElementById("cfrTable");
+    var table = document.getElementById("cfrTable2");
 
     //creates a new row and adds it to the end of the table
     var row = table.insertRow(-1);
