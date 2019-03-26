@@ -237,6 +237,8 @@ th {
 }
 
 
+ 
+
 /*! Source: https://github.com/h5bp/html5-boilerplate/blob/master/src/css/main.css */
 
 @media print {
@@ -289,7 +291,7 @@ th {
         page-break-after: avoid
     }
     .navbar {
-        display: none
+        display: none;
     }
     .btn>.caret,
     .dropup>.btn>.caret {
@@ -309,6 +311,7 @@ th {
     .table-bordered td {
         border: 1px solid #ddd !important
     }
+
 }
 
 * {

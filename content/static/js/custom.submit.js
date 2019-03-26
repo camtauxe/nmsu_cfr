@@ -58,6 +58,19 @@ function addRow() {
 
 
 function deleteRows() {
+var cfrObj = [
+  {dept_priority: "",
+  course: "",
+  sec: "",
+  mini: "",
+  online: "",
+  number_students: "",
+  instructor: "",
+  banner_ID: "",
+  instructor_rank: "",
+  course_cost: "",
+  reason: ""}
+];
 var aObj=document.getElementById('cfrTable').getElementsByTagName('tr');
 var i=aObj.length; 
 while(i--) { 
@@ -65,6 +78,26 @@ while(i--) {
         aObj[i].parentNode.removeChild(aObj[i]);
         }
 }
+var table = document.getElementById('cfrTable');
+var row = table.getElementsByTagName('tr');
+for (i = 0; i<row.length; i++){
+  var cell = row[i].getElementsByTagName('td');
+    cfrObj.push(
+      {dept_priority: cell[1].innerHTML,
+      course: cell[2].innerHTML,
+      sec: cell[3].innerHTML,
+      mini: cell[4].innerHTML,
+      online: cell[5].innerHTML,
+      number_students: cell[6].innerHTML,
+      instructor: cell[7].innerHTML,
+      banner_ID: cell[8].innerHTML,
+      instructor_rank: cell[9].innerHTML,
+      course_cost: cell[10].innerHTML,
+      reason: cell[11].innerHTML});
+}
+//test JSON by printing to console
+console.log(cfrObj);
+var cfrJSON = JSON.stringify(cfrObj);
 };
 
 

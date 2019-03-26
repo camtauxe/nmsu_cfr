@@ -68,6 +68,11 @@ h1 {
     white-space: wrap;
 }
 
+#pagecontent p {
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
 /**
  * The pagefooter stretches across the bottom of every page.
  * If the pagecontent is smaller than the size of the window,
