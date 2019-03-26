@@ -2,6 +2,7 @@
 
 var dummy, dummy2, dummyJSON, txt, x, xmlhttp;
 
+
 /* Function: submitCFR()
    Purpose: executes when the submit button on the cfr.html is clicked*/
 function submitCFR() {
@@ -56,8 +57,9 @@ function addRow() {
   }
 };
 
-
-function deleteRows() {
+/* Function: CFRsubmit()
+    Purpose: submits modified CFRs*/
+function CFRsubmit() {
 var cfrObj = [
   {dept_priority: "",
   course: "",
@@ -82,6 +84,20 @@ var table = document.getElementById('cfrTable');
 var row = table.getElementsByTagName('tr');
 for (i = 0; i<row.length; i++){
   var cell = row[i].getElementsByTagName('td');
+  if (i == 0){
+    cfrObj[0].dept_priority = cell[1].innerHTML;
+    cfrObj[0].course = cell[2].innerHTML;
+    cfrObj[0].sec = cell[3].innerHTML;
+    cfrObj[0].mini = cell[4].innerHTML;
+    cfrObj[0].online = cell[5].innerHTML;
+    cfrObj[0].number_students = cell[6].innerHTML;
+    cfrObj[0].instructor = cell[7].innerHTML;
+    cfrObj[0].banner_ID = cell[8].innerHTML;
+    cfrObj[0].instructor_rank = cell[9].innerHTML;
+    cfrObj[0].course_cost = cell[10].innerHTML;
+    cfrObj[0].reason = cell[11].innerHTML;
+  }
+  else{
     cfrObj.push(
       {dept_priority: cell[1].innerHTML,
       course: cell[2].innerHTML,
@@ -94,6 +110,7 @@ for (i = 0; i<row.length; i++){
       instructor_rank: cell[9].innerHTML,
       course_cost: cell[10].innerHTML,
       reason: cell[11].innerHTML});
+  }
 }
 //test JSON by printing to console
 console.log(cfrObj);

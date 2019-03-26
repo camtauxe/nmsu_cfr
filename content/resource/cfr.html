@@ -52,11 +52,11 @@
     </tfoot>
 </table>
 <!-- Add New Row Button -->
-<button type="button" onclick="addRow()" class="btn btn-primary" style="margin-left: 90%">
+<button type="button" onclick="addRow()" class="btn btn-primary" style="margin-left: 95%">
     <img src="/static/images/plus-icon.png" style="height: 15px; vertical-align: text-top;">
 </button>
 <!-- Modify CFR Button -->
-<button type="submit" onclick="deleteRows()"class="btn btn-primary">Modify</button>
+<button type="submit" onclick="CFRsubmit()" class="btn btn-primary">Save Changes</button>
 
 
 
@@ -89,7 +89,7 @@
             </th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="dummyTable">
         <tr>
             <td contenteditable="true">Row 1, Cell 1</td>
             <td contenteditable="true">1</td>
