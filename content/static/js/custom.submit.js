@@ -52,6 +52,7 @@ function addRow() {
     cell.innerHTML = "";
     //the last column is the delete checkbox
     if (i == 12){
+      cell.className = "noprint";
       cell.innerHTML = "<input type='checkbox' id='checkCFR'>";
     }
   }

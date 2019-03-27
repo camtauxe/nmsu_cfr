@@ -227,17 +227,24 @@ optgroup {
 }
 
 table {
-    border-collapse: collapse;
-    border-spacing: 0
+    border-spacing: 0;
+    border: 1px solid black;
 }
 
 td,
 th {
-    padding: 2
+    padding: 2;
+    vertical-align: bottom;
 }
 
+.tooltip, .tooltip-inner {
+    display:none;
+} 
 
- 
+.noprint {
+    display:none;
+}
+
 
 /*! Source: https://github.com/h5bp/html5-boilerplate/blob/master/src/css/main.css */
 
@@ -251,20 +258,6 @@ th {
         box-shadow: none !important;
         text-shadow: none !important
     }
-    a,
-    a:visited {
-        text-decoration: underline
-    }
-    a[href]:after {
-        content: " (" attr(href) ")"
-    }
-    abbr[title]:after {
-        content: " (" attr(title) ")"
-    }
-    a[href^="#"]:after,
-    a[href^="javascript:"]:after {
-        content: ""
-    }
     pre,
     blockquote {
         border: 1px solid #999;
@@ -273,6 +266,7 @@ th {
     thead {
         display: table-header-group
     }
+
     tr,
     img {
         page-break-inside: avoid
@@ -298,9 +292,9 @@ th {
         border-top-color: #000 !important
     }
     .label {
-        border: 1px solid #000
+        border: 1px solid black
     }
-    .table {
+    .table, .table tr, .table td {
         border-collapse: collapse !important
     }
     .table td,
@@ -309,8 +303,19 @@ th {
     }
     .table-bordered th,
     .table-bordered td {
-        border: 1px solid #ddd !important
+        border: 1px solid black;
     }
+    .tooltip, .tooltip-inner {
+        display: none;
+    } 
+    .noprint {
+        display: none;
+    }
+    #logo img {
+        display:none;
+        height: 50px;
+    }
+
 
 }
 

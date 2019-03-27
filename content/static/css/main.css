@@ -20,6 +20,9 @@ h1 {
     padding-bottom: 20px
 }
 
+.editable {
+    cursor: pointer;
+}
 
 .table-hover td:hover {
     text-decoration: underline;

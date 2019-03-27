@@ -26,7 +26,7 @@
                     <span class="tooltip tooltip-inner"> In this section, for each class, briefly indicate what factor(s) produced the need for funding for the course (i.e. sabbatical leave coverage, retirement, etc.) AND the significance of the course for the general </span>
                 Reason/Justification
             </th>
-            <th>
+            <th class=noprint>
                 <img src="/static/images/delete-icon.png" style="height: 20px; vertical-align: text-top;">
             </th>
         </tr>
@@ -45,18 +45,19 @@
             <td contenteditable="true"></td>
             <td contenteditable="true"></td>
             <td contenteditable="true"></td>
-            <td><input type="checkbox" id="checkCFR"></td>
+            <td class="noprint"><input type="checkbox" id="checkCFR"></td>
         </tr>
     </tbody>
     <tfoot>
     </tfoot>
 </table>
 <!-- Add New Row Button -->
-<button type="button" onclick="addRow()" class="btn btn-primary" style="margin-left: 95%">
+<!-- Class="noprint" so that button is not printed -->
+<button type="button" onclick="addRow()" class="btn btn-primary noprint" style="margin-left: 95%">
     <img src="/static/images/plus-icon.png" style="height: 15px; vertical-align: text-top;">
 </button>
 <!-- Modify CFR Button -->
-<button type="submit" onclick="CFRsubmit()" class="btn btn-primary">Save Changes</button>
+<button type="submit" onclick="CFRsubmit()" class="btn btn-primary">Submit Changes</button>
 
 
 
