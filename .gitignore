@@ -5,3 +5,4 @@ cfr.env
 *.vscode
 compose.bash
 testfiles/
+.debug_cookies
