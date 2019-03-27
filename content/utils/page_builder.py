@@ -1,9 +1,12 @@
 """
 Functions for using BeatifulSoup to construct web pages
 """
+import traceback
+from datetime import datetime
 from pathlib import Path
 from bs4 import BeautifulSoup as Soup
 from bs4 import Comment
+from . import cfrenv
 
 # The RESOURCE_DIR refers to directory containing resource files
 # loaded by the page builder. Usually, these are html files that
@@ -76,6 +79,33 @@ def build_page_from_file(path, absolute_path = False) -> Soup:
     """
     content = soup_from_file(path, absolute_path = absolute_path)
     return build_page_around_content(content)
+
+def build_500_error_page(exception) -> Soup:
+    """
+    Build a webpage displaying information for 500 Internal Server Error
+    regarding the given exception and return it as a BeautifulSoup
+
+    If the environment variable 'DEBUG' is 'yes', then debug information
+    such as the current time and date and a stack trace of the exception
+    will be displayed on the page.
+    """
+    page = build_page_from_file("500.html")
+
+    if cfrenv.getenv('DEBUG') != 'yes':
+        page.find(id="debugonly").extract()
+    else:
+        insert_at_id(page, "datetime", str(datetime.now()), raw_text=True)
+        insert_at_id(page, "errortype", str(type(exception)), raw_text=True)
+        insert_at_id(page, "stacktrace", traceback.format_exc(), raw_text=True)
+
+    return page
+
+def build_404_error_page() -> Soup:
+    """
+    Build a webpage displaying a 404 Not Found Error and return
+    it as a BeautifulSoup
+    """
+    return build_page_from_file("404.html")
 
 def soup_to_bytes(soup: Soup) -> bytes:
     """

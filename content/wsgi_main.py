@@ -5,9 +5,9 @@ import mysql.connector
 import json
 from urllib.parse import parse_qs
 from pathlib import PurePath
+
 from utils import page_builder
 from utils import sql_connection
-from utils import error_handling
 from utils import authentication
 from utils import home_page
 from utils import cfrenv
@@ -64,38 +64,35 @@ def application(environ, start_response):
     #                   this is gaurenteed to not be None.
     ############################################
 
-    # If no path was provided, check if the user is logged in
-    # (with a cookie) and send back a home page if they are.
-    # If not, send back the login page
     def handle_root(**kwargs):
-        logged_in = False
-        if 'HTTP_COOKIE' in environ:
-            user = authentication.authenticate_from_cookie(environ['HTTP_COOKIE'])
-            if user is not None:
-                logged_in = True
-                page = home_page.build_home_page(user)
-                respond()
-                return page_builder.soup_to_bytes(page)
-        if not logged_in:
-            page = page_builder.build_page_from_file("login.html")
-            respond()
-            return page_builder.soup_to_bytes(page)
+        """
+        Return the home page for the logged-in user
+        """
+        page = home_page.build_home_page(kwargs['user'])
+        respond()
+        return page_builder.soup_to_bytes(page)
 
-    # 'login' can do one of two things depending on if a request
-    # body is included or not.
-    # If there is a body:
-    #   The body will be read as HTML form data with
-    #   a 'username' and 'password' field. These values will be used
-    #   to authenticate the user and, if successful, the response
-    #   will set cookies for the user and redirect them to the home page.
-    #   If unsuccessful, the login page will be returned.
-    # If there is no body:
-    #   The standard login page will be returned.
-    # If the body exists but does not contain the username
-    # or password parameters, it will be treated as if there was no body
+    
     def handle_login(**kwargs):
+        """
+        'login' can do one of two things depending on if a request
+        body is included or not.
+
+        If there is a body:
+        The body will be read as HTML form data with
+        a 'username' and 'password' field. These values will be used
+        to authenticate the user and, if successful, the response
+        will set cookies for the user and redirect them to the home page.
+        If unsuccessful, the login page will be returned.
+
+        If there is no body:
+        The standard login page will be returned.
+        If the body exists but does not contain the username
+        or password parameters, it will be treated as if there was no body
+        """
+
         body_text = environ['wsgi.input'].read()
-        query_raw = parse_qs(body_text)
+        query_raw = parse_qs(body_text) # This will be empty if there is no body
 
         # Convert the query keys and values from bytes to strings
         query = {}
@@ -114,16 +111,21 @@ def application(environ, start_response):
             username = query['username'][0]
             password = query['password'][0]
             user = authentication.authenticate(username,password)
+
+            # If the user was authenticated, redirect to the home page
             if user is not None:
                 cookies = [('Set-Cookie',c) for c in authentication.create_cookies(user)]
                 start_response('303 See Other',[('Location','/')]+cookies)
                 return "REDIRECT".encode('utf-8')
+            # If the user was not authenticated, send back the login page
             else:
                 cookies = [('Set-Cookie', c) for c in authentication.clear_cookies()]
                 respond(additional_headers = cookies)
-                page = page_builder.build_page_from_file("salary_saving.html")
+                page = page_builder.build_page_from_file("login.html")
                 return page_builder.soup_to_bytes(page)
 
+        # If there is no body (or username and password are otherwise not present)
+        # then return the login page
         else:
             cookies = [('Set-Cookie', c) for c in authentication.clear_cookies()]
             respond(additional_headers = cookies)
@@ -184,7 +186,7 @@ def application(environ, start_response):
                 respond(mime = 'text/plain')
                 return f"{rows_inserted} user(s) inserted.".encode('utf-8')
 
-    # Register handlers into a dictionary
+    # Register handlers into a dictionary.
     # The login-exempt handlers can be called
     # without the user needing to be logged in
     login_exempt_handlers = {
@@ -251,10 +253,10 @@ def application(environ, start_response):
         # a 404 page.
         else:
             respond(status="404 Not Found")
-            error_page = error_handling.build_404_error_page()
+            error_page = page_builder.build_404_error_page()
             yield page_builder.soup_to_bytes(error_page)
 
     except Exception as err:
         respond(status="500 Internal Server Error")
-        error_page = error_handling.build_500_error_page(err)
+        error_page = page_builder.build_500_error_page(err)
         yield page_builder.soup_to_bytes(error_page)
