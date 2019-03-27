@@ -51,14 +51,23 @@ def application(environ, start_response):
     ###########################################
     # RESPONSE HANDLERS
     #   Each function should respond to a particular request and return
-    #   a byte seqence to return. (Each one should also call respond() at
-    #   some point)
+    #   a byte seqence to return. (Each one should also call respond
+    #   or start_response at some point)
+    #
+    #   Each handler must take in a dictionary of keyword arguments.
+    #   They will be called with the following fields in the arguments,
+    #   but not every handler has to use them:
+    #
+    #       'user':     An instance of authentication.User representing
+    #                   the logged in user. For any handler except
+    #                   the ones in login_exempt_handlers,
+    #                   this is gaurenteed to not be None.
     ############################################
 
     # If no path was provided, check if the user is logged in
     # (with a cookie) and send back a home page if they are.
     # If not, send back the login page
-    def handle_root():
+    def handle_root(**kwargs):
         logged_in = False
         if 'HTTP_COOKIE' in environ:
             user = authentication.authenticate_from_cookie(environ['HTTP_COOKIE'])
@@ -72,71 +81,98 @@ def application(environ, start_response):
             respond()
             return page_builder.soup_to_bytes(page)
 
-    # For 'login' use the provided URL parameters to authenticate the
-    # user. If successful send back a home page with a set-cookie
-    # header to log the user in. If unsuccessful, send back the
-    # login page
-    def handle_login():
-        logged_in = False
-        if 'QUERY_STRING' in environ:
-            query = parse_qs(environ['QUERY_STRING'])
-            if 'username' in query and 'password' in query:
-                username = query['username'][0]
-                password = query['password'][0]
-                user = authentication.authenticate(username,password)
-                if user is not None:
-                    cookies = [('Set-Cookie',c) for c in authentication.create_cookies(user)]
-                    start_response('303 See Other',[('Location','/#')]+cookies)
+    # 'login' can do one of two things depending on if a request
+    # body is included or not.
+    # If there is a body:
+    #   The body will be read as HTML form data with
+    #   a 'username' and 'password' field. These values will be used
+    #   to authenticate the user and, if successful, the response
+    #   will set cookies for the user and redirect them to the home page.
+    #   If unsuccessful, the login page will be returned.
+    # If there is no body:
+    #   The standard login page will be returned.
+    # If the body exists but does not contain the username
+    # or password parameters, it will be treated as if there was no body
+    def handle_login(**kwargs):
+        body_text = environ['wsgi.input'].read()
+        query_raw = parse_qs(body_text)
 
-                    page = home_page.build_home_page(user)
-                    logged_in = True
-                    return page_builder.soup_to_bytes(page)
-        if not logged_in:
+        # Convert the query keys and values from bytes to strings
+        query = {}
+        for key in query_raw.keys():
+            new_key = key
+            if isinstance(key, bytes):
+                new_key = key.decode('utf-8')
+            query[new_key] = []
+            for item in query_raw[key]:
+                if isinstance(item, bytes):
+                    query[new_key].append(item.decode('utf-8'))
+                else:
+                    query[new_key].append(item)
+
+        if 'username' in query and 'password' in query:
+            username = query['username'][0]
+            password = query['password'][0]
+            user = authentication.authenticate(username,password)
+            if user is not None:
+                cookies = [('Set-Cookie',c) for c in authentication.create_cookies(user)]
+                start_response('303 See Other',[('Location','/')]+cookies)
+                return "REDIRECT".encode('utf-8')
+            else:
+                cookies = [('Set-Cookie', c) for c in authentication.clear_cookies()]
+                respond(additional_headers = cookies)
+                page = page_builder.build_page_from_file("salary_saving.html")
+                return page_builder.soup_to_bytes(page)
+
+        else:
             cookies = [('Set-Cookie', c) for c in authentication.clear_cookies()]
             respond(additional_headers = cookies)
             page = page_builder.build_page_from_file("login.html")
             return page_builder.soup_to_bytes(page)
 
-    def handle_cfr():
+    def handle_cfr(**kwargs):
         page = page_builder.build_page_from_file("cfr.html")
         respond()
         return page_builder.soup_to_bytes(page)
 
-    def handle_salary_saving():
+    def handle_salary_saving(**kwargs):
         page = page_builder.build_page_from_file("salary_saving.html")
         respond()
         return page_builder.soup_to_bytes(page)
 
-    def handle_previous_semesters():
+    def handle_previous_semesters(**kwargs):
         page = page_builder.build_page_from_file("previous_semesters.html")
         respond()
         return page_builder.soup_to_bytes(page)
 
-    def handle_revisions():
+    def handle_revisions(**kwargs):
         page = page_builder.build_page_from_file("revisions.html")
         respond()
         return page_builder.soup_to_bytes(page)
 
-    def handle_add_dummy():
+    def handle_add_dummy(**kwargs):
         text = environ['wsgi.input'].read()
         dummy.insert_dummy_data(text)
         respond(mime = "text/plain")
         return "OK".encode('utf-8')
 
     # For 'echo' send the request body back as plain text
-    def handle_echo():
+    def handle_echo(**kwargs):
         respond(mime = "text/plain; charset=utf-8")
         text = environ['wsgi.input'].read()
-        return text.encode('utf-8')
+        if isinstance(text, str):
+            return text.encode('utf-8')
+        else:
+            return text
 
     # For 'error' throw an error to test the the error-catching system.
-    def handle_error():
+    def handle_error(**kwargs):
         raise RuntimeError(
             "This was supposed to happen because you selected 'error'"
         )
 
     #For 'new_user' create a new user
-    def handle_new_user():
+    def handle_new_user(**kwargs):
         if 'QUERY_STRING' in environ:
             query = parse_qs(environ['QUERY_STRING'])
             if 'username' in query and 'password' in query and 'id' in query and 'usr_role' in query:
@@ -149,15 +185,22 @@ def application(environ, start_response):
                 return f"{rows_inserted} user(s) inserted.".encode('utf-8')
 
     # Register handlers into a dictionary
+    # The login-exempt handlers can be called
+    # without the user needing to be logged in
+    login_exempt_handlers = {
+        'login':    handle_login,
+        'echo':     handle_echo,
+        'error':    handle_error
+    }
+    # These handlers require the user to be logged in.
+    # Attempting to access them without being logged in
+    # will cause a redirect to the login page.
     handlers = {
         '/':                    handle_root,
-        'login':                handle_login,
         'cfr':                  handle_cfr,
         'salary_saving':        handle_salary_saving,
         'previous_semesters':   handle_previous_semesters,
         'revisions':            handle_revisions,
-        'echo':                 handle_echo,
-        'error':                handle_error,
         'new_user':             handle_new_user,
         'add_dummy':            handle_add_dummy
     }
@@ -175,6 +218,7 @@ def application(environ, start_response):
     # is thrown, it will be caught and passed to the error handler
     # which will generate a nicely-formatted 500 Internal Server Error page
     try:
+
         # Get the top part of the path supplied in the request's URL.
         # If no path was given, this will simply be '/'.
         # This will be used to determine what function the server does
@@ -184,8 +228,25 @@ def application(environ, start_response):
         else:
             top = path.parts[1]
 
+        # Check if the request is in login_exempt_handlers and call
+        # it if it is. Otherwise, log in
+        if top in login_exempt_handlers:
+            yield login_exempt_handlers[top]()
+            return
+
+        # Attempt to log the user in using the cookies from their browser.
+        # If unsuccessful, redirect to the login page
+        user = None
+        if 'HTTP_COOKIE' in environ:
+            user = authentication.authenticate_from_cookie(environ['HTTP_COOKIE'])
+        if user is None:
+            start_response('303 See Other',[('Location','/login')])
+            yield "REDIRECT".encode('utf-8')
+            return
+
         if top in handlers:
-            yield handlers[top]()
+            yield handlers[top](user = user)
+            return
         # If the top part of the path was not recognized, send back
         # a 404 page.
         else:

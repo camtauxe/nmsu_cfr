@@ -4,6 +4,7 @@ attached or tests can be performed
 """
 import sys
 import os
+from io import StringIO
 
 # Import wsgi_main from the content directory
 sys.path.append(os.path.join(os.path.dirname(__file__),'content'))
@@ -58,9 +59,9 @@ def simulate_request(url, body_file = None) -> ResponseSummary:
             environ['wsgi.input']       = open(body_file)
         except (IOError):
             print("Could not open {}!!".format(body_file))
-            environ['wsgi.input']       = None
+            environ['wsgi.input']       = StringIO("")
     else:
-        environ['wsgi.input']       = None
+        environ['wsgi.input']       = StringIO("")
     environ['wsgi.errors']          = sys.stderr
     environ['wsgi.version']         = (1, 0)
     environ['wsgi.multithread']     = False
