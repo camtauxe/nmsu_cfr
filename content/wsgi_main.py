@@ -121,7 +121,7 @@ def application(environ, start_response):
             else:
                 cookies = [('Set-Cookie', c) for c in authentication.clear_cookies()]
                 respond(additional_headers = cookies)
-                page = page_builder.build_page_from_file("login.html")
+                page = page_builder.build_login_page(message="The provided username or password is incorrect!")
                 return page_builder.soup_to_bytes(page)
 
         # If there is no body (or username and password are otherwise not present)
@@ -129,7 +129,7 @@ def application(environ, start_response):
         else:
             cookies = [('Set-Cookie', c) for c in authentication.clear_cookies()]
             respond(additional_headers = cookies)
-            page = page_builder.build_page_from_file("login.html")
+            page = page_builder.build_login_page()
             return page_builder.soup_to_bytes(page)
 
     def handle_cfr(**kwargs):
@@ -249,12 +249,12 @@ def application(environ, start_response):
         if top in handlers:
             yield handlers[top](user = user)
             return
+
         # If the top part of the path was not recognized, send back
         # a 404 page.
-        else:
-            respond(status="404 Not Found")
-            error_page = page_builder.build_404_error_page()
-            yield page_builder.soup_to_bytes(error_page)
+        respond(status="404 Not Found")
+        error_page = page_builder.build_page_from_file("404.html", includeNavbar=False)
+        yield page_builder.soup_to_bytes(error_page)
 
     except Exception as err:
         respond(status="500 Internal Server Error")

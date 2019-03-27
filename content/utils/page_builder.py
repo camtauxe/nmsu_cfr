@@ -52,25 +52,34 @@ def insert_at_id(containing_soup: Soup, tag_id, content, raw_text = False):
     containing_soup.find(id=tag_id).append(content)
 
 
-def build_page_around_content(content, raw_text = False) -> Soup:
+def build_page_around_content(content, raw_text = False, includeNavbar = True) -> Soup:
     """
     Build a full page with the given content as the page's content
     and return it as a BeautifulSoup.
+
+    If includeNavbar is False, then the navbar will not be present
+    on the built page.
 
     content can be either a BeautifulSoup or a string. If it is a string,
     it will first be parsed into a BeautifulSoup before being inserted.
     Unless raw_text is True in which case it will be inserted directly.
     """
     page = soup_from_file("page_wrapper.html")
+    if not includeNavbar:
+        navbar = page.find(id='main-navigation')
+        navbar.extract()
     if not isinstance(content, Soup) and not raw_text:
         content = soup_from_text(content)
     page.find(id='pagecontent').append(content)
     return page
 
-def build_page_from_file(path, absolute_path = False) -> Soup:
+def build_page_from_file(path, absolute_path = False, includeNavbar = True) -> Soup:
     """
     Build a full page with the contents of the given html file as the
     page's content and return it as a BeautifulSoup.
+
+    If includeNavbar is False, then the navbar will not be present
+    on the built page.
 
     By default, this will look for the given filename inside
     the RESOURCE_DIR, but if absolute_path is True, then the path
@@ -78,7 +87,20 @@ def build_page_from_file(path, absolute_path = False) -> Soup:
     the machine.
     """
     content = soup_from_file(path, absolute_path = absolute_path)
-    return build_page_around_content(content)
+    return build_page_around_content(content, includeNavbar = includeNavbar)
+
+def build_login_page(message = None):
+    """
+    Build a login page.
+
+    If a string, message, is provided then the message will be
+    displayed as an error below the login form.
+    """
+    page = build_page_from_file("login.html", includeNavbar=False)
+    if message is not None:
+        error_message = f'<p class="error" style="padding: 5px;">{message}</p>'
+        insert_at_id(page, 'loginp', error_message)
+    return page
 
 def build_500_error_page(exception) -> Soup:
     """
@@ -89,7 +111,7 @@ def build_500_error_page(exception) -> Soup:
     such as the current time and date and a stack trace of the exception
     will be displayed on the page.
     """
-    page = build_page_from_file("500.html")
+    page = build_page_from_file("500.html", includeNavbar=False)
 
     if cfrenv.getenv('DEBUG') != 'yes':
         page.find(id="debugonly").extract()
@@ -99,13 +121,6 @@ def build_500_error_page(exception) -> Soup:
         insert_at_id(page, "stacktrace", traceback.format_exc(), raw_text=True)
 
     return page
-
-def build_404_error_page() -> Soup:
-    """
-    Build a webpage displaying a 404 Not Found Error and return
-    it as a BeautifulSoup
-    """
-    return build_page_from_file("404.html")
 
 def soup_to_bytes(soup: Soup) -> bytes:
     """

@@ -1,28 +1,5 @@
 /************************************************** NMSU CFR ADDITIONAL SCRIPTS **************************************************/
 
-var testing = true;
-var simData = true;
-
-function hideNavbar() {
-  var navbar = document.getElementById("main-navigation");
-  navbar.style.display = "none";
-};
-
-function showNavbar() {
-  var navbar = document.getElementById("main-navigation");
-  navbar.style.display = "block";
-};
-
-function checkNavbar() {
-  var url = location.href;
-
-  if (url === "http://localhost/") {
-    hideNavbar();
-  } else {
-    showNavbar();
-  }
-};
-
 /*
 var dummy, dummy1, dummy2, dummyArray, dummyArrayJSON, dummyArray2, dummyJSON, txt, x, i;
 //var xmlhttp = new XMLHttpRequest();
