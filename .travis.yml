@@ -5,12 +5,7 @@ services:
   - mysql
 
 before_script:
-  - "docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 dockernet"
-  - "cp cfr.env.example cfr.env"
-  - "docker build -q -t nmsu_cfr:latest ."
-  - "docker run -d --env-file cfr.env --name cfr -p 80:80 --network dockernet nmsu_cfr:latest"
+  - . $TRAVIS_BUILD_DIR/travis/travis_before_script.sh
 
 script:
-  - "[[ $(curl -s -o /dev/null -w '%{http_code}' localhost) == 200 ]]"
-  - "[[ $(curl -s -o /dev/null -w '%{http_code}' localhost/nope) == 404 ]]"
-#  - "[[ $(curl -s -o /dev/null -w '%{http_code}' localhost/error) == 500 ]]"
+  - . $TRAVIS_BUILD_DIR/travis/travis_script.sh
