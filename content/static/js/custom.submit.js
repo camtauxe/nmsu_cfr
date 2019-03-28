@@ -48,10 +48,11 @@ function addRow() {
     var cell = row.insertCell(i);
     if (i != 0 && i!=12){
       cell.contentEditable = "true";
+      cell.className = "editable";
+      cell.innerHTML = "";
     }
-    cell.innerHTML = "";
     //the last column is the delete checkbox
-    if (i == 12){
+    else if (i == 12){
       cell.className = "noprint";
       cell.innerHTML = "<input type='checkbox' id='checkCFR'>";
     }
@@ -81,9 +82,9 @@ function CFRsubmit() {
   //goes through rows from end to beginning
   while(i--) { 
       //deletes rows that are checked
-      if(aObj[i].getElementsByTagName('input')[0].checked) {
-          aObj[i].parentNode.removeChild(aObj[i]);
-          }
+      if(aObj[i].getElementsByTagName('input')[0].checked || aObj[i].getElementsByTagName('td')[2].innerHTML == "") {
+        aObj[i].parentNode.removeChild(aObj[i]);
+      }
   }
   //gets the cfr Table element
   var table = document.getElementById('cfrTable');
@@ -92,33 +93,33 @@ function CFRsubmit() {
   //for each row in the table the elements are added to the cfr object
   for (i = 0; i<row.length; i++){
     var cell = row[i].getElementsByTagName('td');
-    if (i == 0){
-      cfrObj[0].dept_priority = cell[1].innerHTML;
-      cfrObj[0].course = cell[2].innerHTML;
-      cfrObj[0].sec = cell[3].innerHTML;
-      cfrObj[0].mini = cell[4].innerHTML;
-      cfrObj[0].online = cell[5].innerHTML;
-      cfrObj[0].number_students = cell[6].innerHTML;
-      cfrObj[0].instructor = cell[7].innerHTML;
-      cfrObj[0].banner_ID = cell[8].innerHTML;
-      cfrObj[0].instructor_rank = cell[9].innerHTML;
-      cfrObj[0].course_cost = cell[10].innerHTML;
-      cfrObj[0].reason = cell[11].innerHTML;
-    }
-    else{
-      cfrObj.push(
-        {dept_priority: cell[1].innerHTML,
-        course: cell[2].innerHTML,
-        sec: cell[3].innerHTML,
-        mini: cell[4].innerHTML,
-        online: cell[5].innerHTML,
-        number_students: cell[6].innerHTML,
-        instructor: cell[7].innerHTML,
-        banner_ID: cell[8].innerHTML,
-        instructor_rank: cell[9].innerHTML,
-        course_cost: cell[10].innerHTML,
-        reason: cell[11].innerHTML});
-    }
+      if (i == 0){
+        cfrObj[0].dept_priority = cell[1].innerHTML;
+        cfrObj[0].course = cell[2].innerHTML;
+        cfrObj[0].sec = cell[3].innerHTML;
+        cfrObj[0].mini = cell[4].innerHTML;
+        cfrObj[0].online = cell[5].innerHTML;
+        cfrObj[0].number_students = cell[6].innerHTML;
+        cfrObj[0].instructor = cell[7].innerHTML;
+        cfrObj[0].banner_ID = cell[8].innerHTML;
+        cfrObj[0].instructor_rank = cell[9].innerHTML;
+        cfrObj[0].course_cost = cell[10].innerHTML;
+        cfrObj[0].reason = cell[11].innerHTML;
+      }
+      else{
+        cfrObj.push(
+          {dept_priority: cell[1].innerHTML,
+          course: cell[2].innerHTML,
+          sec: cell[3].innerHTML,
+          mini: cell[4].innerHTML,
+          online: cell[5].innerHTML,
+          number_students: cell[6].innerHTML,
+          instructor: cell[7].innerHTML,
+          banner_ID: cell[8].innerHTML,
+          instructor_rank: cell[9].innerHTML,
+          course_cost: cell[10].innerHTML,
+          reason: cell[11].innerHTML});
+      }
   }
   //prints the cfr object to the console for testing
   console.log(cfrObj);

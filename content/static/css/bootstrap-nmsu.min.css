@@ -2829,7 +2829,7 @@ th {
 .table-hover>tbody>tr:hover {
     background-color: #d9d9d9;
     color: #882345;
-    cursor: pointer;
+    /*cursor: pointer;*/
 }
 
 table col[class*="col-"] {
