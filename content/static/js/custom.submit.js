@@ -5,7 +5,7 @@ var dummy, dummy2, dummyJSON, txt, x, xmlhttp;
 
 /* Function: submitCFR()
    Purpose: executes when the submit button on the cfr.html is clicked*/
-function submitCFR() {
+function submitDummy() {
   dummy = [
     {
       name1: document.getElementById("cfrName").value, 
@@ -61,61 +61,71 @@ function addRow() {
 /* Function: CFRsubmit()
     Purpose: submits modified CFRs*/
 function CFRsubmit() {
-var cfrObj = [
-  {dept_priority: "",
-  course: "",
-  sec: "",
-  mini: "",
-  online: "",
-  number_students: "",
-  instructor: "",
-  banner_ID: "",
-  instructor_rank: "",
-  course_cost: "",
-  reason: ""}
-];
-var aObj=document.getElementById('cfrTable').getElementsByTagName('tr');
-var i=aObj.length; 
-while(i--) { 
-    if(aObj[i].getElementsByTagName('input')[0].checked) {
-        aObj[i].parentNode.removeChild(aObj[i]);
-        }
-}
-var table = document.getElementById('cfrTable');
-var row = table.getElementsByTagName('tr');
-for (i = 0; i<row.length; i++){
-  var cell = row[i].getElementsByTagName('td');
-  if (i == 0){
-    cfrObj[0].dept_priority = cell[1].innerHTML;
-    cfrObj[0].course = cell[2].innerHTML;
-    cfrObj[0].sec = cell[3].innerHTML;
-    cfrObj[0].mini = cell[4].innerHTML;
-    cfrObj[0].online = cell[5].innerHTML;
-    cfrObj[0].number_students = cell[6].innerHTML;
-    cfrObj[0].instructor = cell[7].innerHTML;
-    cfrObj[0].banner_ID = cell[8].innerHTML;
-    cfrObj[0].instructor_rank = cell[9].innerHTML;
-    cfrObj[0].course_cost = cell[10].innerHTML;
-    cfrObj[0].reason = cell[11].innerHTML;
+  var cfrObj = [
+    {dept_priority: "",
+    course: "",
+    sec: "",
+    mini: "",
+    online: "",
+    number_students: "",
+    instructor: "",
+    banner_ID: "",
+    instructor_rank: "",
+    course_cost: "",
+    reason: ""}
+  ];
+  //gets array of rows from the cfr table
+  var aObj=document.getElementById('cfrTable').getElementsByTagName('tr');
+  //i = number of rows in the table
+  var i=aObj.length;
+  //goes through rows from end to beginning
+  while(i--) { 
+      //deletes rows that are checked
+      if(aObj[i].getElementsByTagName('input')[0].checked) {
+          aObj[i].parentNode.removeChild(aObj[i]);
+          }
   }
-  else{
-    cfrObj.push(
-      {dept_priority: cell[1].innerHTML,
-      course: cell[2].innerHTML,
-      sec: cell[3].innerHTML,
-      mini: cell[4].innerHTML,
-      online: cell[5].innerHTML,
-      number_students: cell[6].innerHTML,
-      instructor: cell[7].innerHTML,
-      banner_ID: cell[8].innerHTML,
-      instructor_rank: cell[9].innerHTML,
-      course_cost: cell[10].innerHTML,
-      reason: cell[11].innerHTML});
+  //gets the cfr Table element
+  var table = document.getElementById('cfrTable');
+  //row = an array of the rows of the table
+  var row = table.getElementsByTagName('tr');
+  //for each row in the table the elements are added to the cfr object
+  for (i = 0; i<row.length; i++){
+    var cell = row[i].getElementsByTagName('td');
+    if (i == 0){
+      cfrObj[0].dept_priority = cell[1].innerHTML;
+      cfrObj[0].course = cell[2].innerHTML;
+      cfrObj[0].sec = cell[3].innerHTML;
+      cfrObj[0].mini = cell[4].innerHTML;
+      cfrObj[0].online = cell[5].innerHTML;
+      cfrObj[0].number_students = cell[6].innerHTML;
+      cfrObj[0].instructor = cell[7].innerHTML;
+      cfrObj[0].banner_ID = cell[8].innerHTML;
+      cfrObj[0].instructor_rank = cell[9].innerHTML;
+      cfrObj[0].course_cost = cell[10].innerHTML;
+      cfrObj[0].reason = cell[11].innerHTML;
+    }
+    else{
+      cfrObj.push(
+        {dept_priority: cell[1].innerHTML,
+        course: cell[2].innerHTML,
+        sec: cell[3].innerHTML,
+        mini: cell[4].innerHTML,
+        online: cell[5].innerHTML,
+        number_students: cell[6].innerHTML,
+        instructor: cell[7].innerHTML,
+        banner_ID: cell[8].innerHTML,
+        instructor_rank: cell[9].innerHTML,
+        course_cost: cell[10].innerHTML,
+        reason: cell[11].innerHTML});
+    }
   }
-}
-//test JSON by printing to console
-console.log(cfrObj);
-var cfrJSON = JSON.stringify(cfrObj);
+  //prints the cfr object to the console for testing
+  console.log(cfrObj);
+  //creates a JSON object from the cfr object
+  var cfrJSON = JSON.stringify(cfrObj);
+
+  //ADD HTTP REQUEST TO SEND JSON OBJECT
 };
 
 
