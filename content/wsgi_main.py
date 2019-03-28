@@ -236,17 +236,17 @@ def application(environ, start_response):
             yield login_exempt_handlers[top]()
             return
 
-        # Attempt to log the user in using the cookies from their browser.
-        # If unsuccessful, redirect to the login page
-        user = None
-        if 'HTTP_COOKIE' in environ:
-            user = authentication.authenticate_from_cookie(environ['HTTP_COOKIE'])
-        if user is None:
-            start_response('303 See Other',[('Location','/login')])
-            yield "REDIRECT".encode('utf-8')
-            return
-
         if top in handlers:
+            # Attempt to log the user in using the cookies from their browser.
+            # If unsuccessful, redirect to the login page
+            user = None
+            if 'HTTP_COOKIE' in environ:
+                user = authentication.authenticate_from_cookie(environ['HTTP_COOKIE'])
+            if user is None:
+                start_response('303 See Other',[('Location','/login')])
+                yield "REDIRECT".encode('utf-8')
+                return
+
             yield handlers[top](user = user)
             return
 
