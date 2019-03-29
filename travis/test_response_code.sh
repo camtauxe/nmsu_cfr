@@ -19,8 +19,8 @@ fi
 
 if [ "$4" != "" ]; then
     echo "Testing request to localhost$1 (expecting $2, data from $3 as $4) ..." 
-    CODE=$(curl -s -o /dev/null -w '%{http_code}' --cookie-jar .curl_cookies --cookie .curl_cookies -H \'Content-Type: $4\' -d @$3 localhost$1)
-    if [[ $CODE == *"$2"* ]]; then
+    CODE=$(curl -s -o /dev/null -w '%{http_code}\n' --cookie-jar .curl_cookies --cookie .curl_cookies -H "Content-Type: $4" --data-binary @$3 localhost$1)
+    if [[ $CODE == "$2" ]]; then
         echo "OK!"
         exit 0
     else
@@ -29,8 +29,8 @@ if [ "$4" != "" ]; then
     fi
 else
     echo "Testing request to localhost$1 (expecting $2) ..."
-    CODE=$(curl -s -o /dev/null -w '%{http_code}' --cookie-jar .curl_cookies --cookie .curl_cookies localhost$1)
-    if [[ $CODE == *"$2"* ]]; then
+    CODE=$(curl -s -o /dev/null -w '%{http_code}\n' --cookie-jar .curl_cookies --cookie .curl_cookies localhost$1)
+    if [[ $CODE == "$2" ]]; then
         echo "OK!"
         exit 0
     else
