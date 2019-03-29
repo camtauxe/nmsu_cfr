@@ -6,3 +6,4 @@ cfr.env
 compose.bash
 testfiles/
 .debug_cookies
+.curl_cookies
