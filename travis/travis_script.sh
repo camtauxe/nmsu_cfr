@@ -1,7 +1,5 @@
 #!/usr/bin/bash
 
-set -e
-
 TEST=$TRAVIS_BUILD_DIR/travis/test_response_code.sh
 bash $TEST / 303
 bash $TEST /nope 404
