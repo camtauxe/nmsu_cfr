@@ -30,6 +30,7 @@ def application(environ, start_response):
     Please see the WSGI standard for more information:
     https://www.python.org/dev/peps/pep-3333/
     """
+
     def respond(
         status: str     = "200 OK",
         mime: str       = "text/html; charset=utf-8",
@@ -47,6 +48,34 @@ def application(environ, start_response):
         '200 OK' and 'text/html' respectively.
         """
         start_response(status, [('Content-Type',mime)]+additional_headers)
+
+    def dict_from_POST():
+        """
+        Returns a dictionary obtained by parsing the body of the HTTP request,
+        assumes that this is a POST request and that the body is in the
+        application/x-www-form-urlencoded format.
+
+        If the request has no body, then this will still return a dict, but
+        it will be empty. Each value in the dictionary will be list containing
+        the values for that entry.
+        """
+        body_text = environ['wsgi.input'].read()
+        query_raw = parse_qs(body_text) # This will be empty if there is no body
+
+        # Convert the query keys and values from bytes to strings
+        query = {}
+        for key in query_raw.keys():
+            new_key = key
+            if isinstance(key, bytes):
+                new_key = key.decode('utf-8')
+            query[new_key] = []
+            for item in query_raw[key]:
+                if isinstance(item, bytes):
+                    query[new_key].append(item.decode('utf-8'))
+                else:
+                    query[new_key].append(item)
+
+        return query
 
     ###########################################
     # RESPONSE HANDLERS
@@ -91,22 +120,7 @@ def application(environ, start_response):
         or password parameters, it will be treated as if there was no body
         """
 
-        body_text = environ['wsgi.input'].read()
-        query_raw = parse_qs(body_text) # This will be empty if there is no body
-
-        # Convert the query keys and values from bytes to strings
-        query = {}
-        for key in query_raw.keys():
-            new_key = key
-            if isinstance(key, bytes):
-                new_key = key.decode('utf-8')
-            query[new_key] = []
-            for item in query_raw[key]:
-                if isinstance(item, bytes):
-                    query[new_key].append(item.decode('utf-8'))
-                else:
-                    query[new_key].append(item)
-
+        query = dict_from_POST()
         if 'username' in query and 'password' in query:
             username = query['username'][0]
             password = query['password'][0]
@@ -175,16 +189,11 @@ def application(environ, start_response):
 
     #For 'new_user' create a new user
     def handle_new_user(**kwargs):
-        if 'QUERY_STRING' in environ:
-            query = parse_qs(environ['QUERY_STRING'])
-            if 'username' in query and 'password' in query and 'id' in query and 'usr_role' in query:
-                username = query['username'][0]
-                password = query['password'][0]
-                banner_id = query['id'][0]
-                user_role = query['usr_role'][0]
-                rows_inserted = create_user.create_user(username, password, banner_id, user_role)
-                respond(mime = 'text/plain')
-                return f"{rows_inserted} user(s) inserted.".encode('utf-8')
+        if kwargs['user'].role != authentication.UserRole.ADMIN:
+            raise RuntimeError("Only admins can do this!")
+        rows_inserted = create_user.create_user(dict_from_POST())
+        respond(mime = 'text/plain')
+        return f"{rows_inserted} user(s) inserted.".encode('utf-8')
 
     # Register handlers into a dictionary.
     # The login-exempt handlers can be called
