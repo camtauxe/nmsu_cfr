@@ -11,3 +11,4 @@ docker build -q -t nmsu_cfr:latest .
 docker run -d --env-file cfr.env --name cfr --network="host" nmsu_cfr:latest
 
 set +x
+set +e
