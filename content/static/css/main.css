@@ -20,8 +20,11 @@ h1 {
     padding-bottom: 20px
 }
 
+.editable {
+    cursor: pointer;
+}
 
-tbody td:hover {
+.table-hover td:hover {
     text-decoration: underline;
 }
 /**
@@ -58,12 +61,19 @@ tbody td:hover {
  * it is centered in the available space.
 **/
 #pagecontent {
-    max-width: 9in;
+    max-width: 11in;
     margin: 0 auto 0 auto;
     padding: 5px;
     color: black;
     /* NOTE: If you change this, change #pagefooter height too!!! */
     padding-bottom: 50px;
+    overflow-x: auto;
+    white-space: wrap;
+}
+
+#pagecontent p {
+    margin-left: 5%;
+    margin-right: 5%;
 }
 
 /**

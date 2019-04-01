@@ -1,10 +1,67 @@
 
 <h1>Course Funding Request</h1>
 
+<h2>View/Edit CFRs</h2>
+<!-- CFR Table -->
+<table class="table table-bordered table-striped table-hover">
+    <caption></caption>
+    <thead>
+        <tr>
+            <th>Dept Priority (top = 1)</th>
+            <th>Course</th>
+            <th>Sec</th>
+            <th>Mini Session? (yes or no)</th>
+            <th>Online Class? (yes or no)</th>
+            <th>Number of Students</th>
+            <th>Instructor or GA Name "TBD" if Unknown</th>
+            <th>Banner ID</th>
+            <th>Instructor Rank or GA</th>
+            <th class="tooltiptitle">
+                    <span class="tooltip tooltip-inner">Please follow the Adjuncts Salary structure for non-GAs</span>
+            Course Cost
+            </th>
+            
+            <th class="tooltiptitle">
+                    <span class="tooltip tooltip-inner"> In this section, for each class, briefly indicate what factor(s) produced the need for funding for the course (i.e. sabbatical leave coverage, retirement, etc.) AND the significance of the course for the general </span>
+                Reason/Justification
+            </th>
+            <th class=noprint>
+                <img src="/static/images/delete-icon.png" style="height: 20px; vertical-align: text-top;">
+            </th>
+        </tr>
+    </thead>
+    <tbody id="cfrTable">
+        <tr>
+            <td contenteditable="true" class="editable"></td>
+            <td contenteditable="true" class="editable"></td>
+            <td contenteditable="true" class="editable"></td>
+            <td contenteditable="true" class="editable"></td>
+            <td contenteditable="true" class="editable"></td>
+            <td contenteditable="true" class="editable"></td>
+            <td contenteditable="true" class="editable"></td>
+            <td contenteditable="true" class="editable"></td>
+            <td contenteditable="true" class="editable"></td>
+            <td contenteditable="true" class="editable"></td>
+            <td contenteditable="true" class="editable"></td>
+            <td class="noprint"><input type="checkbox" id="checkCFR"></td>
+        </tr>
+    </tbody>
+    <tfoot>
+    </tfoot>
+</table>
+<!-- Add New Row Button -->
+<!-- Class="noprint" so that button is not printed -->
+<button type="button" onclick="addRow()" class="btn btn-primary noprint" style="margin-left: 95%">
+    <img src="/static/images/plus-icon.png" style="height: 15px; vertical-align: text-top;">
+</button>
+<!-- Modify CFR Button -->
+<button type="submit" onclick="CFRsubmit()" class="btn btn-primary">Submit Changes</button>
+
+
 
 <!-- CFR Table -->
 <h2>Submitted CFRs</h2>
-<table class="table table-bordered table-striped table-hover" id="cfrTable">
+<table class="table table-bordered table-striped table-hover" id="cfrTable2">
 	<!-- Optional Table Caption -->
 	<caption></caption>
 	<thead>
@@ -31,7 +88,7 @@
             </th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="dummyTable">
         <tr>
             <td contenteditable="true">Row 1, Cell 1</td>
             <td contenteditable="true">1</td>
@@ -78,7 +135,7 @@
             <input type="number" class="form-control" id="cfrNum3">
         </div> 
 
-    <button type="button" onclick="submitCFR()" class="btn btn-primary" style="margin-top: 15px;">Submit</button>
+    <button type="button" onclick="submitDummy()" class="btn btn-primary" style="margin-top: 15px;">Submit</button>
 </form>
 <p id="cfrOutput"></p>
 <p>     

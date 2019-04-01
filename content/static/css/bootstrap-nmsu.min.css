@@ -2757,7 +2757,8 @@ th {
 .table {
     width: 100%;
     max-width: 100%;
-    margin-bottom: 22px
+    margin-bottom: 22px;
+    overflow-x: visible;
 }
 
 .table>thead>tr>th,
@@ -2828,7 +2829,7 @@ th {
 .table-hover>tbody>tr:hover {
     background-color: #d9d9d9;
     color: #882345;
-    cursor: pointer;
+    /*cursor: pointer;*/
 }
 
 table col[class*="col-"] {
@@ -7177,7 +7178,7 @@ button.close {
     word-wrap: normal;
     font-size: 12px;
     left: 0px;
-    bottom: 105%;
+    bottom: 50%;
     opacity: 0;
     filter: alpha(opacity=0);
 }
