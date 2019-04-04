@@ -1,76 +1,50 @@
 """
-Functions to manage the connection to the MySQL server
+Manages the connection to the MySQL server
 """
 import os
 import mysql.connector as conn
 from typing import List
 from . import cfrenv
 
-# Global variable for the MySQL Connection.
-_connection: conn.MySQLConnection = None
-# Global variable listing the names of all the tables in the database
-# Empty before a connection is made
-_tablenames: List[str] = []
+class Transaction:
+    """
+    Transaction is the primary means of interacting with the MySQL server.
 
-def connect():
+    It is a context manager designed to be used with the 'with' statement.
+    Using the with statement, Transaction returns a new cursor in a new connection
+    to the database. After exiting the code block, the database connection
+    and cursor are automatically closed (if an exception occurs in the
+    middle of the code block, the database connection will still automatically
+    be closed).
+
+    Any keyword arguments passed to Transaction will be passed along to the
+    cursor.
+
+    Example:
+
+    with Transaction(buffered = True) as cursor:
+        cursor.execute(...)
+        ...
+        ...
+
     """
-    Form a connection to the MySQL server.
-    If a connection is already made, this does nothing.
-    """
-    global _connection, _tablenames
-    if _connection is None:
-        _connection = conn.connect(
+    def __init__(self, **kwargs):
+        self._cursor_kwargs = kwargs
+
+    def __enter__(self):
+        self._connection = conn.connect(
             user        = cfrenv.getenv('DB_USER'),
             passwd      = cfrenv.getenv('DB_PASS'),
             host        = cfrenv.getenv('DB_HOST'),
             database    = cfrenv.getenv('DB_DATABASE')
         )
-        # Get tablenames
-        cursor = _connection.cursor()
-        cursor.execute("SHOW tables")
-        _tablenames = [d[0] for d in cursor.fetchall()]
+        self._cursor = self._connection.cursor(**self._cursor_kwargs)
+        return self._cursor
 
-def disconnect():
-    """
-    Disconnect from the MySQL server. If the connection is already
-    disconnected. This does nothing.
-    """
-    global _connection
-    if _connection is not None:
-        _connection.close()
-        _connection = None
-
-def new_cursor(**kwargs) -> conn.cursor.CursorBase:
-    """
-    Create and return a new cursor for the MySQL connection.
-    If a connection has not been made yet, the connection will
-    be made automatically.
-
-    Any keyword-arguments passed to this will be passed to the
-    MySQL cursor constructor. Please close the cursor when you
-    are done with it
-    """
-    global _connection
-    if _connection is None:
-        connect()
-    return _connection.cursor(**kwargs)
-
-def get_connection() -> conn.MySQLConnection:
-    global _connection
-    return _connection
-
-def is_connected() -> bool:
-    global _connection
-    return bool(_connection is not None)
-
-def get_table_names() -> List[str]:
-    """
-    Get a list of the names of tables in the database.
-
-    If a connection has not been made yet, the connection will
-    be made automatically. 
-    """
-    global _connection, _tablenames
-    if _connection is None:
-        connect()
-    return _tablenames.copy()
+    def __exit__(self, type, value, traceback):
+        if traceback is None:
+            self._connection.commit()
+        else:
+            self._connection.rollback()
+        self._cursor.close()
+        self._connection.close()

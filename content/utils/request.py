@@ -3,7 +3,7 @@ Functions related to submitting a request
 """
 import json
 from enum import Enum, auto
-from . import sql_connection as sql 
+from .sql_connection import Transaction as Transaction
 
 class req_fields(Enum):
     """
@@ -42,17 +42,15 @@ def create_cfr(dept_name, semester, cal_year, submitter):
     """
     Insert a new cfr into the cfr_department table
     """
-    cursor = sql.new_cursor()
     create_cfr = ("INSERT INTO cfr_department "
                   "VALUES (%s, %s, %s, NOW(), NULL, 0, %s)")
     data_cfr = (dept_name, semester, cal_year, submitter)
 
     # execute insert statement to create new cfr
-    cursor.execute(create_cfr, data_cfr)
-    sql.get_connection().commit()
-    rows_inserted = cursor.rowcount
-    cursor.close()
-    sql.disconnect()
+    with Transaction() as cursor:
+        cursor.execute(create_cfr, data_cfr)
+        cursor.commit()
+        rows_inserted = cursor.rowcount
     return rows_inserted
 
 
@@ -80,17 +78,14 @@ def add_course(data):
         data_ls.append(data_req) 
 
 
-    cursor = sql.new_cursor()
     add_req = ("INSERT INTO request "
                "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
-   
-    
-    cursor.executemany(add_req, data_ls)
+      
 
-    sql.get_connection().commit()
-    rows_inserted = cursor.rowcount
-    cursor.close()
-    sql.disconnect()
+    with Transaction() as cursor:
+        cursor.executemany(add_req, data_req)
+        cursor.commit()
+        rows_inserted = cursor.rowcount
     return rows_inserted
 
 
@@ -119,16 +114,13 @@ def add_sal_savings(data):
         data_ls.append(data_sav)
     
 
-    cursor = sql.new_cursor()
     add_sav = ("INSERT INTO sal_savings "
                "VALUES (%s, %s, %s, NULL, %s, %s, %s, %s, %s)")
    
-    cursor.executemany(add_sav, data_ls)
-    
-    sql.get_connection().commit()
-    rows_inserted = cursor.rowcount
-    cursor.close()
-    sql.disconnect()
+    with Transaction() as cursor:
+        cursor.executemany(add_sav, data_ls)
+        cursor.commit()
+        rows_inserted = cursor.rowcount
     return rows_inserted
 
     

@@ -16,10 +16,10 @@ VALUES ('submitter1', 0xba75e5b5235c647fe1fc9474727032ebaceab0f1260b811aaae21c63
        ('submitter7', 0xf9f4d11fd4f84147cdb685c38153ad9c7368c6e954332c3d03be7ea9d5d31a25f052eadc2e667bfe4c28e988298e0491e5160e29ec3a81481b7d7e7baa17794f, 800000006, 'submitter'),
        ('approver1', 0x86711de86de1fc5683c170414e2402e8fa87957027299a2c11d2e5e5253c6de8417849a150e20a7b026fd44c9b056b7daf96ce04cce161674a7772b1ed78e070, 800000007, 'approver'),
        ('approver2', 0x42d09c93ca9b6d6bd11c814a2b4f09b7650f8234887a48d2c031b77f2fa06c71dbdb9e4965aad990f3fe6ed91f71fbac56a7e2c57bc80d068b3977b9d56b10ce, 800000008, 'approver'),
-       ('approver3', 0x475700a5b9f9c1798abc11c5a1d87e3a9a18b0791ff992b4ac61c271982f6a7e0997c096f9151eb255b6b58ee13f5433673c78c8290e8201ffb0e832cad35e98, 800000009, 'approver');       
+       ('admin', 0x475700a5b9f9c1798abc11c5a1d87e3a9a18b0791ff992b4ac61c271982f6a7e0997c096f9151eb255b6b58ee13f5433673c78c8290e8201ffb0e832cad35e98, 800000009, 'admin');       
 INSERT INTO submitter
 VALUES ('submitter1', 'Astronomy'),
-	   ('submitter2', 'Biology'),
+	     ('submitter2', 'Biology'),
        ('submitter3', 'Physics'),
        ('submitter4', 'Art'),
        ('submitter5', 'History'),
