@@ -204,7 +204,9 @@ def application(environ, start_response):
 
 
     #For 'add_course' add a course to a cfr
-    def handle_add_course():
+    def handle_add_course(**kwargs):
+        if kwargs['user'].role != authentication.UserRole.SUBMITTER:
+            raise RuntimeError("Only submitters can do this!")
         data = environ['wsgi.input'].read()
         rows_inserted = request.add_course(data)
         respond(mime = 'text/plain')

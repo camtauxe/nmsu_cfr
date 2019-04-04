@@ -67,9 +67,9 @@ def add_course(data):
     json_data = json.loads(data)
     data_ls = []
 
-    #loop through each dictionary and extract the values and insert them into tuples
+    #loop through each dictionary and parse the values and insert them into tuples
     for i in range(len(json_data)):
-        data_req = ()
+        data_req = ('NULL', )
         request = json_data[i]
         for j in range(len(request)):
             data_req = data_req + (request[req_fields(j+1).name], )
@@ -79,13 +79,14 @@ def add_course(data):
 
 
     add_req = ("INSERT INTO request "
-               "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+               "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
       
 
     with Transaction() as cursor:
-        cursor.executemany(add_req, data_req)
-        cursor.commit()
-        rows_inserted = cursor.rowcount
+        rows_inserted = 0
+        for row in data_ls:
+            cursor.execute(add_req, row)
+            rows_inserted += cursor.rowcount
     return rows_inserted
 
 
