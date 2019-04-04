@@ -63,18 +63,6 @@ function addRow() {
     Purpose: submits modified CFRs*/
 function CFRsubmit() {
   var cfrObj = [
-    {
-    priority: "",
-    course: "",
-    sec: "",
-    mini: "",
-    online: "",
-    number_students: "",
-    instructor: "",
-    banner_ID: "",
-    instructor_rank: "",
-    course_cost: "",
-    reason: ""}
   ];
   //gets array of rows from the cfr table
   var aObj=document.getElementById('cfrTable').getElementsByTagName('tr');
@@ -94,20 +82,6 @@ function CFRsubmit() {
   //for each row in the table the elements are added to the cfr object
   for (i = 0; i<row.length; i++){
     var cell = row[i].getElementsByTagName('td');
-      if (i == 0){
-        cfrObj[0].priority = cell[0].innerHTML;
-        cfrObj[0].course = cell[1].innerHTML;
-        cfrObj[0].sec = cell[2].innerHTML;
-        cfrObj[0].mini = cell[3].innerHTML;
-        cfrObj[0].online = cell[4].innerHTML;
-        cfrObj[0].number_students = cell[5].innerHTML;
-        cfrObj[0].instructor = cell[6].innerHTML;
-        cfrObj[0].banner_ID = cell[7].innerHTML;
-        cfrObj[0].instructor_rank = cell[8].innerHTML;
-        cfrObj[0].course_cost = cell[9].innerHTML;
-        cfrObj[0].reason = cell[10].innerHTML;
-      }
-      else{
         cfrObj.push(
           {
           priority: cell[0].innerHTML,
@@ -121,7 +95,6 @@ function CFRsubmit() {
           instructor_rank: cell[8].innerHTML,
           course_cost: cell[9].innerHTML,
           reason: cell[10].innerHTML});
-      }
   }
   //prints the cfr object to the console for testing
   console.log(cfrObj);

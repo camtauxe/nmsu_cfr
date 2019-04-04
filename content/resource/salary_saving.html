@@ -1,6 +1,43 @@
 <h1>Sources of Salary Saving</h1>
 
-<table class="table table-bordered" id="salaryTable">
+<table class="table table-bordered">
+<thead>
+    <tr>
+        <th style="width: 30%">Type of Leave</th>
+        <th style="width: 20%">Name</th>
+        <th>This Semester Salary Savings if Any</th>
+        <th class=noprint>
+            <img src="/static/images/delete-icon.png" style="height: 20px; vertical-align: text-top;">
+        </th>
+    </tr>
+</thead>
+<tbody id="salaryTable" style="background-color: #f9f9f9">
+    <tr>
+        <td>
+            <div class="form-group">
+                <select class="form-control" id="leaveType" name="leaveType" style="padding: 0px">
+                    <option value="approved amounts from sabbatical leaves">Approved Amounts from Sabbatical Leaves</option>
+                    <option value="research buy out">Research Buy Out (Provide Index Number)</option>
+                    <option value="other funded leave">Other Funded Leave</option>
+                    <option value="leave without pay">Leave Without Pay</option>
+                </select>
+            </div>
+        </td>
+        <td contenteditable="true" class="editable">
+        </td>
+        <td contenteditable="true" class="editable">
+        </td>
+        <td class="noprint"><input type="checkbox" id="checkCFR"></td>
+    </tr>
+</tbody>
+</table>
+<button type="button" onclick="addSalaryRow()" class="btn btn-primary noprint" style="margin-left: 95%">
+    <img src="/static/images/plus-icon.png" style="height: 15px; vertical-align: text-top;">
+</button>
+<button class="btn btn-primary" onclick="salarySubmit()">Update</button>
+
+
+<table class="table table-bordered" id="salaryTable2">
     <thead>
         <tr>
             <th>Type of Leave</th>
