@@ -4,10 +4,54 @@ attached or tests can be performed
 """
 import sys
 import os
+import re
+from io import StringIO
+import http.cookies as cookies
 
 # Import wsgi_main from the content directory
 sys.path.append(os.path.join(os.path.dirname(__file__),'content'))
 import wsgi_main #pylint: disable=import-error
+
+COOKIE_FILE = os.path.join(os.path.dirname(__file__),'.debug_cookies')
+cookie_regex = re.compile(r'Set-Cookie:\s+(?P<key>\w+)\s*=\s*"?(?P<value>\w*)"?\s*;?')
+cookie = cookies.SimpleCookie()
+
+def load_cookie():
+    """
+    Load the cookie from the cookie file if it exists.
+    If the file does not exist, this does nothing
+    """
+    global cookie
+    cookie = cookies.SimpleCookie()
+    try:
+        with open(COOKIE_FILE,'r') as f:
+            for line in f:
+                match = cookie_regex.match(line)
+                if match is None:
+                    print("Error parsing cookie file!")
+                    print(line)
+                else:
+                    cookie[match.group('key')] = match.group('value')
+        print("Loaded cookie!")
+        print(cookie.output())
+
+    except IOError as e:
+        print("Error loading cookie!")
+        print(e)
+
+def save_cookie():
+    """
+    Save the cookie to the cookie file. If the file does not exist,
+    this will create it
+    """
+    global cookie
+    try:
+        with open(COOKIE_FILE,'w') as f:
+            f.write(cookie.output())
+    except IOError as e:
+        print("Error saving cookie!")
+        print(e)
+
 
 class ResponseSummary():
     """
@@ -37,6 +81,8 @@ def simulate_request(url, body_file = None) -> ResponseSummary:
     Optionally takes body_file which is the name of a file to be used
     as the body of the sent request
     """
+    global cookie
+
     response_started = False
     status = None
     headers = []
@@ -58,9 +104,9 @@ def simulate_request(url, body_file = None) -> ResponseSummary:
             environ['wsgi.input']       = open(body_file)
         except (IOError):
             print("Could not open {}!!".format(body_file))
-            environ['wsgi.input']       = None
+            environ['wsgi.input']       = StringIO("")
     else:
-        environ['wsgi.input']       = None
+        environ['wsgi.input']       = StringIO("")
     environ['wsgi.errors']          = sys.stderr
     environ['wsgi.version']         = (1, 0)
     environ['wsgi.multithread']     = False
@@ -78,6 +124,8 @@ def simulate_request(url, body_file = None) -> ResponseSummary:
     environ['SERVER_PORT']      = 80
     environ['SERVER_PROTOCOL']  = 'HTTP/1.0'
 
+    environ['HTTP_COOKIE'] = cookie.output(attrs = [], header="", sep="; ")
+
     # Call application and assemble its response (which comes as bytes)
     # into a string
     response_bytes = bytes()
@@ -89,6 +137,21 @@ def simulate_request(url, body_file = None) -> ResponseSummary:
         response_bytes += next_response
 
     body = response_bytes.decode('utf-8')
+
+    # Check headers for Set-Cookie headers
+    cookies_found = False
+    for header in headers:
+        if header[0] == 'Set-Cookie':
+            match = cookie_regex.match(header[0]+": "+header[1])
+            if match is not None:
+                if not cookies_found:
+                    cookies_found = True
+                    print("Found cookies!")
+                cookie[match.group('key')] = match.group('value')
+    if cookies_found:
+        save_cookie()
+        print(cookie)
+
     return ResponseSummary(status, headers, body)
 
 def interactive_mode():
@@ -103,6 +166,8 @@ def interactive_mode():
     last_response: ResponseSummary = None
     should_exit = False
 
+    load_cookie()
+
     # Send a request wrapped in a try/catch to catch any exceptions
     # that the server code failed to catch itself
     def request(url, body_file = None):
@@ -111,7 +176,7 @@ def interactive_mode():
         except Exception as e:
             print("The server code threw an exception and didn't catch it!")
             print(e)
-            return None
+            return ResponseSummary('500 Internal Server Error', [], 'ERROR')
 
     # If an argument was provided on the command line, forgo
     # the introduction and immediately try sending the argument

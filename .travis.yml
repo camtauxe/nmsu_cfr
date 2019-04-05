@@ -2,10 +2,10 @@ language: python
 
 services:
   - docker
+  - mysql
+
+before_script:
+  - . $TRAVIS_BUILD_DIR/travis/travis_before_script.sh
 
 script:
-  - "cp cfr.env.example cfr.env"
-  - "docker-compose up -d --build > /dev/null"
-  - "[[ $(curl -s -o /dev/null -w '%{http_code}' localhost) == 200 ]]"
-  - "[[ $(curl -s -o /dev/null -w '%{http_code}' localhost/nope) == 404 ]]"
-#  - "[[ $(curl -s -o /dev/null -w '%{http_code}' localhost/error) == 500 ]]"
+  - . $TRAVIS_BUILD_DIR/travis/travis_script.sh

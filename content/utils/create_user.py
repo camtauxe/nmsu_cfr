@@ -1,26 +1,40 @@
 """
 Functions related to creating a new user
+
+In the future, this should probably be moved to another file
+so that we don't have a whole file with basically only one function
 """
-from . import sql_connection as sql
+from .sql_connection import Transaction
 from .authentication import hash_password
 
-def create_user(username, usr_password, banner_id, usr_role):
-    """
-    Insert a new user into the user table
-    """
-    cursor = sql.new_cursor()
-    add_user = ("INSERT INTO user "
-                "VALUES (%s, %s, %s, %s)")
-    data_user = (username, hash_password(usr_password), banner_id, usr_role)
+# Query to insert a new user into the database
+# Parameters are username, usr_password, banner_id and type (role)
+ADD_USER_QUERY = """
+INSERT INTO user VALUES (
+    %s, %s, %s, %s
+)
+"""
 
-    #insert new user
-    cursor.execute(add_user, data_user)
+def create_user(query):
+    """
+    Insert a new user into the user table.
+    If successful, returns the number of rows (users) that were inserted
+    (really should just be one, but we might change this function to allow
+    inserting more than one user at a time in the future)
+    """
+    if all(k in query for k in ['username', 'password', 'id', 'usr_role']):
+        data = (
+            query['username'][0],
+            hash_password(query['password'][0]),
+            query['id'][0],
+            query['usr_role'][0]
+        )
+        with Transaction() as cursor:
+            cursor.execute(ADD_USER_QUERY, data)
+            rows_inserted = cursor.rowcount
+    else:
+        raise RuntimeError("Form data for new_user request is missing parameters!")
 
-    #commit data to database
-    sql.get_connection().commit()
-    rows_inserted = cursor.rowcount
-    cursor.close()
-    sql.disconnect()
     return rows_inserted
 
 
