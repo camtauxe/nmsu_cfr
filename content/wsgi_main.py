@@ -190,7 +190,14 @@ def application(environ, start_response):
 
 
     #For 'create_cfr' create a new cfr for a department
-    def handle_create_cfr():
+    def handle_create_cfr(**kwargs):
+        if kwargs['user'].role != authentication.UserRole.SUBMITTER:
+            raise RuntimeError("Only submitters can do this!")
+        username = kwargs['user'].username
+        rows_inserted = request.create_cfr(username, dict_from_POST())
+        respond(mime = 'text/plain')
+        return f"{rows_inserted} cfr inserted.".encode('utf-8')
+        """
         if 'QUERY_STRING' in environ:
             query = parse_qs(environ['QUERY_STRING'])
             if 'dept' in query and 'sem' in query and 'year' in query and 'sub' in query:
@@ -201,7 +208,7 @@ def application(environ, start_response):
                 rows_inserted = request.create_cfr(dept, sem, year, sub)
                 respond(mime = 'text/plain')
                 return f"{rows_inserted} CFR(s) created.".encode('utf-8')
-
+        """
 
     #For 'add_course' add a course to a cfr
     def handle_add_course(**kwargs):
@@ -213,7 +220,9 @@ def application(environ, start_response):
         return f"{rows_inserted} course(s) inserted.".encode('utf-8')
 
     #For 'add_sal_savings' add salary savings to a cfr
-    def handle_add_sal_savings():
+    def handle_add_sal_savings(**kwargs):
+        if kwargs ['user'].role != authentication.UserRole.SUBMITTER:
+            raise RuntimeError("Only submitters can do this!")
         data = environ['wsgi.input'].read()
         rows_inserted = request.add_sal_savings(data)
         respond(mime = 'text/plain')

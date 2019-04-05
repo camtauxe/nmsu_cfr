@@ -3,7 +3,7 @@ Functions related to submitting a request
 """
 import json
 from enum import Enum, auto
-from .sql_connection import Transaction as Transaction
+from .sql_connection import Transaction
 
 class req_fields(Enum):
     """
@@ -38,18 +38,40 @@ class sav_fields(Enum):
     cal_year = auto()
     revision_num = auto()
 
-def create_cfr(dept_name, semester, cal_year, submitter):
+
+def get_dept(username):
+    #query used to get department name of current user form database
+    SELECT_SUBMITTER_QUERY = """
+    SELECT dept_name
+    FROM submitter 
+    WHERE username = %s
+    """
+
+    with Transaction(buffered=True) as cursor:
+        cursor.execute(SELECT_SUBMITTER_QUERY, (username,))
+        dept_name = cursor.fetchone()
+    
+    return dept_name
+
+#create a new cfr
+#gets the username of user that is currently signed in from wsgi_main
+#gets the semester from the POST request body
+def create_cfr(username, semester):
     """
     Insert a new cfr into the cfr_department table
     """
+    if all(k in semester for k in ['semester']):
+        semester = semester['semester'][0]
+    submitter = username
+    dept_name = get_dept(username)
+
     create_cfr = ("INSERT INTO cfr_department "
-                  "VALUES (%s, %s, %s, NOW(), NULL, 0, %s)")
-    data_cfr = (dept_name, semester, cal_year, submitter)
+                  "VALUES (%s, %s, YEAR(NOW()), NOW(), NULL, 0, %s)")
+    data_cfr = dept_name + (semester, submitter)
 
     # execute insert statement to create new cfr
     with Transaction() as cursor:
         cursor.execute(create_cfr, data_cfr)
-        cursor.commit()
         rows_inserted = cursor.rowcount
     return rows_inserted
 
@@ -118,10 +140,12 @@ def add_sal_savings(data):
     add_sav = ("INSERT INTO sal_savings "
                "VALUES (%s, %s, %s, NULL, %s, %s, %s, %s, %s)")
    
+    print(data_ls)
     with Transaction() as cursor:
-        cursor.executemany(add_sav, data_ls)
-        cursor.commit()
-        rows_inserted = cursor.rowcount
+        rows_inserted = 0
+        for row in data_ls:
+            cursor.execute(add_sav, row)
+            rows_inserted += cursor.rowcount
     return rows_inserted
 
     
