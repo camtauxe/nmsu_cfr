@@ -19,7 +19,7 @@ function addSalaryRow(){
           cell.innerHTML = "";
         }
         else if (i == 0){
-            cell.innerHTML = "<div class='form-group'> <select class='form-control' id='standardSelect' name='standardSelect' style='padding: 0px'> <option value='approved amounts from sabbatical leaves'>Approved Amounts from Sabbatical Leaves</option> <option value='research buy out'>Research Buy Out (Provide Index Number)</option> <option value='other funded leave'>Other Funded Leave</option> <option value='leave without pay'>Leave Without Pay</option> </select> </div>"
+            cell.innerHTML = "<div class='form-group' style='margin: 0px 0px'> <select class='form-control' id='standardSelect' name='standardSelect'> <option value='approved amounts from sabbatical leaves'>Approved Amounts from Sabbatical Leaves</option> <option value='research buy out'>Research Buy Out (Provide Index Number)</option> <option value='other funded leave'>Other Funded Leave</option> <option value='leave without pay'>Leave Without Pay</option> </select> </div>"
         }
         //the last column is the delete checkbox
         else if (i == 3){
@@ -37,11 +37,10 @@ function salarySubmit(){
     //saves the rows of the salary savings table from salary_saving.html into aObj
     var aObj=document.getElementById('salaryTable').getElementsByTagName('tr');
     var i = aObj.length;
-    
     //iterates through each row in the table
     while(i--) {
         //checks if the row is empty or checked
-        if(aObj[i].getElementsByTagName('input')[0].checked || aObj[i].getElementsByTagName('td')[1].innerHTML == "") {
+        if(aObj[i].getElementsByTagName('td')[1].innerHTML == "" || aObj[i].getElementsByTagName('input')[0].checked) {
             //deletes row
             aObj[i].parentNode.removeChild(aObj[i]);
         }
