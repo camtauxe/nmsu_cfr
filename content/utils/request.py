@@ -91,7 +91,7 @@ def add_course(data):
 
     #loop through each dictionary and parse the values and insert them into tuples
     for i in range(len(json_data)):
-        data_req = ('NULL', )
+        data_req = ()
         request = json_data[i]
         for j in range(len(request)):
             data_req = data_req + (request[req_fields(j+1).name], )
@@ -101,7 +101,7 @@ def add_course(data):
 
 
     add_req = ("INSERT INTO request "
-               "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+               "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NULL)")
       
 
     with Transaction() as cursor:
@@ -138,7 +138,7 @@ def add_sal_savings(data):
     
 
     add_sav = ("INSERT INTO sal_savings "
-               "VALUES (%s, %s, %s, NULL, %s, %s, %s, %s, %s)")
+               "VALUES (%s, %s, %s, NULL, %s, %s, %s, %s, %s, NULL)")
    
     print(data_ls)
     with Transaction() as cursor:

@@ -35,17 +35,17 @@ VALUES ('Astronomy', 'Spring', 2019, NOW(), NULL, 0, 'submitter1'),
 
 #insert class requests into into initial cfrs
 INSERT INTO request 
-VALUES ( NULL, NULL, 'AST101', 'M02', 'NO', 'NO', 45, 'Smith', 800111111, NULL, 1024.00, NULL, 'Astronomy', 'Spring', 2019, 0), 
-       ( NULL, NULL, 'AST339', 'M02', 'NO', 'NO', 45, 'Smith', 800111111, NULL, 1024.00, NULL, 'Astronomy', 'Spring', 2019, 0),
-       ( NULL, NULL, 'AST449', 'M01', 'NO', 'NO', 45, 'Smith', 800111111, NULL, 10000.56, NULL, 'Astronomy', 'Spring', 2019, 0),
-       ( NULL, NULL, 'BIO101', 'M01', 'NO', 'NO', 60, 'Johnson', 800111110, NULL, 1024.00, NULL, 'Biology', 'Spring', 2019, 0),
-       ( NULL, NULL, 'BIO101', 'M02', 'NO', 'NO', 54, 'Johnson', 800111110, NULL, 1024.00, NULL, 'Biology', 'Spring', 2019, 0),
-       ( NULL, NULL, 'PHY101', 'M01', 'NO', 'NO', 45, 'Miller', 800111112, NULL, 1024.00, NULL, 'Physics', 'Spring', 2019, 0);
+VALUES ( NULL, NULL, 'AST101', 'M02', 'NO', 'NO', 45, 'Smith', 800111111, NULL, 1024.00, NULL, 'Astronomy', 'Spring', 2019, 0, NULL), 
+       ( NULL, NULL, 'AST339', 'M02', 'NO', 'NO', 45, 'Smith', 800111111, NULL, 1024.00, NULL, 'Astronomy', 'Spring', 2019, 0, NULL),
+       ( NULL, NULL, 'AST449', 'M01', 'NO', 'NO', 45, 'Smith', 800111111, NULL, 10000.56, NULL, 'Astronomy', 'Spring', 2019, 0, NULL),
+       ( NULL, NULL, 'BIO101', 'M01', 'NO', 'NO', 60, 'Johnson', 800111110, NULL, 1024.00, NULL, 'Biology', 'Spring', 2019, 0, NULL),
+       ( NULL, NULL, 'BIO101', 'M02', 'NO', 'NO', 54, 'Johnson', 800111110, NULL, 1024.00, NULL, 'Biology', 'Spring', 2019, 0, NULL),
+       ( NULL, NULL, 'PHY101', 'M01', 'NO', 'NO', 45, 'Miller', 800111112, NULL, 1024.00, NULL, 'Physics', 'Spring', 2019, 0, NULL);
 
 
 #insert sal_savings into Astronomy cfr 
 INSERT INTO  sal_savings
-VALUES ('Sabbatical', 'Mendez', 40254.22, NULL, NULL, 'Astronomy', 'Spring', 2019, 0);
+VALUES ('Sabbatical', 'Mendez', 40254.22, NULL, NULL, 'Astronomy', 'Spring', 2019, 0, NULL);
 
 
 #revision to cfr for Astronomy
@@ -72,7 +72,7 @@ DROP TABLE temp2;
 #example: remove AST101 M02 and add AST101 M01
 DELETE FROM request WHERE dept_name = 'Astronomy' AND semester = 'Spring' AND cal_year = 2019 AND revision_num = 1 AND  course = 'AST101' AND sec = 'M02';
 INSERT INTO request 
-VALUES ( NULL, NULL, 'AST101', 'M01', 'NO', 'NO', 45, 'Smith', 800111111, NULL, 1024.00, NULL, 'Astronomy', 'Spring', 2019, 1);
+VALUES ( NULL, NULL, 'AST101', 'M01', 'NO', 'NO', 45, 'Smith', 800111111, NULL, 1024.00, NULL, 'Astronomy', 'Spring', 2019, 1, NULL);
 
 
 #second revision of cfr for Astronomy
@@ -94,5 +94,5 @@ DROP TABLE temp1;
 DROP TABLE temp2; 
        
 INSERT INTO request 
-VALUES ( NULL, NULL, 'AST205', 'M01', 'NO', 'NO', 45, 'Smith', 800111111, NULL, 1024.00, NULL, 'Astronomy', 'Spring', 2019, 2);
+VALUES ( NULL, NULL, 'AST205', 'M01', 'NO', 'NO', 45, 'Smith', 800111111, NULL, 1024.00, NULL, 'Astronomy', 'Spring', 2019, 2, NULL);
        

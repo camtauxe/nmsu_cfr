@@ -68,8 +68,8 @@ def dict_list(val, dict_type):
     return data
 
 
-req_data = [["1","CS253","M03","No","No","25","Cooper","800152344","NULL","1234.33", "NULL","Computer Science","Spring","2019","0"],
-            ["2", "PSY105", "D11", "No", "No", "22", "Miller", "800112231", "NULL", "2000.12", "NULL", "Psychology", "Spring", "2019", "0"]]
+req_data = [["1","ART253","M03","No","No","25","Cooper","800152344","NULL","1234.33", "NULL","Art","Spring","2019","0"],
+            ["2", "ART105", "D11", "No", "No", "22", "Miller", "800112231", "NULL", "2000.12", "NULL", "ART", "Spring", "2019", "0"]]
 
 #accepts a list of lists with data corresponding to a course request insertion
 course_req_json(req_data)

@@ -44,7 +44,10 @@ create table request
     semester      enum('Fall', 'Spring', 'Summer'),
     cal_year      numeric(4,0),
     revision_num      int,
+    approver      varchar(32),
     primary key (course, sec, dept_name, semester, cal_year, revision_num),
+    foreign key (approver)
+	   references user(username),
     foreign key (dept_name, semester, cal_year, revision_num)
        references cfr_department(dept_name, semester, cal_year, revision_num)
    );  
@@ -59,7 +62,10 @@ create table sal_savings
     semester      enum('Fall', 'Spring', 'Summer'),
     cal_year      numeric(4,0),
     revision_num      int,
+    approver       varchar(32),
     primary key (inst_name, dept_name, semester, cal_year, revision_num),
+    foreign key (approver)
+	   references user(username),
     foreign key (dept_name, semester, cal_year, revision_num)
        references cfr_department(dept_name, semester, cal_year, revision_num)
    );
