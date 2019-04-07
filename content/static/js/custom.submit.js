@@ -33,6 +33,7 @@ function submitDummy() {
   xmlhttp.send(dummyJSON);
 };
 
+
 /* Function: addRow()
     Purpose: Adds row to CFR table when the add row button is clicked*/
 function addRow() {
@@ -87,13 +88,13 @@ function CFRsubmit() {
             priority:         cell[0].innerText.trim(),
             course:           cell[1].innerText.trim(),
             sec:              cell[2].innerText.trim(),
-            mini:             cell[3].innerText.trim(),
-            online:           cell[4].innerText.trim(),
-            number_students:  cell[5].innerText.trim(),
+            mini_session:     cell[3].innerText.trim(),
+            online_course:    cell[4].innerText.trim(),
+            num_students:     cell[5].innerText.trim(),
             instructor:       cell[6].innerText.trim(),
-            banner_ID:        cell[7].innerText.trim(),
-            instructor_rank:  cell[8].innerText.trim(),
-            course_cost:      cell[9].innerText.trim(),
+            banner_id:        cell[7].innerText.trim(),
+            inst_rank:        cell[8].innerText.trim(),
+            cost:             cell[9].innerText.trim(),
             reason:           cell[10].innerText.trim()
         });
   }
@@ -103,53 +104,60 @@ function CFRsubmit() {
   var cfrJSON = JSON.stringify(cfrObj);
 
   //ADD HTTP REQUEST TO SEND JSON OBJECT
+  xmlhttp = new XMLHttpRequest();
+
+  xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      window.alert("Success!!")
+    }
+  };
+
+  xmlhttp.open("POST", "/add_course", true);
+  xmlhttp.setRequestHeader("Content-Type", "text/json; charset=utf-8");
+  xmlhttp.send(cfrJSON);
 };
-
-
-
-
 
 /* Function: insertIntoTable()
    Purpose: Inserts data from JSON object into the end of the table */
-function insertIntoTable() {
-  //creates a regular javascript object from the JSON object
-  dummy2 = JSON.parse(dummyJSON);
-
-  //interates through each entry in the array
-  for (i in dummy2) {
-
-    //selects the cfr table element from cfr.html
-    var table = document.getElementById("cfrTable2");
-
-    //creates a new row and adds it to the end of the table
-    var row = table.insertRow(-1);
-
-    //creates new cells and inserts them into the row
-    var cell1 = row.insertCell(0);
-    var cell2 = row.insertCell(1);
-    var cell3 = row.insertCell(2);
-    var cell4 = row.insertCell(3);
-
-    //makes cell contents editable
-    cell1.contentEditable = "true";
-    cell2.contentEditable = "true";
-    cell3.contentEditable = "true";
-    cell4.contentEditable = "true";
-
-    //populates calls with data orginally in JSON object
-    cell1.innerHTML = dummy2[i].name1;
-    cell2.innerHTML = dummy2[i].num1;
-    cell3.innerHTML = dummy2[i].num2;
-    cell4.innerHTML = dummy2[i].num3;
+   function insertIntoTable() {
+    //creates a regular javascript object from the JSON object
+    dummy2 = JSON.parse(dummyJSON);
+  
+    //interates through each entry in the array
+    for (i in dummy2) {
+  
+      //selects the cfr table element from cfr.html
+      var table = document.getElementById("cfrTable2");
+  
+      //creates a new row and adds it to the end of the table
+      var row = table.insertRow(-1);
+  
+      //creates new cells and inserts them into the row
+      var cell1 = row.insertCell(0);
+      var cell2 = row.insertCell(1);
+      var cell3 = row.insertCell(2);
+      var cell4 = row.insertCell(3);
+  
+      //makes cell contents editable
+      cell1.contentEditable = "true";
+      cell2.contentEditable = "true";
+      cell3.contentEditable = "true";
+      cell4.contentEditable = "true";
+  
+      //populates calls with data orginally in JSON object
+      cell1.innerHTML = dummy2[i].name1;
+      cell2.innerHTML = dummy2[i].num1;
+      cell3.innerHTML = dummy2[i].num2;
+      cell4.innerHTML = dummy2[i].num3;
+      }
+  };
+  
+  /* Function: logSuccessMessage()
+     Purpose: logs new table additions to the console*/
+  function logSuccessMessage() {
+    dummy2 = JSON.parse(dummyJSON);
+    for (i in dummy2) {
+      txt = "added " + dummy2[i].name1 + " " + dummy2[i].num1 + " " + dummy2[i].num2 + " " + dummy2[i].num3 + " to CFR";
+      console.log(txt);
     }
-};
-
-/* Function: logSuccessMessage()
-   Purpose: logs new table additions to the console*/
-function logSuccessMessage() {
-  dummy2 = JSON.parse(dummyJSON);
-  for (i in dummy2) {
-    txt = "added " + dummy2[i].name1 + " " + dummy2[i].num1 + " " + dummy2[i].num2 + " " + dummy2[i].num3 + " to CFR";
-    console.log(txt);
   }
-}
