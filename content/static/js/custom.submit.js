@@ -84,17 +84,18 @@ function CFRsubmit() {
     var cell = row[i].getElementsByTagName('td');
         cfrObj.push(
           {
-          priority: cell[0].innerHTML,
-          course: cell[1].innerHTML,
-          sec: cell[2].innerHTML,
-          mini: cell[3].innerHTML,
-          online: cell[4].innerHTML,
-          number_students: cell[5].innerHTML,
-          instructor: cell[6].innerHTML,
-          banner_ID: cell[7].innerHTML,
-          instructor_rank: cell[8].innerHTML,
-          course_cost: cell[9].innerHTML,
-          reason: cell[10].innerHTML});
+            priority:         cell[0].innerText.trim(),
+            course:           cell[1].innerText.trim(),
+            sec:              cell[2].innerText.trim(),
+            mini:             cell[3].innerText.trim(),
+            online:           cell[4].innerText.trim(),
+            number_students:  cell[5].innerText.trim(),
+            instructor:       cell[6].innerText.trim(),
+            banner_ID:        cell[7].innerText.trim(),
+            instructor_rank:  cell[8].innerText.trim(),
+            course_cost:      cell[9].innerText.trim(),
+            reason:           cell[10].innerText.trim()
+        });
   }
   //prints the cfr object to the console for testing
   console.log(cfrObj);

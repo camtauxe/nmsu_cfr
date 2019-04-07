@@ -189,7 +189,6 @@ def application(environ, start_response):
             "This was supposed to happen because you selected 'error'"
         )
 
-
     #For 'create_cfr' create a new cfr for a department
     def handle_create_cfr(**kwargs):
         if kwargs['user'].role != authentication.UserRole.SUBMITTER:
@@ -207,8 +206,6 @@ def application(environ, start_response):
         rows_inserted = revisions.create_revision(username)
         respond(mime = 'text/plain')
         return f"{rows_inserted} cfr inserted.".encode('utf-8')
-
-
 
     #For 'add_course' add a course to a cfr
     def handle_add_course(**kwargs):

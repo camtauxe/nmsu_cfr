@@ -34,7 +34,7 @@ def current_cfr(username):
         cursor.execute(SELECT_CFR_DEPT, dept_name)
         result = cursor.fetchone()
     
-        return result
+    return result
 
 def get_requests(cfr):
     """
