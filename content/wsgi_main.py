@@ -13,6 +13,7 @@ from utils import home_page
 from utils import cfrenv
 from utils import create_user
 from utils import request
+from utils import revisions
 from utils import dummy
 
 def application(environ, start_response):
@@ -197,25 +198,25 @@ def application(environ, start_response):
         rows_inserted = request.create_cfr(username, dict_from_POST())
         respond(mime = 'text/plain')
         return f"{rows_inserted} cfr inserted.".encode('utf-8')
-        """
-        if 'QUERY_STRING' in environ:
-            query = parse_qs(environ['QUERY_STRING'])
-            if 'dept' in query and 'sem' in query and 'year' in query and 'sub' in query:
-                dept = query['dept'][0]
-                sem = query['sem'][0]
-                year = query['year'][0]
-                sub = query['sub'][0]
-                rows_inserted = request.create_cfr(dept, sem, year, sub)
-                respond(mime = 'text/plain')
-                return f"{rows_inserted} CFR(s) created.".encode('utf-8')
-        """
+
+    #For 'create_revision' create a new revision of a cfr
+    def handle_create_revision(**kwargs):
+        if kwargs['user'].role != authentication.UserRole.SUBMITTER:
+            raise RuntimeError("Only submitters can do this!")
+        username = kwargs['user'].username
+        rows_inserted = revisions.create_revision(username)
+        respond(mime = 'text/plain')
+        return f"{rows_inserted} cfr inserted.".encode('utf-8')
+
+
 
     #For 'add_course' add a course to a cfr
     def handle_add_course(**kwargs):
         if kwargs['user'].role != authentication.UserRole.SUBMITTER:
             raise RuntimeError("Only submitters can do this!")
         data = environ['wsgi.input'].read()
-        rows_inserted = request.add_course(data)
+        username = kwargs['user'].username
+        rows_inserted = request.add_course(username, data)
         respond(mime = 'text/plain')
         return f"{rows_inserted} course(s) inserted.".encode('utf-8')
 
@@ -224,7 +225,8 @@ def application(environ, start_response):
         if kwargs ['user'].role != authentication.UserRole.SUBMITTER:
             raise RuntimeError("Only submitters can do this!")
         data = environ['wsgi.input'].read()
-        rows_inserted = request.add_sal_savings(data)
+        username = kwargs['user'].username
+        rows_inserted = request.add_sal_savings(username, data)
         respond(mime = 'text/plain')
         return f"{rows_inserted} salary savings inserted.".encode('utf-8')
 
@@ -256,6 +258,7 @@ def application(environ, start_response):
         'echo':                 handle_echo,
         'error':                handle_error,
         'create_cfr':           handle_create_cfr,
+        'create_rev':           handle_create_revision,
         'add_course':           handle_add_course,
         'add_sal_savings':      handle_add_sal_savings,
         'new_user':             handle_new_user,

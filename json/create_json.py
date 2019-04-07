@@ -25,10 +25,6 @@ class req_fields(Enum):
     inst_rank = auto()
     cost = auto()
     reason = auto()
-    dept_name = auto()
-    semester = auto()
-    cal_year = auto()
-    revision_num = auto()
 
 class sav_fields(Enum):
     """
@@ -38,10 +34,7 @@ class sav_fields(Enum):
     inst_name = auto()
     savings = auto()
     notes = auto()
-    dept_name = auto()
-    semester = auto()
-    cal_year = auto()
-    revision_num = auto()
+
 
 def course_req_json(val):
     
@@ -67,21 +60,21 @@ def dict_list(val, dict_type):
     
     return data
 
-
-req_data = [["1","CS253","M03","No","No","25","Cooper","800152344","NULL","1234.33", "NULL","Computer Science","Spring","2019","0"],
-            ["2", "PSY105", "D11", "No", "No", "22", "Miller", "800112231", "NULL", "2000.12", "NULL", "Psychology", "Spring", "2019", "0"]]
+"""
+req_data = [["1","ART253","M03","No","No","25","Cooper","800152344","NULL","1234.33", "NULL"],
+            ["2", "ART105", "D11", "No", "No", "22", "Miller", "800112231", "NULL", "2000.12", "NULL"]]
 
 #accepts a list of lists with data corresponding to a course request insertion
 course_req_json(req_data)
 
 """
 
-sav_data = [["Sabbatical", "Leung", "30123.11", "NULL", "Computer Science", "Spring", "2019", "0"],
-            ["Other", "Wilson", "100000.22", "NULL", "Psychology", "Spring", "2019", "0"],
-            ["Sabbatical", "Marquez", "30223.11", "NULL", "Biology", "Spring", "2019", "0"]]
+sav_data = [["Sabbatical", "Leung", "30123.11", "NULL"],
+            ["Other", "Wilson", "100000.22", "NULL"],
+            ["Sabbatical", "Marquez", "30223.11", "NULL"]]
 
-single_sav = [["Other", "Miller", "10023", "NULL", "Computer Science", "Spring", "2019", "0"]]
+#single_sav = [["Other", "Miller", "10023", "NULL", "Computer Science", "Spring", "2019", "0"]]
 
 #accepts a list of lists with data corresponding to a salary savings insertion
-sal_sav_json(single_sav)
-"""
+sal_sav_json(sav_data)
+
