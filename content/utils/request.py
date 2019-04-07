@@ -4,6 +4,7 @@ Functions related to submitting a request
 import json
 from enum import Enum, auto
 from .sql_connection import Transaction
+from . import db_utils
 
 class req_fields(Enum):
     """
@@ -20,10 +21,6 @@ class req_fields(Enum):
     inst_rank = auto()
     cost = auto()
     reason = auto()
-    dept_name = auto()
-    semester = auto()
-    cal_year = auto()
-    revision_num = auto()
 
 class sav_fields(Enum):
     """
@@ -33,25 +30,8 @@ class sav_fields(Enum):
     inst_name = auto()
     savings = auto()
     notes = auto()
-    dept_name = auto()
-    semester = auto()
-    cal_year = auto()
-    revision_num = auto()
 
 
-def get_dept(username):
-    #query used to get department name of current user form database
-    SELECT_SUBMITTER_QUERY = """
-    SELECT dept_name
-    FROM submitter 
-    WHERE username = %s
-    """
-
-    with Transaction(buffered=True) as cursor:
-        cursor.execute(SELECT_SUBMITTER_QUERY, (username,))
-        dept_name = cursor.fetchone()
-    
-    return dept_name
 
 #create a new cfr
 #gets the username of user that is currently signed in from wsgi_main
@@ -63,7 +43,7 @@ def create_cfr(username, semester):
     if all(k in semester for k in ['semester']):
         semester = semester['semester'][0]
     submitter = username
-    dept_name = get_dept(username)
+    dept_name = db_utils.get_dept(username)
 
     create_cfr = ("INSERT INTO cfr_department "
                   "VALUES (%s, %s, YEAR(NOW()), NOW(), NULL, 0, %s)")
@@ -76,7 +56,7 @@ def create_cfr(username, semester):
     return rows_inserted
 
 
-def add_course(data):
+def add_course(username, data):
     """
     Add a course to a cfr
     -parameter should be a json string containing a list of dictionaries 
@@ -84,6 +64,9 @@ def add_course(data):
 
     -can now insert multiple records at a time
     """
+    #get the data from the current cfr
+    current_cfr = db_utils.current_cfr(username)
+    cfr_data = (current_cfr[0], current_cfr[1], current_cfr[2], current_cfr[5])
 
     #load the string to a json string containing data in a list of dictionaries 
     json_data = json.loads(data)
@@ -95,6 +78,8 @@ def add_course(data):
         request = json_data[i]
         for j in range(len(request)):
             data_req = data_req + (request[req_fields(j+1).name], )
+
+        data_req = data_req + cfr_data
 
         #apend each tuple to a list of tuples
         data_ls.append(data_req) 
@@ -112,7 +97,7 @@ def add_course(data):
     return rows_inserted
 
 
-def add_sal_savings(data):
+def add_sal_savings(username, data):
     """
     Add salary savings to a cfr
 
@@ -121,6 +106,9 @@ def add_sal_savings(data):
 
     -can now insert multiple records at a time
     """
+    current_cfr = db_utils.current_cfr(username)
+    cfr_data = (current_cfr[0], current_cfr[1], current_cfr[2], current_cfr[5])
+
 
     #load the string into a json string and parse the dictionary called 'savings'
     json_data = json.loads(data)
@@ -133,6 +121,8 @@ def add_sal_savings(data):
         for j in range(len(savings)):
             data_sav = data_sav + (savings[sav_fields(j+1).name], )
 
+        data_sav = data_sav + cfr_data
+
         #create a list of tuples
         data_ls.append(data_sav)
     
@@ -140,7 +130,6 @@ def add_sal_savings(data):
     add_sav = ("INSERT INTO sal_savings "
                "VALUES (%s, %s, %s, NULL, %s, %s, %s, %s, %s, NULL)")
    
-    print(data_ls)
     with Transaction() as cursor:
         rows_inserted = 0
         for row in data_ls:
