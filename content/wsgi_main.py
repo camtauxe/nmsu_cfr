@@ -13,7 +13,6 @@ from utils import home_page
 from utils import cfrenv
 from utils import create_user
 from utils import request
-from utils import revisions
 from utils import dummy
 
 def application(environ, start_response):
@@ -189,41 +188,23 @@ def application(environ, start_response):
             "This was supposed to happen because you selected 'error'"
         )
 
-    #For 'create_cfr' create a new cfr for a department
-    def handle_create_cfr(**kwargs):
-        if kwargs['user'].role != authentication.UserRole.SUBMITTER:
-            raise RuntimeError("Only submitters can do this!")
-        username = kwargs['user'].username
-        rows_inserted = request.create_cfr(username, dict_from_POST())
-        respond(mime = 'text/plain')
-        return f"{rows_inserted} cfr inserted.".encode('utf-8')
-
-    #For 'create_revision' create a new revision of a cfr
-    def handle_create_revision(**kwargs):
-        if kwargs['user'].role != authentication.UserRole.SUBMITTER:
-            raise RuntimeError("Only submitters can do this!")
-        username = kwargs['user'].username
-        rows_inserted = revisions.create_revision(username)
-        respond(mime = 'text/plain')
-        return f"{rows_inserted} cfr inserted.".encode('utf-8')
-
     #For 'add_course' add a course to a cfr
-    def handle_add_course(**kwargs):
+    def handle_cfr_from_courses(**kwargs):
         if kwargs['user'].role != authentication.UserRole.SUBMITTER:
             raise RuntimeError("Only submitters can do this!")
-        data = environ['wsgi.input'].read()
-        username = kwargs['user'].username
-        rows_inserted = request.add_course(username, data)
+        body_text = environ['wsgi.input'].read()
+        data = json.loads(body_text)
+        rows_inserted = request.new_cfr_from_courses(kwargs['user'], data)
         respond(mime = 'text/plain')
         return f"{rows_inserted} course(s) inserted.".encode('utf-8')
 
     #For 'add_sal_savings' add salary savings to a cfr
-    def handle_add_sal_savings(**kwargs):
+    def handle_cfr_from_sal_savings(**kwargs):
         if kwargs ['user'].role != authentication.UserRole.SUBMITTER:
             raise RuntimeError("Only submitters can do this!")
-        data = environ['wsgi.input'].read()
-        username = kwargs['user'].username
-        rows_inserted = request.add_sal_savings(username, data)
+        body_text = environ['wsgi.input'].read()
+        data = json.loads(body_text)
+        rows_inserted = request.new_cfr_from_sal_savings(kwargs['user'], data)
         respond(mime = 'text/plain')
         return f"{rows_inserted} salary savings inserted.".encode('utf-8')
 
@@ -254,10 +235,8 @@ def application(environ, start_response):
         'revisions':            handle_revisions,
         'echo':                 handle_echo,
         'error':                handle_error,
-        'create_cfr':           handle_create_cfr,
-        'create_rev':           handle_create_revision,
-        'add_course':           handle_add_course,
-        'add_sal_savings':      handle_add_sal_savings,
+        'add_course':           handle_cfr_from_courses,
+        'add_sal_savings':      handle_cfr_from_sal_savings,
         'new_user':             handle_new_user,
         'add_dummy':            handle_add_dummy
     }

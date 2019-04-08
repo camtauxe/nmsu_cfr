@@ -1,55 +1,97 @@
-from .sql_connection import Transaction
+"""
+Functions to perform various operations and queries on the database.
 
-def get_dept(username):
-    #query used to get department name of current user form database
-    #returns a tuple containing the department name
-    SELECT_DEPT_QUERY = """
-    SELECT dept_name
-    FROM submitter 
-    WHERE username = %s
+These functions are considerd "low-level" and are meant to be used
+as parts of a larger, atomic transaction. So they take a mySQL cursor
+as an argument which they use to execute queries.
+
+These functions are written assuming the cursor that is passed in is
+the default kind. They may behave unpredictably if different kinds of
+cursors are passed in.
+"""
+from .authentication import User
+from mysql.connector.cursor import CursorBase
+
+# Query to the get latest CFR of a department
+# Parameters are: dept_name and dept_name (yes, it is used twice)
+SELECT_CFR_DEPT = """
+SELECT dept_name,
+    semester,
+    cal_year,
+    date_initial,
+    date_revised,
+    revision_num,
+    cfr_submitter
+FROM cfr_department
+WHERE dept_name = %s AND 
+revision_num = (SELECT MAX(revision_num)
+                FROM cfr_department c
+                WHERE c.dept_name = %s)
+"""
+
+# Query to insert a new cfr into the cfr_department table
+# Parameters are: dept_name and submitter
+NEW_CFR_DEPT = """
+INSERT INTO cfr_department
+VALUES (%s, 'Spring', YEAR(NOW()), NOW(), NULL, 0, %s)
+"""
+
+# Query to insert a new cfr into the cfr_department table
+# Parameters are: dept_name, semester, revision_num and submitter
+NEW_REVISION = """
+INSERT INTO cfr_department
+VALUES (%s, %s, YEAR(NOW()), %s, NOW(), %s, %s)
+"""
+
+def current_cfr(cursor: CursorBase, user: User):
     """
-
-    with Transaction(buffered=True) as cursor:
-        cursor.execute(SELECT_DEPT_QUERY, (username,))
-        dept_name = cursor.fetchone()
+    Get the latest cfr for the deparment that the given
+    user represents, using the given cursor.
     
-    return dept_name
+    The information returned depends on the kind of cursor
+    passed in but dy default it is a tuple with the following
+    fields (in this order):
+    dept_name, semester, cal_year, data_initial, date_revised,
+    revision_num, cfr_submitter
 
-def current_cfr(username):
+    This will return None if there are no CFRs for the department
     """
-    Retrieve the information from the most current CFR for a department
-    """
-    SELECT_CFR_DEPT = """
-    SELECT *
-    FROM cfr_department
-    WHERE dept_name = %s AND 
-    revision_num = (SELECT MAX(revision_num)
-                    FROM cfr_department c
-                    WHERE c.dept_name = %s)
-    """
-    dept_name = get_dept(username)
-    dept_name = dept_name + dept_name
-
-    with Transaction() as cursor:
-        cursor.execute(SELECT_CFR_DEPT, dept_name)
-        result = cursor.fetchone()
+    
+    dept_name = user.dept_name
+    cursor.execute(SELECT_CFR_DEPT, (dept_name, dept_name))
+    result = cursor.fetchone()
     
     return result
 
-def get_requests(cfr):
+def create_cfr(cursor: CursorBase, user: User):
     """
-    get a list of current course request for a cfr
-    """
-    SELECT_REQ = """
-    SELECT *
-    FROM request
-    WHERE dept_name = %s AND semester = %s AND year = %s AND revision_num = %s
-    """
-    with Transaction() as cursor:
-        cursor.execute(SELECT_REQ, cfr)
-        result = cursor.fetchall()
+    Insert a new cfr into cfr_department table
+    for the department represented by the given user,
+    using the given cursor.
 
-    return result
+    Right now, all new cfrs are created with "Spring"
+    as the semester.
+
+    Returns true on success, otherwise returns false
+    """
+    cursor.execute(NEW_CFR_DEPT, (user.dept_name, user.username))
+
+def create_new_revision(cursor: CursorBase, user: User):
+    """
+    Creates a new revision (a new cfr) for the department
+    represented by the given user, using the given cursor.
+
+    If no cfrs exist yet for the department, one will
+    be created
+    """
+
+    current = current_cfr(cursor, user)
+    if current is None:
+        create_cfr(cursor, user)
+    else:
+        revision = current[5] + 1
+        data = (current[0], current[1], current[3], revision, user.username)
+        cursor.execute(NEW_REVISION, data)
 
 
     

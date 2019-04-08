@@ -5,8 +5,6 @@ cfr.env
 *.vscode
 compose.bash
 testfiles/
-<<<<<<< HEAD
-=======
 .debug_cookies
 .curl_cookies
->>>>>>> master
+reset_db.sh

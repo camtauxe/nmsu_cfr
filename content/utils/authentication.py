@@ -20,6 +20,14 @@ WHERE
     usr_password = %s
 """
 
+# Query to get the department name out of the submitter table
+# Parameters are: username
+SELECT_DEPT_QUERY = """
+SELECT dept_name
+FROM submitter 
+WHERE username = %s
+"""
+
 class UserRole(Enum):
     """
     Enum representation of user roles
@@ -41,6 +49,9 @@ class User:
         self.role           = UserRole[user_tup[1].decode('utf-8').upper()]
         self.password_hash  = user_tup[2]
         self.password       = password
+        # By default, dept_name is None
+        # But this may be set if the user is a submitter
+        self.dept_name      = None
 
 def authenticate(username, password) -> User:
     """
@@ -58,10 +69,15 @@ def authenticate(username, password) -> User:
         cursor.execute(SELECT_USER_QUERY, (username, hashed))
         result = cursor.fetchone()
 
-    if result is None:
-        return None
-    else:
-        return User(result, password)
+        if result is not None:
+            user = User(result, password)
+            if user.role == UserRole.SUBMITTER:
+                cursor.execute(SELECT_DEPT_QUERY, (user.username,))
+                user.dept_name = cursor.fetchone()[0].decode('utf-8')
+        else:
+            user = None
+
+    return user
 
 def authenticate_from_cookie(cookies_header: str) -> User:
     """
