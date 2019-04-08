@@ -1,3 +1,14 @@
+"""
+Functions to perform various operations and queries on the database.
+
+These functions are considerd "low-level" and are meant to be used
+as parts of a larger, atomic transaction. So they take a mySQL cursor
+as an argument which they use to execute queries.
+
+These functions are written assuming the cursor that is passed in is
+the default kind. They may behave unpredictably if different kinds of
+cursors are passed in.
+"""
 from .authentication import User
 from mysql.connector.cursor import CursorBase
 
