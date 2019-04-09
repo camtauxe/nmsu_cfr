@@ -63,6 +63,7 @@ function addRow() {
 /* Function: CFRsubmit()
     Purpose: submits modified CFRs*/
 function CFRsubmit() {
+  resetTableState();
   var cfrObj = [
   ];
   //gets array of rows from the cfr table
@@ -76,6 +77,7 @@ function CFRsubmit() {
         aObj[i].parentNode.removeChild(aObj[i]);
       }
   }
+  if (testData()){
   //gets the cfr Table element
   var table = document.getElementById('cfrTable');
   //row = an array of the rows of the table
@@ -98,24 +100,105 @@ function CFRsubmit() {
             reason:           cell[10].innerText.trim()
         });
   }
-  //prints the cfr object to the console for testing
-  console.log(cfrObj);
-  //creates a JSON object from the cfr object
-  var cfrJSON = JSON.stringify(cfrObj);
+    //prints the cfr object to the console for testing
+    console.log(cfrObj);
+    //creates a JSON object from the cfr object
+    var cfrJSON = JSON.stringify(cfrObj);
 
-  //ADD HTTP REQUEST TO SEND JSON OBJECT
-  xmlhttp = new XMLHttpRequest();
+    //ADD HTTP REQUEST TO SEND JSON OBJECT
+    xmlhttp = new XMLHttpRequest();
 
-  xmlhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      window.alert("Success!!")
-    }
-  };
+    xmlhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        window.alert("Success!!")
+      }
+    };
 
-  xmlhttp.open("POST", "/add_course", true);
-  xmlhttp.setRequestHeader("Content-Type", "text/json; charset=utf-8");
-  xmlhttp.send(cfrJSON);
+    xmlhttp.open("POST", "/add_course", true);
+    xmlhttp.setRequestHeader("Content-Type", "text/json; charset=utf-8");
+    xmlhttp.send(cfrJSON);
+  }
 };
+    
+    function resetTableState(){
+      //gets the cfr Table element
+      var table = document.getElementById('cfrTable');
+      //row = an array of the rows of the table
+      var row = table.getElementsByTagName('tr');
+      //gets the cfr table footer element
+      var foot = document.getElementById('cfrFooter');
+      foot.style.visibility = "hidden";
+      //frow = an array of the rows of the footer of the table
+      var frow = foot.getElementsByTagName('tr');
+      //fcell = an array of the cells in the first row of the footer
+      var fcell = frow[0].getElementsByTagName('td');
+      //for each row in the table the elements are added to the cfr object
+      for (i = 0; i<row.length; i++){
+        var cell = row[i].getElementsByTagName('td');
+        for (j = 0; j<cell.length; j++){
+          if (cell[j].className == "danger"){
+            cell[j].classList.remove("danger");
+          }
+          if (fcell[i].style.visibility == "visible"){
+            fcell[i].style.visibility = "hidden";
+          }
+        }
+      }
+    }; 
+
+    function testData(){
+      //checks if there are any errors
+      var test = 1;
+      //gets the cfr table element
+      var table = document.getElementById('cfrTable');
+      //gets the cfr table footer element
+      var foot = document.getElementById('cfrFooter');
+      //row = an array of the rows of the table
+      var row = table.getElementsByTagName('tr');
+      //frow = an arrow of the rows of the footer of the table
+      var frow = foot.getElementsByTagName('tr');
+          //fcell = an array of the cells in the first row of the footer
+      var fcell = frow[0].getElementsByTagName('td');
+      //for each row in the table the elements are added to the cfr object
+      for (i = 0; i<row.length; i++){
+        var cell = row[i].getElementsByTagName('td');
+        //makes sure the first column entries are numbers
+        if (Number.isNaN(Number(cell[0].innerText.trim()))){
+          cell[0].className = "danger";
+          fcell[0].style.visibility = "visible";
+          test = test - 1;
+        }
+        //makes sure the mini session column has proper inputs
+        if (cell[3].innerText.trim()=="no" || cell[3].innerText.trim()=="No" || cell[3].innerText.trim()=="NO"){
+          cell[3].innerText = "No";
+        }
+        else if (cell[3].innerText.trim()=="yes" || cell[3].innerText.trim()=="Yes" || cell[3].innerText.trim()=="YES"){
+          cell[3].innerText = "Yes";
+        }
+        else {
+          cell[3].className = "danger";
+          fcell[3].style.visibility = "visible";
+          test = test - 1;
+        }
+        //makes sure the online class column has proper inputs
+        if (cell[4].innerText.trim()=="no" || cell[4].innerText.trim()=="No" || cell[4].innerText.trim()=="NO"){
+          cell[4].innerText = "No";
+        }
+        else if (cell[4].innerText.trim()=="yes" || cell[4].innerText.trim()=="Yes" || cell[4].innerText.trim()=="YES"){
+          cell[4].innerText = "Yes";
+        }
+        else {
+          cell[4].className = "danger";
+          fcell[4].style.visibility = "visible";
+          test = test - 1;
+        }
+      }
+      if (test <= 0){
+        foot.style.visibility = "visible";
+        return false;
+      }
+      return true;
+    };
 
 /* Function: insertIntoTable()
    Purpose: Inserts data from JSON object into the end of the table */
@@ -160,4 +243,4 @@ function CFRsubmit() {
       txt = "added " + dummy2[i].name1 + " " + dummy2[i].num1 + " " + dummy2[i].num2 + " " + dummy2[i].num3 + " to CFR";
       console.log(txt);
     }
-  }
+  };
