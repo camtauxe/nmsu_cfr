@@ -119,86 +119,104 @@ function CFRsubmit() {
     xmlhttp.send(cfrJSON);
   }
 };
-    
-    function resetTableState(){
-      //gets the cfr Table element
-      var table = document.getElementById('cfrTable');
-      //row = an array of the rows of the table
-      var row = table.getElementsByTagName('tr');
-      //gets the cfr table footer element
-      var foot = document.getElementById('cfrFooter');
-      foot.style.visibility = "hidden";
-      //frow = an array of the rows of the footer of the table
-      var frow = foot.getElementsByTagName('tr');
-      //fcell = an array of the cells in the first row of the footer
-      var fcell = frow[0].getElementsByTagName('td');
-      //for each row in the table the elements are added to the cfr object
-      for (i = 0; i<row.length; i++){
-        var cell = row[i].getElementsByTagName('td');
-        for (j = 0; j<cell.length; j++){
-          if (cell[j].className == "danger"){
-            cell[j].classList.remove("danger");
-          }
-          if (fcell[i].style.visibility == "visible"){
-            fcell[i].style.visibility = "hidden";
-          }
-        }
-      }
-    }; 
+/* Function: resetTableState()
+    Purpose: resets the table styling if any entries were formerly incorrect*/
+  function resetTableState(){
+    //gets the cfr Table element
+    var table = document.getElementById('cfrTable');
+    //row = an array of the rows of the table
+    var row = table.getElementsByTagName('tr');
+    //gets the cfr table footer element
+    var foot = document.getElementById('cfrFooter');
+    //resets table footer to not be displayed
+    foot.style.visibility = "collapse";
+    //frow = an array of the rows of the footer of the table
+    var frow = foot.getElementsByTagName('tr');
+    //fcell = an array of the cells in the first row of the footer
+    var fcell = frow[0].getElementsByTagName('td');
 
-    function testData(){
-      //checks if there are any errors
-      var test = 1;
-      //gets the cfr table element
-      var table = document.getElementById('cfrTable');
-      //gets the cfr table footer element
-      var foot = document.getElementById('cfrFooter');
-      //row = an array of the rows of the table
-      var row = table.getElementsByTagName('tr');
-      //frow = an arrow of the rows of the footer of the table
-      var frow = foot.getElementsByTagName('tr');
-          //fcell = an array of the cells in the first row of the footer
-      var fcell = frow[0].getElementsByTagName('td');
-      //for each row in the table the elements are added to the cfr object
-      for (i = 0; i<row.length; i++){
-        var cell = row[i].getElementsByTagName('td');
-        //makes sure the first column entries are numbers
-        if (Number.isNaN(Number(cell[0].innerText.trim()))){
-          cell[0].className = "danger";
-          fcell[0].style.visibility = "visible";
-          test = test - 1;
+    //for each row in the table the cells are set back to normal styling and the error messages are hidden
+    for (i = 0; i<row.length; i++){
+      var cell = row[i].getElementsByTagName('td');
+      for (j = 0; j<cell.length; j++){
+        if (cell[j].className == "danger"){
+          cell[j].classList.remove("danger");
         }
-        //makes sure the mini session column has proper inputs
-        if (cell[3].innerText.trim()=="no" || cell[3].innerText.trim()=="No" || cell[3].innerText.trim()=="NO"){
-          cell[3].innerText = "No";
-        }
-        else if (cell[3].innerText.trim()=="yes" || cell[3].innerText.trim()=="Yes" || cell[3].innerText.trim()=="YES"){
-          cell[3].innerText = "Yes";
-        }
-        else {
-          cell[3].className = "danger";
-          fcell[3].style.visibility = "visible";
-          test = test - 1;
-        }
-        //makes sure the online class column has proper inputs
-        if (cell[4].innerText.trim()=="no" || cell[4].innerText.trim()=="No" || cell[4].innerText.trim()=="NO"){
-          cell[4].innerText = "No";
-        }
-        else if (cell[4].innerText.trim()=="yes" || cell[4].innerText.trim()=="Yes" || cell[4].innerText.trim()=="YES"){
-          cell[4].innerText = "Yes";
-        }
-        else {
-          cell[4].className = "danger";
-          fcell[4].style.visibility = "visible";
-          test = test - 1;
+        if (fcell[j].style.visibility == "visible"){
+          fcell[j].style.visibility = "hidden";
         }
       }
-      if (test <= 0){
-        foot.style.visibility = "visible";
-        return false;
+    }
+  };
+
+/* Function: testData() 
+    Purpose: tests the data entries does not send the request if entries are not correct*/
+  function testData(){
+    //checks if there are any errors
+    var test = 1;
+    //gets the cfr table element
+    var table = document.getElementById('cfrTable');
+    //gets the cfr table footer element
+    var foot = document.getElementById('cfrFooter');
+    //row = an array of the rows of the table
+    var row = table.getElementsByTagName('tr');
+    //frow = an arrow of the rows of the footer of the table
+    var frow = foot.getElementsByTagName('tr');
+        //fcell = an array of the cells in the first row of the footer
+    var fcell = frow[0].getElementsByTagName('td');
+
+    //for each row in the table the elements are added to the cfr object
+    for (i = 0; i<row.length; i++){
+      var cell = row[i].getElementsByTagName('td');
+
+      //makes sure the first column entries are numbers
+      if (Number.isNaN(Number(cell[0].innerText.trim()))){
+        //if the data is not a number the cell will turn red and an error message will display at the bottom of the column
+        cell[0].className = "danger";
+        fcell[0].style.visibility = "visible";
+        test = test - 1;
       }
-      return true;
-    };
+
+      //makes sure the mini session column has proper inputs
+      //capitalizes the first letter in no
+      if (cell[3].innerText.trim()=="no" || cell[3].innerText.trim()=="No" || cell[3].innerText.trim()=="NO"){
+        cell[3].innerText = "No";
+      }
+      //capitalizes the first letter in yes
+      else if (cell[3].innerText.trim()=="yes" || cell[3].innerText.trim()=="Yes" || cell[3].innerText.trim()=="YES"){
+        cell[3].innerText = "Yes";
+      }
+      //if the data is not yes or no the cell will turn red and an error message will display at the bottom of the column
+      else {
+        cell[3].className = "danger";
+        fcell[3].style.visibility = "visible";
+        test = test - 1;
+      }
+
+      //makes sure the online class column has proper inputs
+      //capitalizes the first letter in no
+      if (cell[4].innerText.trim()=="no" || cell[4].innerText.trim()=="No" || cell[4].innerText.trim()=="NO"){
+        cell[4].innerText = "No";
+      }
+      //capitalizes the first letter in yes
+      else if (cell[4].innerText.trim()=="yes" || cell[4].innerText.trim()=="Yes" || cell[4].innerText.trim()=="YES"){
+        cell[4].innerText = "Yes";
+      }
+      //if the data is not yes or no the cell will turn red and an error message will display at the bottom of the column
+      else {
+        cell[4].className = "danger";
+        fcell[4].style.visibility = "visible";
+        test = test - 1;
+      }
+    }
+
+    //if anything is wrong the cfr will not be sent
+    if (test <= 0){
+      foot.style.visibility = "hidden";
+      return false;
+    }
+    return true;
+  };
 
 /* Function: insertIntoTable()
    Purpose: Inserts data from JSON object into the end of the table */
