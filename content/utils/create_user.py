@@ -6,6 +6,7 @@ so that we don't have a whole file with basically only one function
 """
 from .sql_connection import Transaction
 from .authentication import hash_password
+from .errors import Error400
 
 # Query to insert a new user into the database
 # Parameters are username, usr_password, banner_id and type (role)
@@ -33,7 +34,7 @@ def create_user(query):
             cursor.execute(ADD_USER_QUERY, data)
             rows_inserted = cursor.rowcount
     else:
-        raise RuntimeError("Form data for new_user request is missing parameters!")
+        raise Error400("Form data for new_user request is missing parameters!")
 
     return rows_inserted
 
