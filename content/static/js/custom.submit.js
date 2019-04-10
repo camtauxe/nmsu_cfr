@@ -241,7 +241,7 @@ function CFRsubmit() {
         || cell[6].innerText.trim()==""){
         cell[7].innerText = "N/A";
       }
-      // if the instructor is TBH set the column to N/A
+      // if the instructor is TBD set the column to N/A
       else if (cell[6].innerText.trim()=="tbd" || cell[6].innerText.trim()=="Tbd" || cell[6].innerText.trim()=="tBd" 
         || cell[6].innerText.trim()=="tbD" || cell[6].innerText.trim()=="TBd" || cell[6].innerText.trim()=="TbD" 
         || cell[6].innerText.trim()=="tBD" || cell[6].innerText.trim()=="TBD"){
@@ -252,6 +252,20 @@ function CFRsubmit() {
         cell[7].className = "danger";
         fcell[7].style.visibility = "visible";
         test = test - 1;
+      }
+
+      //makes sure the instructor rank column has proper inputs
+      //set column to N/A if empty 
+      if (cell[8].innerText.trim()=="N/A" || cell[8].innerText.trim()=="NA" || cell[8].innerText.trim()=="N/a" 
+        || cell[8].innerText.trim()=="Na" || cell[8].innerText.trim()=="n/a" || cell[8].innerText.trim()=="na" 
+        || cell[8].innerText.trim()==""){
+        cell[8].innerText = "N/A";
+      }
+      // if the instructor is TBD set the column to N/A
+      else if (cell[6].innerText.trim()=="tbd" || cell[6].innerText.trim()=="Tbd" || cell[6].innerText.trim()=="tBd" 
+        || cell[6].innerText.trim()=="tbD" || cell[6].innerText.trim()=="TBd" || cell[6].innerText.trim()=="TbD" 
+        || cell[6].innerText.trim()=="tBD" || cell[6].innerText.trim()=="TBD"){
+        cell[8].innerText = "N/A";
       }
 
     }
