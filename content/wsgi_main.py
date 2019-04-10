@@ -194,9 +194,9 @@ def application(environ, start_response):
             raise RuntimeError("Only submitters can do this!")
         body_text = environ['wsgi.input'].read()
         data = json.loads(body_text)
-        rows_inserted = request.new_cfr_from_courses(kwargs['user'], data)
+        courses_inserted = request.new_cfr_from_courses(kwargs['user'], data)
         respond(mime = 'text/plain')
-        return f"{rows_inserted} course(s) inserted.".encode('utf-8')
+        return f"{courses_inserted}".encode('utf-8')
 
     #For 'add_sal_savings' add salary savings to a cfr
     def handle_cfr_from_sal_savings(**kwargs):

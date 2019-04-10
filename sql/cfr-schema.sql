@@ -28,7 +28,8 @@ create table cfr_department
    );
 
 create table request
-   (commitment_code      enum('EM', 'SS', 'CO', 'DE'),
+   (id      mediumint NOT NULL auto_increment,
+    commitment_code      enum('EM', 'SS', 'CO', 'DE'),
     priority      int,
     course      varchar(15),
     sec      varchar(10),
@@ -40,35 +41,50 @@ create table request
     inst_rank      varchar(10),
     cost      decimal(19,4) not null,
     reason      text,
-    dept_name      varchar(50) not null,
-    semester      enum('Fall', 'Spring', 'Summer'),
-    cal_year      numeric(4,0),
-    revision_num      int,
     approver      varchar(32),
-    primary key (course, sec, dept_name, semester, cal_year, revision_num),
+    primary key (id),
     foreign key (approver)
-	   references user(username),
-    foreign key (dept_name, semester, cal_year, revision_num)
-       references cfr_department(dept_name, semester, cal_year, revision_num)
+	   references user(username)
    );  
 
+create table cfr_request
+	(course_id      mediumint NOT NULL, 
+     dept_name      varchar(50) NOT NULL,
+     semester      enum('Fall', 'Spring', 'Summer') NOT NULL,
+     cal_year      numeric(4,0) NOT NULL,
+     revision_num      int NOT NULL,
+     primary key (course_id, dept_name, semester, cal_year, revision_num),
+     foreign key (course_id) 
+           references request(id),
+     foreign key (dept_name, semester, cal_year, revision_num)
+           references cfr_department(dept_name, semester, cal_year, revision_num)
+	);
+
 create table sal_savings
-   (leave_type      enum('Sabbatical', 'RBO', 'LWOP', 'Other') not null,
+   (id      mediumint NOT NULL AUTO_INCREMENT,
+    leave_type      enum('Sabbatical', 'RBO', 'LWOP', 'Other') not null,
     inst_name      varchar(100),
     savings      decimal(19,4) not null,
     confirmed_amt      decimal(19,4),
     notes      text,
-    dept_name      varchar(50),
-    semester      enum('Fall', 'Spring', 'Summer'),
-    cal_year      numeric(4,0),
-    revision_num      int,
     approver       varchar(32),
-    primary key (inst_name, dept_name, semester, cal_year, revision_num),
+    primary key (id),
     foreign key (approver)
-	   references user(username),
-    foreign key (dept_name, semester, cal_year, revision_num)
-       references cfr_department(dept_name, semester, cal_year, revision_num)
+	   references user(username)
    );
+   
+create table cfr_savings
+	(savings_id      mediumint NOT NULL, 
+     dept_name      varchar(50) NOT NULL,
+     semester      enum('Fall', 'Spring', 'Summer') NOT NULL,
+     cal_year      numeric(4,0) NOT NULL,
+     revision_num      int NOT NULL,
+     primary key (savings_id, dept_name, semester, cal_year, revision_num),
+     foreign key (savings_id) 
+           references sal_savings(id),
+     foreign key (dept_name, semester, cal_year, revision_num)
+           references cfr_department(dept_name, semester, cal_year, revision_num)
+	);
 
 create table dummy_data 
    (

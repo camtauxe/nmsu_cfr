@@ -60,9 +60,9 @@ def dict_list(val, dict_type):
     
     return data
 
-"""
-req_data = [["1","ART253","M03","No","No","25","Cooper","800152344","NULL","1234.33", "NULL"],
-            ["2", "ART105", "D11", "No", "No", "22", "Miller", "800112231", "NULL", "2000.12", "NULL"]]
+
+req_data = [["1","ART253","M03","No","No","25","Cooper","80015234","NULL","1234.33", "NULL"],
+            ["2", "ART105", "D11", "No", "No", "22", "Miller", "80011223", "NULL", "2000.12", "NULL"]]
 
 #accepts a list of lists with data corresponding to a course request insertion
 course_req_json(req_data)
@@ -77,4 +77,4 @@ sav_data = [["Sabbatical", "Leung", "30123.11", "NULL"],
 
 #accepts a list of lists with data corresponding to a salary savings insertion
 sal_sav_json(sav_data)
-
+"""
