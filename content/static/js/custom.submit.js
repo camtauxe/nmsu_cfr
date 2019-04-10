@@ -222,6 +222,17 @@ function CFRsubmit() {
         test = test - 1;
       }
 
+      //makes sure the instructor column has proper inputs
+      //capitalizes TBD
+      if (cell[6].innerText.trim()=="tbd" || cell[6].innerText.trim()=="Tbd" || cell[6].innerText.trim()=="tBd" 
+        || cell[6].innerText.trim()=="tbD" || cell[6].innerText.trim()=="TBd" || cell[6].innerText.trim()=="TbD" 
+        || cell[6].innerText.trim()=="tBD" || cell[6].innerText.trim()=="TBD"){
+        cell[6].innerText = "TBD";
+      }
+      //if empty set to TBH
+      else if (cell[6].innerText.trim()==""){
+        cell[6].innerText = "TBD";
+      }
     }
 
     //if anything is wrong the cfr will not be sent
