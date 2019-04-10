@@ -46,6 +46,24 @@ INSERT INTO request(
 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 """
 
+COMPARE_COURSE = """
+SELECT COUNT(r.id), r.id
+FROM request r, cfr_request c
+WHERE r.id = c.course_id AND
+    r.priority = %s AND
+    r.course = %s AND
+    r.sec = %s AND 
+    r.mini_session = %s AND
+    r.online_course = %s AND
+    r.num_students = %s AND
+    r.instructor = %s AND
+    r.banner_id = %s AND
+    r.inst_rank = %s AND
+    r.cost = %s AND
+    r.reason = %s AND 
+    c.revision_num = %s
+"""
+
 SELECT_COURSE_LIST = """
 SELECT id, 
        priority, 
@@ -132,7 +150,13 @@ def new_cfr_from_courses(user: User, course_list):
         new_courses = []
         for row in data_ls:
             exists = False
-            if revision == True:        
+            if revision == True:
+                cursor.execute(COMPARE_COURSE, row + (prev_cfr_data[3], ))
+                dup_course = cursor.fetchone()
+                if dup_course[0] > 0:
+                    exists = True
+                    course_id = (dup_course[1], )
+                """        
                 for tup in prev_courses:
                     exists = True
                     comp = tup[1:12]
@@ -146,11 +170,13 @@ def new_cfr_from_courses(user: User, course_list):
                             except ValueError:
                                 exists = False
                                 break
+                    
+
                     if exists == True:    
                         course_id = (tup[0], )
                         break
                         
-                    
+                """ 
                             
 
             if exists == False:
