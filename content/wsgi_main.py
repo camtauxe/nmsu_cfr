@@ -148,7 +148,7 @@ def application(environ, start_response):
             return page_builder.soup_to_bytes(page)
 
     def handle_cfr(**kwargs):
-        page = page_builder.build_page_from_file("cfr.html")
+        page = page_builder.build_cfr_page(kwargs['user'])
         respond()
         return page_builder.soup_to_bytes(page)
 

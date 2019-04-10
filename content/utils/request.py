@@ -21,6 +21,16 @@ REQ_FIELDS = [
     'reason'
 ]
 
+SELECT_COURSES = (
+    "SELECT "+(", ".join(REQ_FIELDS))+" "
+    "FROM request "
+    "WHERE "
+    "dept_name = %s AND "
+    "semester = %s AND "
+    "cal_year = %s AND "
+    "revision_num = %s"
+)
+
 SAL_FIELDS = [
     'leave_type',
     'inst_name',
@@ -98,6 +108,21 @@ def new_cfr_from_sal_savings(user: User, sal_list):
 
     return rows_inserted
 
+def get_current_courses(user: User):
+    """
+    Get a list of the courses in the latest cfr for the
+    department represented by the given user as a list
+    of tuples
+    """
+    courses = []
+    with Transaction() as cursor:
+        cfr = db_utils.current_cfr(cursor, user)
 
-    
+        if cfr is not None:
+            cfr_data = (cfr[0], cfr[1], cfr[2], cfr[5])
+            cursor.execute(SELECT_COURSES, cfr_data)
+            courses = cursor.fetchall()
+
+    return courses
+
 
