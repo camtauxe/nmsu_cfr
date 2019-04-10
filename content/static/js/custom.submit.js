@@ -178,6 +178,18 @@ function CFRsubmit() {
         test = test - 1;
       }
 
+      //makes sure the section id column has proper inputs
+      //make sure the section id starts with M
+      if (cell[2].innerText.trim().startsWith("m")){
+        cell[2].innerText=cell[2].innerText.replace("m","M");
+      }
+      //if the data does not start with M the cell will turn red and an error message will display at the bottom of the column
+      else {
+        cell[2].className = "danger";
+        fcell[2].style.visibility = "visible";
+        test = test - 1;
+      }
+
       //makes sure the mini session column has proper inputs
       //capitalizes the first letter in no
       if (cell[3].innerText.trim()=="no" || cell[3].innerText.trim()=="No" || cell[3].innerText.trim()=="NO"){
