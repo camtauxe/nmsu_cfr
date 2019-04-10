@@ -109,6 +109,7 @@ function CFRsubmit() {
     xmlhttp = new XMLHttpRequest();
 
     xmlhttp.onreadystatechange = function() {
+
       if (this.readyState == 4 && this.status == 200) {
         window.alert("Success!!")
       }
@@ -208,6 +209,19 @@ function CFRsubmit() {
         fcell[4].style.visibility = "visible";
         test = test - 1;
       }
+
+      //makes sure the number of students column has proper inputs
+      //checks to make sure >0
+      if (cell[5].innerText.trim()>0){
+        //empty
+      }
+      //if the data is not yes or no the cell will turn red and an error message will display at the bottom of the column
+      else {
+        cell[5].className = "danger";
+        fcell[5].style.visibility = "visible";
+        test = test - 1;
+      }
+
     }
 
     //if anything is wrong the cfr will not be sent
