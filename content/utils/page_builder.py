@@ -7,6 +7,8 @@ from pathlib import Path
 from bs4 import BeautifulSoup as Soup
 from bs4 import Comment
 from . import cfrenv
+from . import table_builder
+from .authentication import User
 
 # The RESOURCE_DIR refers to directory containing resource files
 # loaded by the page builder. Usually, these are html files that
@@ -100,6 +102,14 @@ def build_login_page(message = None):
     if message is not None:
         error_message = f'<p class="error" style="padding: 5px;">{message}</p>'
         insert_at_id(page, 'loginp', error_message)
+    return page
+
+def build_cfr_page(user: User):
+    page = build_page_from_file("cfr.html")
+    body = table_builder.build_course_table_body(user)
+    body.tbody['id'] = 'cfrTable'
+    table_head = page.find('table',id='cfrTable_full').find('thead')
+    table_head.insert_after(body)
     return page
 
 def build_500_error_page(exception) -> Soup:

@@ -14,6 +14,7 @@ from utils import cfrenv
 from utils import create_user
 from utils import request
 from utils import dummy
+from utils import errors
 
 def application(environ, start_response):
     """
@@ -148,7 +149,7 @@ def application(environ, start_response):
             return page_builder.soup_to_bytes(page)
 
     def handle_cfr(**kwargs):
-        page = page_builder.build_page_from_file("cfr.html")
+        page = page_builder.build_cfr_page(kwargs['user'])
         respond()
         return page_builder.soup_to_bytes(page)
 
@@ -290,6 +291,9 @@ def application(environ, start_response):
         error_page = page_builder.build_page_from_file("404.html", includeNavbar=False)
         yield page_builder.soup_to_bytes(error_page)
 
+    except errors.Error400 as err400:
+        respond(status="400 Bad Request", mime="text/plain")
+        yield str(err400).encode('utf-8')
     except Exception as err:
         respond(status="500 Internal Server Error")
         error_page = page_builder.build_500_error_page(err)

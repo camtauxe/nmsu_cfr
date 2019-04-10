@@ -19,7 +19,7 @@ function addSalaryRow(){
           cell.innerHTML = "";
         }
         else if (i == 0){
-            cell.innerHTML = "<div class='form-group' style='margin: 0px 0px'> <select class='form-control' id='standardSelect' name='standardSelect'> <option value='approved amounts from sabbatical leaves'>Approved Amounts from Sabbatical Leaves</option> <option value='research buy out'>Research Buy Out (Provide Index Number)</option> <option value='other funded leave'>Other Funded Leave</option> <option value='leave without pay'>Leave Without Pay</option> </select> </div>"
+            cell.innerHTML = "<div class='form-group' style='margin: 0px 0px'> <select class='form-control' id='standardSelect' name='standardSelect'> <option value='Sabbatical'>Approved Amounts from Sabbatical Leaves</option> <option value='RBO'>Research Buy Out (Provide Index Number)</option> <option value='Other'>Other Funded Leave</option> <option value='LWOP'>Leave Without Pay</option> </select> </div>"
         }
         //the last column is the delete checkbox
         else if (i == 3){

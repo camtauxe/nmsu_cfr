@@ -3,7 +3,7 @@
 
 <h2>View/Edit CFRs</h2>
 <!-- CFR Table -->
-<table class="table table-bordered table-striped table-hover">
+<table id="cfrTable_full" class="table table-bordered table-striped table-hover">
     <caption></caption>
     <thead>
         <tr>
@@ -30,23 +30,22 @@
             </th>
         </tr>
     </thead>
-    <tbody id="cfrTable">
+    <!--The tbody is inserted here by the backend-->
+    <tfoot id="cfrFooter" style="visibility: collapse">
         <tr>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td class="noprint"><input type="checkbox" id="checkCFR"></td>
+            <td style="visibility: hidden"><i>* Entries must be a number</i></td>
+            <td></td>
+            <td></td>
+            <td style="visibility: hidden"><i>* Entries must be yes or no</i></td>
+            <td style="visibility: hidden"><i>* Entries must be yes or no</i></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
         </tr>
-    </tbody>
-    <tfoot>
     </tfoot>
 </table>
 <!-- Add New Row Button -->
