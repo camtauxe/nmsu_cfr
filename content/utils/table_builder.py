@@ -25,14 +25,14 @@ def add_row_to_table(table: Soup, tup: tuple):
     for val in tup:
         add_cell_to_row(table, row, val)
     add_checkbox_to_row(table, row)
-    table.append(row)
+    table.tbody.append(row)
 
 def add_empty_row_to_table(table: Soup, num_cells: int):
     row = table.new_tag('tr')
     for _ in range(num_cells):
         add_cell_to_row(table, row)
     add_checkbox_to_row(table, row)
-    table.append(row)
+    table.tbody.append(row)
     return row
 
 def build_table_body(list_of_tups: list) -> Soup:
