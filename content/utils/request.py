@@ -7,6 +7,7 @@ from enum import Enum, auto
 from .sql_connection import Transaction
 from .authentication import User
 from . import db_utils
+from .errors import Error400
 
 REQ_FIELDS = [
     'priority',
@@ -159,6 +160,7 @@ def new_cfr_from_courses(user: User, course_list):
         
         new_courses = []
         for row in data_ls:
+            validate_course(row)
             exists = False
             if revision == True:
                 cursor.execute(COMPARE_COURSE, row + (prev_cfr_data[3], ))
@@ -264,4 +266,54 @@ def get_current_courses(user: User):
 
     return courses
 
+def validate_course(row):
+    """
+    Field validation for cfr submission requests
 
+    row is a list of tuples containing all fields
+    (defined in REQ_FIELDS) of a single course in
+    the cfr request
+
+    NOTE: There is no validation in place for
+    instructor, inst_rank, or reason
+    """
+
+    priority = row[0]
+    if not priority:
+        priority = 0
+    else:
+        priority = int(row[0])
+    if priority < 0:
+        raise Error400('The ' + REQ_FIELDS[0] + ' field must be a positive integer')
+
+    course = row[1]
+    sec = row[2]
+    if not course or not sec:
+        raise Error400('The ' + REQ_FIELDS[1] + ' and ' + REQ_FIELDS[2] + ' fields are required')
+    else:
+        course = course.upper()
+        sec = sec.upper()
+    
+    mini_session = row[3].lower()
+    if mini_session not in ('yes', 'no'):
+        raise Error400('The ' + REQ_FIELDS[3] + ' field must be a \"yes\" or \"no\"')
+
+    online_course = row[4].lower()
+    if online_course not in ('yes', 'no'):
+        raise Error400('The ' + REQ_FIELDS[4] + ' field must be a \"yes\" or \"no\"')
+
+    num_students = int(row[5])
+    if num_students < 0:
+        raise Error400('The ' + REQ_FIELDS[5] + ' field must be a positive integer')
+
+    banner_id = row[7]
+    if len(banner_id) != 9:
+        raise Error400('The ' + REQ_FIELDS[7] + ' field must be a 9-digit number')
+    else:
+        banner_id = int(banner_id)
+
+    cost = row[9].replace("$", "").replace(",", "")
+    try:
+        float(cost)
+    except ValueError:
+        raise Error400('The ' + REQ_FIELDS[9] + ' field must be a decimal number')
