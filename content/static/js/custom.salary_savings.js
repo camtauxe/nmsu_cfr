@@ -11,9 +11,9 @@ function addSalaryRow(){
 
     //creates proper number of cells for each row
     var i;
-    for (i=0; i<4; i++) {
+    for (i=0; i<5; i++) {
         var cell = row.insertCell(i);
-        if (i!=0 && i!=3){
+        if (i!=0 && i!=4){
           cell.contentEditable = "true";
           cell.className = "editable";
           cell.innerHTML = "";
@@ -22,7 +22,7 @@ function addSalaryRow(){
             cell.innerHTML = "<div class='form-group' style='margin: 0px 0px'> <select class='form-control' id='standardSelect' name='standardSelect'> <option value='Sabbatical'>Approved Amounts from Sabbatical Leaves</option> <option value='RBO'>Research Buy Out (Provide Index Number)</option> <option value='Other'>Other Funded Leave</option> <option value='LWOP'>Leave Without Pay</option> </select> </div>"
         }
         //the last column is the delete checkbox
-        else if (i == 3){
+        else if (i == 4){
           cell.className = "noprint";
           cell.innerHTML = "<input type='checkbox' id='checkCFR'>";
         }
@@ -59,7 +59,7 @@ function salarySubmit(){
             leave_type: row[i].getElementsByTagName('select')[0].value,
             inst_name: cell[1].innerText.trim(),
             savings: cell[2].innerText.trim(),
-            notes: "",
+            notes: cell[3].innerText.trim(),
             confirmedAmount: "",
         });
     }

@@ -89,7 +89,7 @@ def build_savings_table_body(user: User):
     savings_list = request.get_current_savings(user)
     body = build_table_body(savings_list)
     if len(savings_list) == 0:
-        add_empty_row_to_table(body, 3)
+        add_empty_row_to_table(body, 4)
     for row in body.find_all('tr'):
         add_leave_type_select_to_row(row)
     return body

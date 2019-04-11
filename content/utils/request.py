@@ -32,6 +32,16 @@ SELECT_COURSES = (
     "c.revision_num = %s"
 )
 
+SELECT_COURSE_IDS = """
+    SELECT c.course_id
+    FROM request r, cfr_request c
+    WHERE r.id = c.course_id AND
+    c.dept_name = %s AND
+    c.semester = %s AND
+    c.cal_year = %s AND
+    c.revision_num = %s
+"""
+
 SELECT_REVISIONS = """
     SELECT c.dept_name, c.semester, c.cal_year, c.revision_num
     FROM request r, cfr_request c
@@ -59,6 +69,16 @@ SELECT_SAVINGS = (
     "c.cal_year = %s AND "
     "c.revision_num = %s"
 )
+
+SELECT_SAVINGS_IDS = """
+    SELECT c.savings_id
+    FROM request r, cfr_savings c
+    WHERE r.id = c.savings_id AND
+    c.dept_name = %s AND
+    c.semester = %s AND
+    c.cal_year = %s AND
+    c.revision_num = %s
+"""
 
 INSERT_COURSE = """
 INSERT INTO request(
@@ -158,7 +178,6 @@ def new_cfr_from_courses(user: User, course_list):
                 course_data = course_data + (course[field],)
             data_ls.append(course_data)
 
-        
         new_courses = []
         for row in data_ls:
             exists = False
@@ -168,7 +187,6 @@ def new_cfr_from_courses(user: User, course_list):
                 if dup_course[0] > 0:
                     exists = True
                     course_id = (dup_course[1], )
-                            
 
             if exists == False:
                 cursor.execute(INSERT_COURSE, row)
@@ -182,6 +200,12 @@ def new_cfr_from_courses(user: User, course_list):
             num_courses += cursor.rowcount
             #courses_inserted.append(cfr_course)
 
+        if revision:
+            cursor.execute(SELECT_SAVINGS_IDS, prev_cfr_data)
+            last_savings_ids = cursor.fetchall()
+            for savings_id in last_savings_ids:
+                cursor.execute(INSERT_CFR_SAVINGS, (savings_id + cfr_data))
+
     if num_new_courses > 0:
         ret_string += f"{num_new_courses} courses added or modified:\n"
         for row in new_courses:
@@ -191,9 +215,6 @@ def new_cfr_from_courses(user: User, course_list):
 
     return ret_string
     
-
-
-
 def new_cfr_from_sal_savings(user: User, sal_list):
     """
     Add a new cfr revision for the department represented
@@ -244,6 +265,12 @@ def new_cfr_from_sal_savings(user: User, sal_list):
 
             cfr_savings = savings_id + cfr_data
             cursor.execute(INSERT_CFR_SAVINGS, cfr_savings)
+
+        if revision:
+            cursor.execute(SELECT_COURSE_IDS, prev_cfr_data)
+            last_course_ids = cursor.fetchall()
+            for course_id in last_course_ids:
+                cursor.execute(INSERT_CFR_COURSE, (course_id + cfr_data))
 
     if num_new_sal_savings > 0:
         ret_string += f"{num_new_sal_savings} savings added or modified."
