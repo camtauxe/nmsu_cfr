@@ -2,10 +2,6 @@
 
 var txt, xmlhttp;
 
-
-
-
-
 /* Function: addRow()
     Purpose: Adds row to CFR table when the add row button is clicked*/
 function addRow() {
@@ -81,9 +77,10 @@ function CFRsubmit() {
     xmlhttp = new XMLHttpRequest();
 
     xmlhttp.onreadystatechange = function() {
-
+      document.getElementById("submitCFRbutton").disabled = true;
       if (this.readyState == 4 && this.status == 200) {
-        window.alert("Success!!")
+        window.alert("Success!!");
+        document.getElementById("submitCFRbutton").disabled = false;
       }
     };
 
