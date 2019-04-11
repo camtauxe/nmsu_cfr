@@ -56,9 +56,10 @@ function salarySubmit(){
         //adds the data from the cells into the javascript array
         salaryObj.push(
             {
-            type: row[i].getElementsByTagName('select')[0].value,
-            name: cell[1].innerHTML,
-            savings: cell[2].innerHTML,
+            leave_type: row[i].getElementsByTagName('select')[0].value,
+            inst_name: cell[1].innerText.trim(),
+            savings: cell[2].innerText.trim(),
+            notes: "",
             confirmedAmount: "",
         });
     }
@@ -68,4 +69,22 @@ function salarySubmit(){
     var salaryJSON = JSON.stringify(salaryObj);
 
     //ADD HTTP REQUEST
+    xmlhttp = new XMLHttpRequest();
+
+    xmlhttp.onreadystatechange = function() {
+      if (this.readyState == 4) {
+        document.getElementById("submitSalaryButton").disabled = false;
+        if (this.status == 200) {
+          window.alert("Successfully submitted changes!")
+        }
+        else {
+          window.alert("Something went wrong! The changes were not submitted.\n Server returned: "+this.status)
+        }
+      }
+    };
+    
+    document.getElementById("submitSalaryButton").disabled = true;
+    xmlhttp.open("POST", "/add_sal_savings", true);
+    xmlhttp.setRequestHeader("Content-Type", "text/json; charset=utf-8");
+    xmlhttp.send(salaryJSON);
 };

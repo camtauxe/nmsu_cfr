@@ -158,7 +158,7 @@ def application(environ, start_response):
     def handle_salary_saving(**kwargs):
         if kwargs['user'].role != authentication.UserRole.SUBMITTER:
             raise RuntimeError("Only submitters can do this!")
-        page = page_builder.build_page_from_file("salary_saving.html")
+        page = page_builder.build_savings_page(kwargs['user'])
         respond()
         return page_builder.soup_to_bytes(page)
 

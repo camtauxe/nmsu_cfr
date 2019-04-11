@@ -78,8 +78,8 @@ function CFRsubmit() {
 
     xmlhttp.onreadystatechange = function() {
       if (this.readyState == 4) {
+        document.getElementById("submitCFRbutton").disabled = false;
         if (this.status == 200) {
-          document.getElementById("submitCFRbutton").disabled = false;
           window.alert("Successfully submitted course funding requests!")
         }
         else {

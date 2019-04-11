@@ -17,6 +17,15 @@ TABLE_HEADERS = [
     "Reason"
 ]
 
+LEAVE_TYPE_SELECT = """
+<select class="form-control" id="leaveType" name="leaveType">
+    <option value="Sabbatical">Approved Amounts from Sabbatical Leaves</option>
+    <option value="RBO">Research Buy Out (Provide Index Number)</option>
+    <option value="LWOP">Leave Without Pay</option>
+    <option value="Other">Other Funded Leave</option>
+</select>
+"""
+
 def add_cell_to_row(table: Soup, row: Tag, content: str = "", editable = True):
     cell = table.new_tag('td')
     if editable:
@@ -34,6 +43,18 @@ def add_checkbox_to_row(table: Soup, row: Tag):
     checkbox['id'] = 'checkCFR'
     last_cell.append(checkbox)
     row.append(last_cell)
+
+def add_leave_type_select_to_row(row: Tag):
+    first_cell = row.find('td')
+    del first_cell['class']
+    del first_cell['contenteditable']
+    leave_type = first_cell.string
+    select = Soup(LEAVE_TYPE_SELECT, 'html.parser')
+    option = select.find('option', value=leave_type)
+    if option is not None:
+        option['selected'] = 'selected'
+    first_cell.string = ''
+    first_cell.append(select)
 
 def add_row_to_table(table: Soup, tup: tuple, editable = True):
     row = table.new_tag('tr')
@@ -57,16 +78,6 @@ def build_table_body(list_of_tups: list) -> Soup:
         add_row_to_table(soup, tup)
     return soup
 
-def add_header_to_table(table_soup: Soup):
-    head = table_soup.new_tag('thead')
-    row = table_soup.new_tag('tr')
-    head.append(row)
-    for header in TABLE_HEADERS:
-        cell = table_soup.new_tag('th')
-        cell.string = header
-        row.append(cell)
-    table_soup.table.append(head)
-
 def build_course_table_body(user: User):
     course_list = request.get_current_courses(user)
     body = build_table_body(course_list)
@@ -74,11 +85,29 @@ def build_course_table_body(user: User):
         add_empty_row_to_table(body, len(request.REQ_FIELDS))
     return body
 
+def build_savings_table_body(user: User):
+    savings_list = request.get_current_savings(user)
+    body = build_table_body(savings_list)
+    if len(savings_list) == 0:
+        add_empty_row_to_table(body, 3)
+    for row in body.find_all('tr'):
+        add_leave_type_select_to_row(row)
+    return body
+
+
 def build_course_table_full(cfr: tuple):
     soup = Soup("<table></table>", 'html.parser')
     soup.table['class'] = "table table-bordered table-striped"
     soup.table['style'] = "padding-bottom: 50px"
-    add_header_to_table(soup)
+    
+    head = soup.new_tag('thead')
+    row = soup.new_tag('tr')
+    head.append(row)
+    for header in TABLE_HEADERS:
+        cell = soup.new_tag('th')
+        cell.string = header
+        row.append(cell)
+    soup.table.append(head)
 
     body = soup.new_tag('tbody')
     soup.table.append(body)

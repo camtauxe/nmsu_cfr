@@ -106,11 +106,18 @@ def build_login_page(message = None):
     return page
 
 def build_cfr_page(user: User):
-
     page = build_page_from_file("cfr.html")
     body = table_builder.build_course_table_body(user)
     body.tbody['id'] = 'cfrTable'
     table_head = page.find('table',id='cfrTable_full').find('thead')
+    table_head.insert_after(body)
+    return page
+
+def build_savings_page(user: User):
+    page = build_page_from_file("salary_saving.html")
+    body = table_builder.build_savings_table_body(user)
+    body.tbody['id'] = 'salaryTable'
+    table_head = page.find('table',id='salaryTable_full').find('thead')
     table_head.insert_after(body)
     return page
 

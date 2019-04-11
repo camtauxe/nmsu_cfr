@@ -1,6 +1,6 @@
 <h1>Sources of Salary Saving</h1>
 
-<table class="table table-bordered">
+<table class="table table-bordered" id="salaryTable_full">
 <thead>
     <tr>
         <th style="width: 30%">Type of Leave</th>
@@ -11,104 +11,9 @@
         </th>
     </tr>
 </thead>
-<tbody id="salaryTable" style="background-color: #f9f9f9">
-    <tr>
-        <td>
-            <div class="form-group" style="margin: 0px 0px">
-                <select class="form-control" id="leaveType" name="leaveType">
-                    <option value="Sabbatical">Approved Amounts from Sabbatical Leaves</option>
-                    <option value="RBO">Research Buy Out (Provide Index Number)</option>
-                    <option value="Other">Other Funded Leave</option>
-                    <option value="LWOP">Leave Without Pay</option>
-                </select>
-            </div>
-        </td>
-        <td contenteditable="true" class="editable">
-        </td>
-        <td contenteditable="true" class="editable">
-        </td>
-        <td class="noprint"><input type="checkbox" id="checkCFR"></td>
-    </tr>
-</tbody>
+<!-- tbody is inserted by backend-->
 </table>
 <button type="button" onclick="addSalaryRow()" class="btn btn-primary noprint" style="margin-left: 95%">
     <img src="/static/images/plus-icon.png" style="height: 15px; vertical-align: text-top;">
 </button>
-<button class="btn btn-primary" onclick="salarySubmit()">Update</button>
-
-
-<table class="table table-bordered" id="salaryTable2" style="margin-top: 50px; padding-top: 100px">
-    <thead>
-        <tr>
-            <th>Type of Leave</th>
-            <th style="width: 20%">Name</th>
-            <th>This Semester Salary Savings (Minus Fringe if Applicable)</th>
-            <th>Confirmed Amount</th>
-        </tr>
-    </thead>
-    <tbody style="background-color: #f9f9f9">
-        <tr>
-            <td rowspan="3"><b>Approved</b> Amounts from Sabbatical leaves</td>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td rowspan="3">Research Buy Out (Provide Index Number)</td>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td rowspan="2">Other Funded Leave</td>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td rowspan="2">Leave Without Pay</td>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td contenteditable="true" class="editable"></td>
-            <td contenteditable="true" class="editable"></td>
-            <td></td>
-        </tr>
-    </tbody>
-    <tfoot>
-        <tr>
-            <td style="border-left: hidden; border-right: hidden; border-bottom: hidden"></td>
-            <td style="border-left: hidden; border-bottom: hidden; text-align: right"><b>TOTAL:</b></td>
-            <td style="border-bottom: hidden"></td>
-            <td style="border-bottom: hidden"></td>
-        </tr>
-    </tfoot>
-</table>
-<button class="btn btn-primary">Update</button>
+<button class="btn btn-primary" id="submitSalaryButton" onclick="salarySubmit()">Update</button>

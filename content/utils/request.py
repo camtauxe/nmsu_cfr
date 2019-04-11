@@ -50,6 +50,16 @@ SAL_FIELDS = [
     'notes'
 ]
 
+SELECT_SAVINGS = (
+    "SELECT "+(", ".join(SAL_FIELDS))+" "
+    "FROM sal_savings r, cfr_savings c "
+    "WHERE r.id = c.savings_id AND "
+    "c.dept_name = %s AND "
+    "c.semester = %s AND "
+    "c.cal_year = %s AND "
+    "c.revision_num = %s"
+)
+
 INSERT_COURSE = """
 INSERT INTO request(
                     priority, 
@@ -266,6 +276,18 @@ def get_courses(cfr: tuple):
         cursor.execute(SELECT_COURSES, cfr)
         courses = cursor.fetchall()
     return courses
+
+def get_current_savings(user: User):
+    savings = []
+    with Transaction() as cursor:
+        cfr = db_utils.current_cfr(cursor, user)
+
+        if cfr is not None:
+            cfr_data = (cfr[0], cfr[1], cfr[2], cfr[5])
+            cursor.execute(SELECT_SAVINGS, cfr_data)
+            savings = cursor.fetchall()
+
+    return savings
 
 def get_all_revisions(user: User):
     cfrs = []
