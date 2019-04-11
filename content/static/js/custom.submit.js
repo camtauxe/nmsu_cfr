@@ -79,7 +79,8 @@ function CFRsubmit() {
     xmlhttp.onreadystatechange = function() {
       document.getElementById("submitCFRbutton").disabled = true;
       if (this.readyState == 4 && this.status == 200) {
-        window.alert("Success!!");
+        document.getElementById("submitCFRbutton").disabled = false;
+        window.alert("Successfully submitted course funding requests!")
         document.getElementById("submitCFRbutton").disabled = false;
       }
     };
