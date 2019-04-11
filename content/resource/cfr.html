@@ -1,7 +1,7 @@
 
 <h1>Course Funding Request</h1>
 
-<h2>View/Edit CFRs</h2>
+<h2>View and Edit CFRs</h2>
 <!-- CFR Table -->
 <table id="cfrTable_full" class="table table-bordered table-striped table-hover">
     <caption></caption>
@@ -35,12 +35,12 @@
         <tr>
             <td style="visibility: hidden"><i>* Entries must be a number</i></td>
             <td></td>
-            <td></td>
+            <td style="visibility: hidden"><i>* Entries must start with M</i></td>
             <td style="visibility: hidden"><i>* Entries must be yes or no</i></td>
             <td style="visibility: hidden"><i>* Entries must be yes or no</i></td>
+            <td style="visibility: hidden"><i>* Entries must be > 0</i></td>
             <td></td>
-            <td></td>
-            <td></td>
+            <td style="visibility: hidden"><i>* Entries must be be a valid ID beginning with 800</i></td>
             <td></td>
             <td></td>
             <td></td>
@@ -54,89 +54,4 @@
     <img src="/static/images/plus-icon.png" style="height: 15px; vertical-align: text-top;">
 </button>
 <!-- Modify CFR Button -->
-<button type="submit" onclick="CFRsubmit()" class="btn btn-primary">Submit Changes</button>
-
-
-
-<!-- CFR Table -->
-<h2>Submitted CFRs</h2>
-<table class="table table-bordered table-striped table-hover" id="cfrTable2">
-	<!-- Optional Table Caption -->
-	<caption></caption>
-	<thead>
-		<tr>
-            <th class="tooltiptitle">
-                <span class="tooltip tooltip-inner">this is a tooltip for name. The tooltip
-                                                    is slightly transparent so any text 
-                                                    behind it can still be seen</span>
-                Name         
-            </th>
-			<th class="tooltiptitle">
-                <span class="tooltip tooltip-inner">this is a tooltip for integer 1. The 
-                                                    tooltip may contain a lot of information 
-                                                    depending on the table header</span>
-                Integer 1
-            </th>
-			<th class="tooltiptitle">
-                <span class="tooltip tooltip-inner">this is a tooltip for integer 2</span>
-                Integer 2
-            </th>
-			<th class="tooltiptitle">
-                <span class="tooltip tooltip-inner">this is a tooltip for integer 3</span>
-                Integer 3
-            </th>
-        </tr>
-    </thead>
-    <tbody id="dummyTable">
-        <tr>
-            <td contenteditable="true">Row 1, Cell 1</td>
-            <td contenteditable="true">1</td>
-            <td contenteditable="true">2</td>
-            <td contenteditable="true">3</td>
-        </tr>
-        <tr>
-            <td contenteditable="true">Row 2, Cell 1</td>
-            <td contenteditable="true">4</td>
-            <td contenteditable="true">5</td>
-            <td contenteditable="true">6</td>
-        </tr>
-        <tr>
-            <td contenteditable="true">Row 3, Cell 1</td>
-            <td contenteditable="true">7</td>
-            <td contenteditable="true">8</td>
-            <td contenteditable="true">9</td>
-        </tr>
-    </tbody>
-    <!-- Optional Table Footer -->
-    <tfoot>
-    </tfoot>
-</table>
-<button type="submit" class="btn btn-primary">Modify</button>
-
-<!-- CFR Submitter Form -->
-<h2>Create New CFR</h2>
-
-<form class="form-inline" id="cfrSubmitForm">
-        <div class="form-group">
-            <label for="inlineInputName">Name</label>
-            <input type="text" class="form-control" id="cfrName">
-        </div> 
-        <div class="form-group">
-            <label for="inlineInputEmail">Int 1</label>
-            <input type="number" class="form-control" id="cfrNum1">
-        </div>
-        <div class="form-group">
-            <label for="inlineInputEmail">Int 2</label>
-            <input type="number" class="form-control" id="cfrNum2">
-        </div> 
-        <div class="form-group">
-            <label for="inlineInputEmail">Int 3</label>
-            <input type="number" class="form-control" id="cfrNum3">
-        </div> 
-
-    <button type="button" onclick="submitDummy()" class="btn btn-primary" style="margin-top: 15px;">Submit</button>
-</form>
-<p id="cfrOutput"></p>
-<p>     
-   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam faucibus luctus eros, vel tempor ipsum tincidunt sollicitudin. Aliquam sit amet ultrices ligula. Maecenas pretium odio nec ullamcorper posuere. Quisque tristique turpis in venenatis rutrum. Praesent nunc neque, posuere sit amet arcu at, aliquet ornare dui. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc ultrices nisi vel euismod elementum. Cras id diam nisi. Integer accumsan sit amet turpis vitae molestie. In magna urna, vestibulum vel imperdiet et, ultrices vel urna. Nulla dui dolor, blandit ut pulvinar nec, aliquet in velit. Donec faucibus diam ornare, auctor mi eget, molestie orci. Duis a risus scelerisque, luctus metus non, consequat metus.
-</p>
+<button id="submitCFRbutton" type="submit" onclick="CFRsubmit()" class="btn btn-primary">Submit Changes</button>

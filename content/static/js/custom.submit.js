@@ -109,6 +109,7 @@ function CFRsubmit() {
     xmlhttp = new XMLHttpRequest();
 
     xmlhttp.onreadystatechange = function() {
+
       if (this.readyState == 4 && this.status == 200) {
         window.alert("Success!!")
       }
@@ -177,6 +178,18 @@ function CFRsubmit() {
         test = test - 1;
       }
 
+      //makes sure the section id column has proper inputs
+      //make sure the section id starts with M
+      if (cell[2].innerText.trim().startsWith("m")){
+        cell[2].innerText=cell[2].innerText.replace("m","M");
+      }
+      //if the data does not start with M the cell will turn red and an error message will display at the bottom of the column
+      else {
+        cell[2].className = "danger";
+        fcell[2].style.visibility = "visible";
+        test = test - 1;
+      }
+
       //makes sure the mini session column has proper inputs
       //capitalizes the first letter in no
       if (cell[3].innerText.trim()=="no" || cell[3].innerText.trim()=="No" || cell[3].innerText.trim()=="NO"){
@@ -208,6 +221,65 @@ function CFRsubmit() {
         fcell[4].style.visibility = "visible";
         test = test - 1;
       }
+
+      //makes sure the number of students column has proper inputs
+      //checks to make sure >0
+      if (cell[5].innerText.trim()>0){
+        //empty
+      }
+      //if the data is not yes or no the cell will turn red and an error message will display at the bottom of the column
+      else {
+        cell[5].className = "danger";
+        fcell[5].style.visibility = "visible";
+        test = test - 1;
+      }
+
+      //makes sure the instructor column has proper inputs
+      //capitalizes TBD
+      if (cell[6].innerText.trim()=="tbd" || cell[6].innerText.trim()=="Tbd" || cell[6].innerText.trim()=="tBd" 
+        || cell[6].innerText.trim()=="tbD" || cell[6].innerText.trim()=="TBd" || cell[6].innerText.trim()=="TbD" 
+        || cell[6].innerText.trim()=="tBD" || cell[6].innerText.trim()=="TBD"){
+        cell[6].innerText = "TBD";
+      }
+      //if empty set to TBH
+      else if (cell[6].innerText.trim()==""){
+        cell[6].innerText = "TBD";
+      }
+
+      //makes sure the instructor banner id column has proper inputs
+      //set column to N/A if empty 
+      if (cell[6].innerText.trim()=="N/A" || cell[6].innerText.trim()=="NA" || cell[6].innerText.trim()=="N/a" 
+        || cell[6].innerText.trim()=="Na" || cell[6].innerText.trim()=="n/a" || cell[6].innerText.trim()=="na" 
+        || cell[6].innerText.trim()==""){
+        cell[7].innerText = "N/A";
+      }
+      // if the instructor is TBD set the column to N/A
+      else if (cell[6].innerText.trim()=="tbd" || cell[6].innerText.trim()=="Tbd" || cell[6].innerText.trim()=="tBd" 
+        || cell[6].innerText.trim()=="tbD" || cell[6].innerText.trim()=="TBd" || cell[6].innerText.trim()=="TbD" 
+        || cell[6].innerText.trim()=="tBD" || cell[6].innerText.trim()=="TBD"){
+        cell[7].innerText = "N/A";
+      }
+      //if invalid id the cell will turn red and an error message will display at the bottom of the column
+      else if (cell[7].innerText.trim()<800000000){
+        cell[7].className = "danger";
+        fcell[7].style.visibility = "visible";
+        test = test - 1;
+      }
+
+      //makes sure the instructor rank column has proper inputs
+      //set column to N/A if empty 
+      if (cell[8].innerText.trim()=="N/A" || cell[8].innerText.trim()=="NA" || cell[8].innerText.trim()=="N/a" 
+        || cell[8].innerText.trim()=="Na" || cell[8].innerText.trim()=="n/a" || cell[8].innerText.trim()=="na" 
+        || cell[8].innerText.trim()==""){
+        cell[8].innerText = "N/A";
+      }
+      // if the instructor is TBD set the column to N/A
+      else if (cell[6].innerText.trim()=="tbd" || cell[6].innerText.trim()=="Tbd" || cell[6].innerText.trim()=="tBd" 
+        || cell[6].innerText.trim()=="tbD" || cell[6].innerText.trim()=="TBd" || cell[6].innerText.trim()=="TbD" 
+        || cell[6].innerText.trim()=="tBD" || cell[6].innerText.trim()=="TBD"){
+        cell[8].innerText = "N/A";
+      }
+
     }
 
     //if anything is wrong the cfr will not be sent
