@@ -164,11 +164,12 @@ function CFRsubmit() {
 
       //makes sure the mini session column has proper inputs
       //capitalizes the first letter in no
-      if (cell[3].innerText.trim()=="no" || cell[3].innerText.trim()=="No" || cell[3].innerText.trim()=="NO"){
+      if (cell[3].innerText.trim()=="no" || cell[3].innerText.trim()=="No" || cell[3].innerText.trim()=="NO" || cell[3].innerText.trim()=="nO"){
         cell[3].innerText = "No";
       }
       //capitalizes the first letter in yes
-      else if (cell[3].innerText.trim()=="yes" || cell[3].innerText.trim()=="Yes" || cell[3].innerText.trim()=="YES"){
+      else if (cell[3].innerText.trim()=="yes" || cell[3].innerText.trim()=="Yes" || cell[3].innerText.trim()=="YES" || cell[3].innerText.trim()=="yES"
+               || cell[3].innerText.trim()=="yEs" || cell[3].innerText.trim()=="YeS" || cell[3].innerText.trim()=="yeS" || cell[3].innerText.trim()=="YEs"){
         cell[3].innerText = "Yes";
       }
       //if the data is not yes or no the cell will turn red and an error message will display at the bottom of the column
@@ -180,11 +181,12 @@ function CFRsubmit() {
 
       //makes sure the online class column has proper inputs
       //capitalizes the first letter in no
-      if (cell[4].innerText.trim()=="no" || cell[4].innerText.trim()=="No" || cell[4].innerText.trim()=="NO"){
+      if (cell[4].innerText.trim()=="no" || cell[4].innerText.trim()=="No" || cell[4].innerText.trim()=="NO" || cell[4].innerText.trim()=="nO"){
         cell[4].innerText = "No";
       }
       //capitalizes the first letter in yes
-      else if (cell[4].innerText.trim()=="yes" || cell[4].innerText.trim()=="Yes" || cell[4].innerText.trim()=="YES"){
+      else if (cell[4].innerText.trim()=="yes" || cell[4].innerText.trim()=="Yes" || cell[4].innerText.trim()=="YES" || cell[4].innerText.trim()=="yES"
+               || cell[4].innerText.trim()=="yEs" || cell[4].innerText.trim()=="YeS" || cell[4].innerText.trim()=="yeS" || cell[4].innerText.trim()=="YEs"){
         cell[4].innerText = "Yes";
       }
       //if the data is not yes or no the cell will turn red and an error message will display at the bottom of the column
