@@ -1,38 +1,6 @@
 /************************************************** SUBMIT CFR ADDITIONAL SCRIPTS **************************************************/
 
-var dummy, dummy2, dummyJSON, txt, x, xmlhttp;
-
-
-/* Function: submitCFR()
-   Purpose: executes when the submit button on the cfr.html is clicked*/
-function submitDummy() {
-  dummy = [
-    {
-      name1: document.getElementById("cfrName").value, 
-      num1: document.getElementById("cfrNum1").value,
-      num2: document.getElementById("cfrNum2").value, 
-      num3: document.getElementById("cfrNum3").value
-    }
-  ];
-  
-  dummyJSON = JSON.stringify(dummy);
-  
-  xmlhttp = new XMLHttpRequest();
-
-  logSuccessMessage();
-  insertIntoTable();
-
-  xmlhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      
-    }
-  };
-
-  xmlhttp.open("POST", "/add_dummy", true);
-  xmlhttp.setRequestHeader("Content-Type", "text/json; charset=utf-8");
-  xmlhttp.send(dummyJSON);
-};
-
+var txt, xmlhttp;
 
 /* Function: addRow()
     Purpose: Adds row to CFR table when the add row button is clicked*/
@@ -109,8 +77,11 @@ function CFRsubmit() {
     xmlhttp = new XMLHttpRequest();
 
     xmlhttp.onreadystatechange = function() {
+      document.getElementById("submitCFRbutton").disabled = true;
       if (this.readyState == 4 && this.status == 200) {
-        window.alert("Success!!")
+        document.getElementById("submitCFRbutton").disabled = false;
+        window.alert("Successfully submitted course funding requests!")
+        document.getElementById("submitCFRbutton").disabled = false;
       }
     };
 
@@ -177,13 +148,26 @@ function CFRsubmit() {
         test = test - 1;
       }
 
+      //makes sure the section id column has proper inputs
+      //make sure the section id starts with M
+      if (cell[2].innerText.trim().startsWith("m") || cell[2].innerText.trim().startsWith("M")){
+        cell[2].innerText=cell[2].innerText.replace("m","M");
+      }
+      //if the data does not start with M the cell will turn red and an error message will display at the bottom of the column
+      else {
+        cell[2].className = "danger";
+        fcell[2].style.visibility = "visible";
+        test = test - 1;
+      }
+
       //makes sure the mini session column has proper inputs
       //capitalizes the first letter in no
-      if (cell[3].innerText.trim()=="no" || cell[3].innerText.trim()=="No" || cell[3].innerText.trim()=="NO"){
+      if (cell[3].innerText.trim()=="no" || cell[3].innerText.trim()=="No" || cell[3].innerText.trim()=="NO" || cell[3].innerText.trim()=="nO"){
         cell[3].innerText = "No";
       }
       //capitalizes the first letter in yes
-      else if (cell[3].innerText.trim()=="yes" || cell[3].innerText.trim()=="Yes" || cell[3].innerText.trim()=="YES"){
+      else if (cell[3].innerText.trim()=="yes" || cell[3].innerText.trim()=="Yes" || cell[3].innerText.trim()=="YES" || cell[3].innerText.trim()=="yES"
+               || cell[3].innerText.trim()=="yEs" || cell[3].innerText.trim()=="YeS" || cell[3].innerText.trim()=="yeS" || cell[3].innerText.trim()=="YEs"){
         cell[3].innerText = "Yes";
       }
       //if the data is not yes or no the cell will turn red and an error message will display at the bottom of the column
@@ -195,11 +179,12 @@ function CFRsubmit() {
 
       //makes sure the online class column has proper inputs
       //capitalizes the first letter in no
-      if (cell[4].innerText.trim()=="no" || cell[4].innerText.trim()=="No" || cell[4].innerText.trim()=="NO"){
+      if (cell[4].innerText.trim()=="no" || cell[4].innerText.trim()=="No" || cell[4].innerText.trim()=="NO" || cell[4].innerText.trim()=="nO"){
         cell[4].innerText = "No";
       }
       //capitalizes the first letter in yes
-      else if (cell[4].innerText.trim()=="yes" || cell[4].innerText.trim()=="Yes" || cell[4].innerText.trim()=="YES"){
+      else if (cell[4].innerText.trim()=="yes" || cell[4].innerText.trim()=="Yes" || cell[4].innerText.trim()=="YES" || cell[4].innerText.trim()=="yES"
+               || cell[4].innerText.trim()=="yEs" || cell[4].innerText.trim()=="YeS" || cell[4].innerText.trim()=="yeS" || cell[4].innerText.trim()=="YEs"){
         cell[4].innerText = "Yes";
       }
       //if the data is not yes or no the cell will turn red and an error message will display at the bottom of the column
@@ -208,6 +193,65 @@ function CFRsubmit() {
         fcell[4].style.visibility = "visible";
         test = test - 1;
       }
+
+      //makes sure the number of students column has proper inputs
+      //checks to make sure >0
+      if (cell[5].innerText.trim()>0){
+        //empty
+      }
+      //if the data is not yes or no the cell will turn red and an error message will display at the bottom of the column
+      else {
+        cell[5].className = "danger";
+        fcell[5].style.visibility = "visible";
+        test = test - 1;
+      }
+
+      //makes sure the instructor column has proper inputs
+      //capitalizes TBD
+      if (cell[6].innerText.trim()=="tbd" || cell[6].innerText.trim()=="Tbd" || cell[6].innerText.trim()=="tBd" 
+        || cell[6].innerText.trim()=="tbD" || cell[6].innerText.trim()=="TBd" || cell[6].innerText.trim()=="TbD" 
+        || cell[6].innerText.trim()=="tBD" || cell[6].innerText.trim()=="TBD"){
+        cell[6].innerText = "TBD";
+      }
+      //if empty set to TBH
+      else if (cell[6].innerText.trim()==""){
+        cell[6].innerText = "TBD";
+      }
+
+      //makes sure the instructor banner id column has proper inputs
+      //set column to N/A if empty 
+      if (cell[6].innerText.trim()=="N/A" || cell[6].innerText.trim()=="NA" || cell[6].innerText.trim()=="N/a" 
+        || cell[6].innerText.trim()=="Na" || cell[6].innerText.trim()=="n/a" || cell[6].innerText.trim()=="na" 
+        || cell[6].innerText.trim()==""){
+        cell[7].innerText = "N/A";
+      }
+      // if the instructor is TBD set the column to N/A
+      else if (cell[6].innerText.trim()=="tbd" || cell[6].innerText.trim()=="Tbd" || cell[6].innerText.trim()=="tBd" 
+        || cell[6].innerText.trim()=="tbD" || cell[6].innerText.trim()=="TBd" || cell[6].innerText.trim()=="TbD" 
+        || cell[6].innerText.trim()=="tBD" || cell[6].innerText.trim()=="TBD"){
+        cell[7].innerText = "N/A";
+      }
+      //if invalid id the cell will turn red and an error message will display at the bottom of the column
+      else if (cell[7].innerText.trim()<800000000){
+        cell[7].className = "danger";
+        fcell[7].style.visibility = "visible";
+        test = test - 1;
+      }
+
+      //makes sure the instructor rank column has proper inputs
+      //set column to N/A if empty 
+      if (cell[8].innerText.trim()=="N/A" || cell[8].innerText.trim()=="NA" || cell[8].innerText.trim()=="N/a" 
+        || cell[8].innerText.trim()=="Na" || cell[8].innerText.trim()=="n/a" || cell[8].innerText.trim()=="na" 
+        || cell[8].innerText.trim()==""){
+        cell[8].innerText = "N/A";
+      }
+      // if the instructor is TBD set the column to N/A
+      else if (cell[6].innerText.trim()=="tbd" || cell[6].innerText.trim()=="Tbd" || cell[6].innerText.trim()=="tBd" 
+        || cell[6].innerText.trim()=="tbD" || cell[6].innerText.trim()=="TBd" || cell[6].innerText.trim()=="TbD" 
+        || cell[6].innerText.trim()=="tBD" || cell[6].innerText.trim()=="TBD"){
+        cell[8].innerText = "N/A";
+      }
+
     }
 
     //if anything is wrong the cfr will not be sent
@@ -216,49 +260,4 @@ function CFRsubmit() {
       return false;
     }
     return true;
-  };
-
-/* Function: insertIntoTable()
-   Purpose: Inserts data from JSON object into the end of the table */
-   function insertIntoTable() {
-    //creates a regular javascript object from the JSON object
-    dummy2 = JSON.parse(dummyJSON);
-  
-    //interates through each entry in the array
-    for (i in dummy2) {
-  
-      //selects the cfr table element from cfr.html
-      var table = document.getElementById("cfrTable2");
-  
-      //creates a new row and adds it to the end of the table
-      var row = table.insertRow(-1);
-  
-      //creates new cells and inserts them into the row
-      var cell1 = row.insertCell(0);
-      var cell2 = row.insertCell(1);
-      var cell3 = row.insertCell(2);
-      var cell4 = row.insertCell(3);
-  
-      //makes cell contents editable
-      cell1.contentEditable = "true";
-      cell2.contentEditable = "true";
-      cell3.contentEditable = "true";
-      cell4.contentEditable = "true";
-  
-      //populates calls with data orginally in JSON object
-      cell1.innerHTML = dummy2[i].name1;
-      cell2.innerHTML = dummy2[i].num1;
-      cell3.innerHTML = dummy2[i].num2;
-      cell4.innerHTML = dummy2[i].num3;
-      }
-  };
-  
-  /* Function: logSuccessMessage()
-     Purpose: logs new table additions to the console*/
-  function logSuccessMessage() {
-    dummy2 = JSON.parse(dummyJSON);
-    for (i in dummy2) {
-      txt = "added " + dummy2[i].name1 + " " + dummy2[i].num1 + " " + dummy2[i].num2 + " " + dummy2[i].num3 + " to CFR";
-      console.log(txt);
-    }
   };
