@@ -77,14 +77,14 @@ function CFRsubmit() {
     xmlhttp = new XMLHttpRequest();
 
     xmlhttp.onreadystatechange = function() {
-      document.getElementById("submitCFRbutton").disabled = true;
       if (this.readyState == 4 && this.status == 200) {
         document.getElementById("submitCFRbutton").disabled = false;
         window.alert("Successfully submitted course funding requests!")
         document.getElementById("submitCFRbutton").disabled = false;
       }
     };
-
+    
+    document.getElementById("submitCFRbutton").disabled = true;
     xmlhttp.open("POST", "/add_course", true);
     xmlhttp.setRequestHeader("Content-Type", "text/json; charset=utf-8");
     xmlhttp.send(cfrJSON);
@@ -162,12 +162,11 @@ function CFRsubmit() {
 
       //makes sure the mini session column has proper inputs
       //capitalizes the first letter in no
-      if (cell[3].innerText.trim()=="no" || cell[3].innerText.trim()=="No" || cell[3].innerText.trim()=="NO" || cell[3].innerText.trim()=="nO"){
+      if (cell[3].innerText.trim().toLowerCase()=="no"){
         cell[3].innerText = "No";
       }
       //capitalizes the first letter in yes
-      else if (cell[3].innerText.trim()=="yes" || cell[3].innerText.trim()=="Yes" || cell[3].innerText.trim()=="YES" || cell[3].innerText.trim()=="yES"
-               || cell[3].innerText.trim()=="yEs" || cell[3].innerText.trim()=="YeS" || cell[3].innerText.trim()=="yeS" || cell[3].innerText.trim()=="YEs"){
+      else if (cell[3].innerText.trim().toLowerCase()=="yes"){
         cell[3].innerText = "Yes";
       }
       //if the data is not yes or no the cell will turn red and an error message will display at the bottom of the column
@@ -179,12 +178,11 @@ function CFRsubmit() {
 
       //makes sure the online class column has proper inputs
       //capitalizes the first letter in no
-      if (cell[4].innerText.trim()=="no" || cell[4].innerText.trim()=="No" || cell[4].innerText.trim()=="NO" || cell[4].innerText.trim()=="nO"){
+      if (cell[4].innerText.trim().toLowerCase()=="no"){
         cell[4].innerText = "No";
       }
       //capitalizes the first letter in yes
-      else if (cell[4].innerText.trim()=="yes" || cell[4].innerText.trim()=="Yes" || cell[4].innerText.trim()=="YES" || cell[4].innerText.trim()=="yES"
-               || cell[4].innerText.trim()=="yEs" || cell[4].innerText.trim()=="YeS" || cell[4].innerText.trim()=="yeS" || cell[4].innerText.trim()=="YEs"){
+      else if (cell[4].innerText.trim().toLowerCase()=="yes"){
         cell[4].innerText = "Yes";
       }
       //if the data is not yes or no the cell will turn red and an error message will display at the bottom of the column
@@ -208,29 +206,25 @@ function CFRsubmit() {
 
       //makes sure the instructor column has proper inputs
       //capitalizes TBD
-      if (cell[6].innerText.trim()=="tbd" || cell[6].innerText.trim()=="Tbd" || cell[6].innerText.trim()=="tBd" 
-        || cell[6].innerText.trim()=="tbD" || cell[6].innerText.trim()=="TBd" || cell[6].innerText.trim()=="TbD" 
-        || cell[6].innerText.trim()=="tBD" || cell[6].innerText.trim()=="TBD"){
+      if (cell[6].innerText.trim().toLowerCase()=="tbd"){
         cell[6].innerText = "TBD";
       }
-      //if empty set to TBH
+      //if empty set to TBD
       else if (cell[6].innerText.trim()==""){
         cell[6].innerText = "TBD";
       }
 
       //makes sure the instructor banner id column has proper inputs
       //set column to N/A if empty 
-      if (cell[6].innerText.trim()=="N/A" || cell[6].innerText.trim()=="NA" || cell[6].innerText.trim()=="N/a" 
-        || cell[6].innerText.trim()=="Na" || cell[6].innerText.trim()=="n/a" || cell[6].innerText.trim()=="na" 
-        || cell[6].innerText.trim()==""){
+      if (cell[6].innerText.trim().toLowerCase()=="n/a" || cell[6].innerText.trim().toLowerCase()=="na" || cell[6].innerText.trim()==""){
         cell[7].innerText = "N/A";
       }
       // if the instructor is TBD set the column to N/A
-      else if (cell[6].innerText.trim()=="tbd" || cell[6].innerText.trim()=="Tbd" || cell[6].innerText.trim()=="tBd" 
-        || cell[6].innerText.trim()=="tbD" || cell[6].innerText.trim()=="TBd" || cell[6].innerText.trim()=="TbD" 
-        || cell[6].innerText.trim()=="tBD" || cell[6].innerText.trim()=="TBD"){
+      else if (cell[6].innerText.trim().toLowerCase()=="tbd"){
         cell[7].innerText = "N/A";
       }
+      // A value of 0 is valid and will be interpreted as N/A
+      else if (cell[7].innerText.trim()=="0") {}
       //if invalid id the cell will turn red and an error message will display at the bottom of the column
       else if (cell[7].innerText.trim()<800000000){
         cell[7].className = "danger";
@@ -240,15 +234,11 @@ function CFRsubmit() {
 
       //makes sure the instructor rank column has proper inputs
       //set column to N/A if empty 
-      if (cell[8].innerText.trim()=="N/A" || cell[8].innerText.trim()=="NA" || cell[8].innerText.trim()=="N/a" 
-        || cell[8].innerText.trim()=="Na" || cell[8].innerText.trim()=="n/a" || cell[8].innerText.trim()=="na" 
-        || cell[8].innerText.trim()==""){
+      if (cell[8].innerText.trim().toLowerCase()=="n/a" || cell[8].innerText.trim().toLowerCase()=="na" || cell[8].innerText.trim()==""){
         cell[8].innerText = "N/A";
       }
       // if the instructor is TBD set the column to N/A
-      else if (cell[6].innerText.trim()=="tbd" || cell[6].innerText.trim()=="Tbd" || cell[6].innerText.trim()=="tBd" 
-        || cell[6].innerText.trim()=="tbD" || cell[6].innerText.trim()=="TBd" || cell[6].innerText.trim()=="TbD" 
-        || cell[6].innerText.trim()=="tBD" || cell[6].innerText.trim()=="TBD"){
+      else if (cell[6].innerText.trim().toLowerCase()=="tbd"){
         cell[8].innerText = "N/A";
       }
 
