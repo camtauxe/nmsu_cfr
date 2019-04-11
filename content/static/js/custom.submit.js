@@ -77,10 +77,14 @@ function CFRsubmit() {
     xmlhttp = new XMLHttpRequest();
 
     xmlhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        document.getElementById("submitCFRbutton").disabled = false;
-        window.alert("Successfully submitted course funding requests!")
-        document.getElementById("submitCFRbutton").disabled = false;
+      if (this.readyState == 4) {
+        if (this.status == 200) {
+          document.getElementById("submitCFRbutton").disabled = false;
+          window.alert("Successfully submitted course funding requests!")
+        }
+        else {
+          window.alert("Something went wrong! The courses were not submitted.\n Server returned: "+this.status)
+        }
       }
     };
     
