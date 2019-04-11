@@ -205,9 +205,9 @@ def application(environ, start_response):
             raise RuntimeError("Only submitters can do this!")
         body_text = environ['wsgi.input'].read()
         data = json.loads(body_text)
-        rows_inserted = request.new_cfr_from_sal_savings(kwargs['user'], data)
+        savings_inserted = request.new_cfr_from_sal_savings(kwargs['user'], data)
         respond(mime = 'text/plain')
-        return f"{rows_inserted} salary savings inserted.".encode('utf-8')
+        return f"{savings_inserted}".encode('utf-8')
 
     # Register handlers into a dictionary
     def handle_new_user(**kwargs):

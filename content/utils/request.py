@@ -74,23 +74,6 @@ WHERE r.id = c.course_id AND
     c.revision_num = %s
 """
 
-SELECT_COURSE_LIST = """
-SELECT id, 
-       priority, 
-       course, 
-       sec, 
-       mini_session, 
-       online_course, 
-       num_students,
-       instructor,
-       banner_id,
-       inst_rank,
-       cost,
-       reason
-FROM request r, cfr_request c
-WHERE r.id = c.course_id AND dept_name = %s AND semester = %s AND
-      cal_year = %s AND revision_num = %s
-"""
        
 GET_ID = """
 SELECT LAST_INSERT_ID()
@@ -104,6 +87,17 @@ VALUES (%s, %s, %s, %s, %s)
 INSERT_SAL = """
 INSERT INTO sal_savings(leave_type, inst_name, savings, notes)
 VALUES (%s, %s, %s, %s)
+"""
+
+COMPARE_SAL = """
+SELECT COUNT(s.id), s.id
+FROM sal_savings s, cfr_savings c
+WHERE s.id = c.savings_id AND
+    s.leave_type = %s AND
+    s.inst_name = %s AND
+    s.savings = %s AND
+    s.notes = %s AND
+    c.revision_num = %s
 """
 
 INSERT_CFR_SAVINGS = """
@@ -123,13 +117,11 @@ def new_cfr_from_courses(user: User, course_list):
     num_courses = 0
     num_new_courses = 0
     ret_string = ""
-    revision = True
     with Transaction() as cursor:
         if db_utils.current_cfr(cursor, user) != None:
+            revision = True
             prev_cfr = db_utils.current_cfr(cursor, user)
             prev_cfr_data = (prev_cfr[0], prev_cfr[1], prev_cfr[2], prev_cfr[5])
-            cursor.execute(SELECT_COURSE_LIST, prev_cfr_data)
-            prev_courses = cursor.fetchall()
         else:
             revision = False
 
@@ -145,17 +137,6 @@ def new_cfr_from_courses(user: User, course_list):
                 course_data = course_data + (course[field],)
             data_ls.append(course_data)
 
-        """
-        comp_courses = []
-        for row in prev_courses:
-            row[10] = float(row[10])
-            prev_data = row[1:12]
-            comp_data = ()
-            for val in prev_data:
-                comp_data += (str(val), )
-            comp_courses.append(comp_data)
-        """
-        
         
         new_courses = []
         for row in data_ls:
@@ -166,27 +147,6 @@ def new_cfr_from_courses(user: User, course_list):
                 if dup_course[0] > 0:
                     exists = True
                     course_id = (dup_course[1], )
-                """        
-                for tup in prev_courses:
-                    exists = True
-                    comp = tup[1:12]
-                    for i in range(len(comp)):
-                        if str(comp[i]) != str(row[i]):
-                            try:
-                                if float(comp[i]) != float(row[i]):
-                                    exists = False
-                                    break
-
-                            except ValueError:
-                                exists = False
-                                break
-                    
-
-                    if exists == True:    
-                        course_id = (tup[0], )
-                        break
-                        
-                """ 
                             
 
             if exists == False:
@@ -222,8 +182,16 @@ def new_cfr_from_sal_savings(user: User, sal_list):
     for salary savings (defined in SAL_FIELDS)
     """
 
-    rows_inserted = 0
+    num_new_sal_savings = 0
+    ret_string = ""
     with Transaction() as cursor:
+        if db_utils.current_cfr(cursor, user) != None:
+            revision = True
+            prev_cfr = db_utils.current_cfr(cursor, user)
+            prev_cfr_data = (prev_cfr[0], prev_cfr[1], prev_cfr[2], prev_cfr[5])
+        else:
+            revision = False
+
         db_utils.create_new_revision(cursor, user)
         new_cfr = db_utils.current_cfr(cursor, user)
 
@@ -236,16 +204,33 @@ def new_cfr_from_sal_savings(user: User, sal_list):
                 sal_data = sal_data + (sal[field],)
             data_ls.append(sal_data)
 
-        
+        new_sal_savings = []
         for row in data_ls:
-            cursor.execute(INSERT_SAL, row)
-            cursor.execute(GET_ID, params=None)
-            savings_id = cursor.fetchone()
+            exists = False
+            if revision == True:
+                cursor.execute(COMPARE_SAL, row + (prev_cfr_data[3], ))
+                dup_savings = cursor.fetchone()
+                if dup_savings[0] > 0:
+                    exists = True
+                    savings_id = (dup_savings[1], )
+            
+            if exists == False:
+                cursor.execute(INSERT_SAL, row)
+                num_new_sal_savings += cursor.rowcount
+                new_sal_savings.append(row)
+                cursor.execute(GET_ID, params=None)
+                savings_id = cursor.fetchone()
+
             cfr_savings = savings_id + cfr_data
             cursor.execute(INSERT_CFR_SAVINGS, cfr_savings)
-            rows_inserted += cursor.rowcount
 
-    return rows_inserted
+    if num_new_sal_savings > 0:
+        ret_string += f"{num_new_sal_savings} savings added or modified."
+
+    else:
+        ret_string += "No salaray savings added or modified."
+
+    return ret_string
 
 def get_current_courses(user: User):
     """
