@@ -149,11 +149,15 @@ def application(environ, start_response):
             return page_builder.soup_to_bytes(page)
 
     def handle_cfr(**kwargs):
+        if kwargs['user'].role != authentication.UserRole.SUBMITTER:
+            raise RuntimeError("Only submitters can do this!")
         page = page_builder.build_cfr_page(kwargs['user'])
         respond()
         return page_builder.soup_to_bytes(page)
 
     def handle_salary_saving(**kwargs):
+        if kwargs['user'].role != authentication.UserRole.SUBMITTER:
+            raise RuntimeError("Only submitters can do this!")
         page = page_builder.build_page_from_file("salary_saving.html")
         respond()
         return page_builder.soup_to_bytes(page)
@@ -164,7 +168,9 @@ def application(environ, start_response):
         return page_builder.soup_to_bytes(page)
 
     def handle_revisions(**kwargs):
-        page = page_builder.build_page_from_file("revisions.html")
+        if kwargs['user'].role != authentication.UserRole.SUBMITTER:
+            raise RuntimeError("Only submitters can do this!")
+        page = page_builder.build_revisions_page(kwargs['user'])
         respond()
         return page_builder.soup_to_bytes(page)
 

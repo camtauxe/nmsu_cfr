@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup as Soup
 from bs4 import Comment
 from . import cfrenv
 from . import table_builder
+from . import request
 from .authentication import User
 
 # The RESOURCE_DIR refers to directory containing resource files
@@ -105,12 +106,27 @@ def build_login_page(message = None):
     return page
 
 def build_cfr_page(user: User):
+
     page = build_page_from_file("cfr.html")
     body = table_builder.build_course_table_body(user)
     body.tbody['id'] = 'cfrTable'
     table_head = page.find('table',id='cfrTable_full').find('thead')
     table_head.insert_after(body)
     return page
+
+def build_revisions_page(user: User):
+    content = soup_from_text(f"<h1>Revision History ({user.dept_name})</h1>")
+
+    revisions = request.get_all_revisions(user)
+    for revision in revisions:
+        table_title = content.new_tag('h3')
+        table_title.string = f"Revision {revision[3]}"
+        content.append(table_title)
+        table = table_builder.build_course_table_full(revision)
+        content.append(table)
+    page = build_page_around_content(content)
+    return page
+
 
 def build_500_error_page(exception) -> Soup:
     """

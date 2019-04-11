@@ -24,13 +24,24 @@ REQ_FIELDS = [
 
 SELECT_COURSES = (
     "SELECT "+(", ".join(REQ_FIELDS))+" "
-    "FROM request "
-    "WHERE "
-    "dept_name = %s AND "
-    "semester = %s AND "
-    "cal_year = %s AND "
-    "revision_num = %s"
+    "FROM request r, cfr_request c "
+    "WHERE r.id = c.course_id AND "
+    "c.dept_name = %s AND "
+    "c.semester = %s AND "
+    "c.cal_year = %s AND "
+    "c.revision_num = %s"
 )
+
+SELECT_REVISIONS = """
+    SELECT c.dept_name, c.semester, c.cal_year, c.revision_num
+    FROM request r, cfr_request c
+    WHERE r.id = c.course_id AND
+        c.dept_name = %s AND
+        c.semester = %s AND
+        c.cal_year = %s
+    GROUP BY c.dept_name, c.semester, c.cal_year, c.revision_num
+    ORDER BY c.revision_num DESC
+"""
 
 SAL_FIELDS = [
     'leave_type',
@@ -249,4 +260,20 @@ def get_current_courses(user: User):
 
     return courses
 
+def get_courses(cfr: tuple):
+    courses = []
+    with Transaction() as cursor:
+        cursor.execute(SELECT_COURSES, cfr)
+        courses = cursor.fetchall()
+    return courses
 
+def get_all_revisions(user: User):
+    cfrs = []
+    with Transaction() as cursor:
+        # Semester and year are placeholder values
+        # later to be replaced with a reference to
+        # the current semester
+        query = (user.dept_name, 'Spring', '2019')
+        cursor.execute(SELECT_REVISIONS, query)
+        cfrs = cursor.fetchall()
+    return cfrs
