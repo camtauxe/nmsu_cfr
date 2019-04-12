@@ -77,6 +77,9 @@ function salarySubmit(){
         if (this.status == 200) {
           window.alert("Successfully submitted changes!")
         }
+        else if (this.status == 400) {
+          window.alert("Something was wrong with the submitted courses!\n"+this.response)
+        }
         else {
           window.alert("Something went wrong! The changes were not submitted.\n Server returned: "+this.status)
         }

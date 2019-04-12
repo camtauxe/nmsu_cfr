@@ -82,6 +82,9 @@ function CFRsubmit() {
         if (this.status == 200) {
           window.alert("Successfully submitted course funding requests!")
         }
+        else if (this.status == 400) {
+          window.alert("Something was wrong with the submitted courses!\n"+this.response)
+        }
         else {
           window.alert("Something went wrong! The courses were not submitted.\n Server returned: "+this.status)
         }
@@ -219,16 +222,14 @@ function CFRsubmit() {
       }
 
       //makes sure the instructor banner id column has proper inputs
-      //set column to N/A if empty 
+      //set to 0 if n/a, tbd or empty
       if (cell[6].innerText.trim().toLowerCase()=="n/a" || cell[6].innerText.trim().toLowerCase()=="na" || cell[6].innerText.trim()==""){
-        cell[7].innerText = "N/A";
+        cell[7].innerText = "0";
       }
       // if the instructor is TBD set the column to N/A
       else if (cell[6].innerText.trim().toLowerCase()=="tbd"){
-        cell[7].innerText = "N/A";
+        cell[7].innerText = "0";
       }
-      // A value of 0 is valid and will be interpreted as N/A
-      else if (cell[7].innerText.trim()=="0") {}
       //if invalid id the cell will turn red and an error message will display at the bottom of the column
       else if (cell[7].innerText.trim()<800000000){
         cell[7].className = "danger";

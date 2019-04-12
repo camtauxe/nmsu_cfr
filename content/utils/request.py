@@ -346,7 +346,10 @@ def validate_course(row):
     if not priority:
         priority = 0
     else:
-        priority = int(row[0])
+        try:
+            priority = int(row[0])
+        except ValueError:
+            raise Error400('The ' + REQ_FIELDS[0] + ' field must be an integer')
     if priority < 0:
         raise Error400('The ' + REQ_FIELDS[0] + ' field must be a positive integer')
 
@@ -366,7 +369,10 @@ def validate_course(row):
     if online_course not in ('yes', 'no'):
         raise Error400('The ' + REQ_FIELDS[4] + ' field must be a \"yes\" or \"no\"')
 
-    num_students = int(row[5])
+    try:
+        num_students = int(row[5])
+    except ValueError:
+        raise Error400('The ' + REQ_FIELDS[5] + ' field must be an integer')
     if num_students < 0:
         raise Error400('The ' + REQ_FIELDS[5] + ' field must be a positive integer')
 
@@ -374,10 +380,13 @@ def validate_course(row):
     if len(banner_id) != 9:
         raise Error400('The ' + REQ_FIELDS[7] + ' field must be a 9-digit number')
     else:
-        banner_id = int(banner_id)
+        try:
+            banner_id = int(banner_id)
+        except ValueError:
+            raise Error400('The ' + REQ_FIELDS[7] + ' field must be an integer')
 
     cost = row[9].replace("$", "").replace(",", "")
     try:
         float(cost)
     except ValueError:
-        raise Error400('The ' + REQ_FIELDS[9] + ' field must be a decimal number')
+        raise Error400('The ' + REQ_FIELDS[9] + ' field must be a valid float')
