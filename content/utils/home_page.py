@@ -20,8 +20,10 @@ def build_home_page(user: authentication.User) -> BeautifulSoup:
     """
     if user is None:
         content = "You are not logged in."
+        return page_builder.build_page_around_content(content)
+
+    if user.role == authentication.UserRole.ADMIN:
+        return page_builder.build_page_from_file("admin.html", includeNavbar=False)
     else:
-        content = "Hello, {}! You are logged in as a {}".format(
-            user.username, user.role.name
-        )
-    return page_builder.build_page_around_content(content)
+        content = f"Hello, {user.username}!"
+        return page_builder.build_page_around_content(content)

@@ -1,0 +1,50 @@
+<h1>Admin Controls</h1>
+<p>
+    <h3>User Controls</h3>
+    <form action="/edit_user" method="post" enctype="application/x-www-form-urlencoded">
+        <div class="form-group">
+            <label for="userselect">User</label>
+            <select class="form-control" id="userselect" name="user">
+                <!--Options are inserted on the backend-->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="password">New password</label>
+            <input type="password" class="form-control" id="password" name="password">
+            <label for="password">Confrim new password</label>
+            <input type="password" class="form-control" id="passwordconfirm" name="passwordconfirm">
+        </div>
+        <div class="form-group">
+                <button type="submit" class="btn btn-primary" name="button" value="password">Update Password</button>
+        </div>
+        <div class="form-group">
+                <button type="submit" class="btn btn-primary" name="button" value="delete">Delete user</button>
+        </div>
+    </form>
+    <h3>Semester Controls</h3>
+    <h4>Change active semester</h4>
+    <form action="change_semester" method="post" enctype="application/x-www-form-urlencoded">
+        <div class="form-group">
+            <label for="semesterselect">Semester</label>
+            <select class="form-control" id="semesterselect" name="semester">
+                <!--Options are inserted on the backend-->
+            </select>
+            <br>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+    </form>
+    <h4>Add new semester</h4>
+    <form action="add_semester" method="post" enctype="application/x-www-form-urlencoded">
+        <div class="form-group">
+            <label for="season">Semester</label>
+            <select class="form-control" id="season" name="season">
+                <option value="Fall">Fall</option>
+                <option value="Spring">Spring</option>
+                <option value="Summer">Summer</option>
+            </select>
+            <label for="year">Year</label>
+            <input type="number" min="2000" step="1" value="2019" class="form-control" id="year" name="year">
+            <button type="submit" class="btn btn-primary">Add Semester</button>
+        </div>
+    </form>
+</p>
