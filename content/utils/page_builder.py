@@ -9,7 +9,8 @@ from bs4 import Comment
 from . import cfrenv
 from . import component_builder
 from . import request
-from .authentication import User
+from . import users
+from .authentication import User, UserRole
 
 # The RESOURCE_DIR refers to directory containing resource files
 # loaded by the page builder. Usually, these are html files that
@@ -105,6 +106,23 @@ def build_login_page(message = None):
         insert_at_id(page, 'loginp', error_message)
     return page
 
+def build_home_page(user: User) -> Soup:
+    """
+    Builds the home page for a given user and returns it
+    as a BeautifulSoup.
+    If the provided user is None, then this function returns
+    a generic "You are not logged in" home page.
+    """
+    if user is None:
+        content = "You are not logged in."
+        return build_page_around_content(content)
+
+    if user.role == UserRole.ADMIN:
+        return build_admin_page()
+    else:
+        content = f"Hello, {user.username}!"
+        return build_page_around_content(content)
+
 def build_cfr_page(user: User):
     page = build_page_from_file("cfr.html")
     body = component_builder.build_edit_course_table_body(user)
@@ -134,6 +152,20 @@ def build_revisions_page(user: User):
     page = build_page_around_content(content)
     return page
 
+def build_admin_page():
+    page = build_page_from_file("admin.html", includeNavbar=False)
+
+    usernames = users.get_usernames()
+    user_options = component_builder.build_option_list(usernames)
+    insert_at_id(page, 'userselect', user_options)
+
+    depts = users.get_departments()
+    dept_options = component_builder.build_option_list(depts)
+    insert_at_id(page, 'dept_list', dept_options)
+    if len(depts) > 0:
+        page.find('input', attrs={'name':'dept_name'})['value'] = depts[0]
+
+    return page
 
 def build_500_error_page(exception) -> Soup:
     """

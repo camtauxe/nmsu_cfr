@@ -11,7 +11,7 @@ create table submitter
     dept_name      varchar(50) not null,
     primary key (username),
     foreign key (username)
-       references user(username)
+       references user(username) on delete cascade
    );
 
 create table cfr_department
@@ -24,7 +24,7 @@ create table cfr_department
     cfr_submitter      varchar(32),
     primary key (dept_name, semester, cal_year, revision_num),
     foreign key (cfr_submitter)
-	   references user(username)
+	   references user(username) on delete set null
    );
 
 create table request
@@ -44,7 +44,7 @@ create table request
     approver      varchar(32),
     primary key (id),
     foreign key (approver)
-	   references user(username)
+	   references user(username) on delete set null
    );  
 
 create table cfr_request
@@ -70,7 +70,7 @@ create table sal_savings
     approver       varchar(32),
     primary key (id),
     foreign key (approver)
-	   references user(username)
+	   references user(username) on delete set null
    );
    
 create table cfr_savings

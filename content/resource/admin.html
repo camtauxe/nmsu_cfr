@@ -1,68 +1,113 @@
 <h1>Admin Controls</h1>
-<p>
-    <h3>User Controls</h3>
-    <h4>Edit existing user</h4>
-    <form action="/edit_user" method="post" enctype="application/x-www-form-urlencoded">
-        <div class="form-group">
-            <label for="userselect">User</label>
-            <select class="form-control" id="userselect" name="user">
-                <!--Options are inserted on the backend-->
-            </select>
+<div id="tab-example">
+    <div id="tabbed-nav" class="noprint">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+                <a href="#editusertab" aria-controls="editusertab" role="tab" data-toggle="tab">Edit existing user</a>
+            </li>
+            <li role="presentation">
+                <a href="#addusertab" aria-controls="addusertab" role="tab" data-toggle="tab">Add new user</a>
+            </li>
+            <li role="presentation">
+                <a href="#editsemestertab" aria-controls="editsemestertab" role="tab" data-toggle="tab">Change active semester</a>
+            </li>
+            <li role="presentation">
+                <a href="#addsemestertab" aria-controls="addsemestertab" role="tab" data-toggle="tab">Add new semester</a>
+            </li>
+        </ul>
+    </div>
+    <div class="tab-content padded-15">
+        <div role="tabpanel" class="tab-pane fade in active" id="editusertab">
+            <h3>Edit existing user</h3>
+            <form action="/edit_user" method="post" enctype="application/x-www-form-urlencoded">
+                <div class="form-group">
+                    <label for="userselect">User</label>
+                    <select class="form-control" id="userselect" name="user">
+                        <!--Options are inserted on the backend-->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="password">New password</label>
+                    <input type="password" class="form-control" name="password">
+                    <label for="password">Confrim new password</label>
+                    <input type="password" class="form-control" name="passwordconfirm">
+                </div>
+                <div class="form-group">
+                        <button type="submit" class="btn btn-primary" name="button" value="password">Update Password</button>
+                </div>
+                <div class="form-group">
+                        <button type="submit" class="btn btn-primary" name="button" value="delete">Delete user</button>
+                </div>
+            </form>
         </div>
-        <div class="form-group">
-            <label for="password">New password</label>
-            <input type="password" class="form-control" name="password">
-            <label for="password">Confrim new password</label>
-            <input type="password" class="form-control" name="passwordconfirm">
+
+        <div role="tabpanel" class="tab-pane fade" id="addusertab">
+            <h3>Add new user</h3>
+            <form action="/add_user" method="post" enctype="application/x-www-form-urlencoded">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" name="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" name="password">
+                    <label for="password">Confirm Password</label>
+                    <input type="password" class="form-control" name="passwordconfirm">
+                </div>
+                <div class="form-group">
+                    <label for="banner_id">Banner ID</label>
+                    <input type="text" class="form-control" id="banner_id" name="banner_id">
+                    <br>
+                    <label for="role">Role</label>
+                    <select class="form-control" id="roleselect" name="role">
+                        <option value="submitter">Submitter</option>
+                        <option value="approver">Approver</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="department">Department</label>
+                    <input type="text" name="dept_name" list="dept_list">
+                    <datalist id="dept_list">
+                        <!--Options are inserted by the backend-->
+                    </datalist>
+                </div>
+                <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Add user</button>
+                </div>
+            </form>
         </div>
-        <div class="form-group">
-                <button type="submit" class="btn btn-primary" name="button" value="password">Update Password</button>
+
+        <div role="tabpanel" class="tab-pane fade" id="editsemestertab">
+            <h3>Change active semester</h3>
+            <form action="change_semester" method="post" enctype="application/x-www-form-urlencoded">
+                <div class="form-group">
+                    <label for="semesterselect">Semester</label>
+                    <select class="form-control" id="semesterselect" name="semester">
+                        <!--Options are inserted on the backend-->
+                    </select>
+                    <br>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+            </form>
         </div>
-        <div class="form-group">
-                <button type="submit" class="btn btn-primary" name="button" value="delete">Delete user</button>
+
+        <div role="tabpanel" class="tab-pane fade" id="addsemestertab">
+            <h3>Add new semester</h3>
+            <form action="add_semester" method="post" enctype="application/x-www-form-urlencoded">
+                <div class="form-group">
+                    <label for="season">Semester</label>
+                    <select class="form-control" id="season" name="season">
+                        <option value="Fall">Fall</option>
+                        <option value="Spring">Spring</option>
+                        <option value="Summer">Summer</option>
+                    </select>
+                    <label for="year">Year</label>
+                    <input type="number" min="2000" step="1" value="2019" class="form-control" id="year" name="year">
+                    <br>
+                    <button type="submit" class="btn btn-primary">Add Semester</button>
+                </div>
+            </form>
         </div>
-    </form>
-    <h4>Add new user</h4>
-    <form action="/add_user" method="post" enctype="application/x-www-form-urlencoded">
-        <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" name="username">
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" class="form-control" name="password">
-            <label for="password">Confirm Password</label>
-            <input type="password" class="form-control" name="passwordconfirm">
-        </div>
-        <div class="form-group">
-                <button type="submit" class="btn btn-primary">Add user</button>
-        </div>
-    </form>
-    <h3>Semester Controls</h3>
-    <h4>Change active semester</h4>
-    <form action="change_semester" method="post" enctype="application/x-www-form-urlencoded">
-        <div class="form-group">
-            <label for="semesterselect">Semester</label>
-            <select class="form-control" id="semesterselect" name="semester">
-                <!--Options are inserted on the backend-->
-            </select>
-            <br>
-            <button type="submit" class="btn btn-primary">Update</button>
-        </div>
-    </form>
-    <h4>Add new semester</h4>
-    <form action="add_semester" method="post" enctype="application/x-www-form-urlencoded">
-        <div class="form-group">
-            <label for="season">Semester</label>
-            <select class="form-control" id="season" name="season">
-                <option value="Fall">Fall</option>
-                <option value="Spring">Spring</option>
-                <option value="Summer">Summer</option>
-            </select>
-            <label for="year">Year</label>
-            <input type="number" min="2000" step="1" value="2019" class="form-control" id="year" name="year">
-            <br>
-            <button type="submit" class="btn btn-primary">Add Semester</button>
-        </div>
-    </form>
-</p>
+    </div>
+</div>

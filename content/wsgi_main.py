@@ -9,9 +9,8 @@ from pathlib import PurePath
 from utils import page_builder
 from utils import sql_connection
 from utils import authentication
-from utils import home_page
 from utils import cfrenv
-from utils import create_user
+from utils import users
 from utils import request
 from utils import dummy
 from utils import errors
@@ -99,7 +98,7 @@ def application(environ, start_response):
         """
         Return the home page for the logged-in user
         """
-        page = home_page.build_home_page(kwargs['user'])
+        page = page_builder.build_home_page(kwargs['user'])
         respond()
         return page_builder.soup_to_bytes(page)
 
@@ -215,13 +214,20 @@ def application(environ, start_response):
         respond(mime = 'text/plain')
         return f"{savings_inserted}".encode('utf-8')
 
-    # Register handlers into a dictionary
-    def handle_new_user(**kwargs):
+    def handle_edit_user(**kwargs):
         if kwargs['user'].role != authentication.UserRole.ADMIN:
             raise RuntimeError("Only admins can do this!")
-        rows_inserted = create_user.create_user(dict_from_POST())
-        respond(mime = 'text/plain')
-        return f"{rows_inserted} user(s) inserted.".encode('utf-8')
+        users.edit_user(dict_from_POST(), kwargs['user'])
+        start_response('303 See Other',[('Location','/')])
+        return "OK".encode('utf-8')
+
+    # Register handlers into a dictionary
+    def handle_add_user(**kwargs):
+        if kwargs['user'].role != authentication.UserRole.ADMIN:
+            raise RuntimeError("Only admins can do this!")
+        users.add_user(dict_from_POST())
+        start_response('303 See Other',[('Location','/')])
+        return "OK".encode('utf-8')
 
     # Register handlers into a dictionary.
     # The login-exempt handlers can be called
@@ -244,7 +250,8 @@ def application(environ, start_response):
         'error':                handle_error,
         'add_course':           handle_cfr_from_courses,
         'add_sal_savings':      handle_cfr_from_sal_savings,
-        'new_user':             handle_new_user,
+        'add_user':             handle_add_user,
+        'edit_user':            handle_edit_user,
         'add_dummy':            handle_add_dummy
     }
 

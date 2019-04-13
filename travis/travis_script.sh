@@ -17,7 +17,7 @@ bash $TEST /login 200
 
 # Login as admin and try to create a user
 bash $TEST /login 303 $TRAVIS_BUILD_DIR/travis/admin_login.data application/x-www-form-urlencoded
-bash $TEST /new_user 200 $TRAVIS_BUILD_DIR/travis/new_user.data application/x-www-form-urlencoded
+bash $TEST /add_user 303 $TRAVIS_BUILD_DIR/travis/new_user.data application/x-www-form-urlencoded
 
 # Login as the newly-created user
 bash $TEST /login 303 $TRAVIS_BUILD_DIR/travis/new_user_login.data application/x-www-form-urlencoded
