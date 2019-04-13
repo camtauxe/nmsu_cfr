@@ -7,7 +7,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup as Soup
 from bs4 import Comment
 from . import cfrenv
-from . import table_builder
+from . import component_builder
 from . import request
 from .authentication import User
 
@@ -107,16 +107,16 @@ def build_login_page(message = None):
 
 def build_cfr_page(user: User):
     page = build_page_from_file("cfr.html")
-    body = table_builder.build_course_table_body(user)
-    body.tbody['id'] = 'cfrTable'
+    body = component_builder.build_edit_course_table_body(user)
+    body['id'] = 'cfrTable'
     table_head = page.find('table',id='cfrTable_full').find('thead')
     table_head.insert_after(body)
     return page
 
 def build_savings_page(user: User):
     page = build_page_from_file("salary_saving.html")
-    body = table_builder.build_savings_table_body(user)
-    body.tbody['id'] = 'salaryTable'
+    body = component_builder.build_edit_savings_table_body(user)
+    body['id'] = 'salaryTable'
     table_head = page.find('table',id='salaryTable_full').find('thead')
     table_head.insert_after(body)
     return page
@@ -129,7 +129,7 @@ def build_revisions_page(user: User):
         table_title = content.new_tag('h3')
         table_title.string = f"Revision {revision[3]}"
         content.append(table_title)
-        table = table_builder.build_course_table_full(revision)
+        table = component_builder.build_view_courses_table(revision)
         content.append(table)
     page = build_page_around_content(content)
     return page
