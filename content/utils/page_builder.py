@@ -11,6 +11,8 @@ from . import component_builder
 from . import request
 from . import users
 from . import semesters
+from . import db_utils
+from .sql_connection import Transaction
 from .authentication import User, UserRole
 
 # The RESOURCE_DIR refers to directory containing resource files
@@ -126,7 +128,8 @@ def build_home_page(user: User) -> Soup:
 
 def build_cfr_page(user: User):
     page = build_page_from_file("cfr.html")
-    body = component_builder.build_edit_course_table_body(user)
+    courses = db_utils.quick_exec(db_utils.get_current_courses, user.dept_name)
+    body = component_builder.build_edit_course_table_body(courses)
     body['id'] = 'cfrTable'
     table_head = page.find('table',id='cfrTable_full').find('thead')
     table_head.insert_after(body)
@@ -134,7 +137,8 @@ def build_cfr_page(user: User):
 
 def build_savings_page(user: User):
     page = build_page_from_file("salary_saving.html")
-    body = component_builder.build_edit_savings_table_body(user)
+    savings = db_utils.quick_exec(db_utils.get_current_savings, user.dept_name)
+    body = component_builder.build_edit_savings_table_body(savings)
     body['id'] = 'salaryTable'
     table_head = page.find('table',id='salaryTable_full').find('thead')
     table_head.insert_after(body)
@@ -143,31 +147,35 @@ def build_savings_page(user: User):
 def build_revisions_page(user: User):
     content = soup_from_text(f"<h1>Revision History ({user.dept_name})</h1>")
 
-    revisions = request.get_all_revisions(user)
-    for revision in revisions:
-        table_title = content.new_tag('h3')
-        table_title.string = f"Revision {revision[3]}"
-        content.append(table_title)
-        table = component_builder.build_view_courses_table(revision)
-        content.append(table)
+    with Transaction() as cursor:
+        revisions = db_utils.get_all_revisions_for_active_semester(cursor, user.dept_name)
+        for revision in revisions:
+            courses = db_utils.get_courses(cursor, revision)
+            table_title = content.new_tag('h3')
+            table_title.string = f"Revision {revision[5]}"
+            content.append(table_title)
+            table = component_builder.build_view_courses_table(courses)
+            content.append(table)
+
     page = build_page_around_content(content)
     return page
 
 def build_admin_page():
     page = build_page_from_file("admin.html", includeNavbar=False)
 
-    usernames = users.get_usernames()
+    with Transaction() as cursor:
+        usernames = db_utils.get_usernames(cursor)
+        depts = db_utils.get_departments(cursor)
+        semester_list = db_utils.get_semesters(cursor)
+        active_semester = db_utils.get_active_semester(cursor)
+
     user_options = component_builder.build_option_list(usernames)
     insert_at_id(page, 'userselect', user_options)
 
-    depts = users.get_departments()
     dept_options = component_builder.build_option_list(depts)
     insert_at_id(page, 'dept_list', dept_options)
     if len(depts) > 0:
         page.find('input', attrs={'name':'dept_name'})['value'] = depts[0]
-
-    semester_list = semesters.get_semesters()
-    active_semester = semesters.get_active_semester()
 
     semester_names = [f"{d[0]}, {d[1]}" for d in semester_list]
     semester_options = component_builder.build_option_list(

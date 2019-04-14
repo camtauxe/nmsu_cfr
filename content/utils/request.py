@@ -7,31 +7,9 @@ from enum import Enum, auto
 from .sql_connection import Transaction
 from .authentication import User
 from . import db_utils
+from .db_utils import REQ_FIELDS
+from .db_utils import SAL_FIELDS
 from .errors import Error400
-
-REQ_FIELDS = [
-    'priority',
-    'course',
-    'sec',
-    'mini_session',
-    'online_course',
-    'num_students',
-    'instructor',
-    'banner_id',
-    'inst_rank',
-    'cost',
-    'reason'
-]
-
-SELECT_COURSES = (
-    "SELECT "+(", ".join(REQ_FIELDS))+" "
-    "FROM request r, cfr_request c "
-    "WHERE r.id = c.course_id AND "
-    "c.dept_name = %s AND "
-    "c.semester = %s AND "
-    "c.cal_year = %s AND "
-    "c.revision_num = %s"
-)
 
 SELECT_COURSE_IDS = """
     SELECT c.course_id
@@ -42,34 +20,6 @@ SELECT_COURSE_IDS = """
     c.cal_year = %s AND
     c.revision_num = %s
 """
-
-SELECT_REVISIONS = """
-    SELECT c.dept_name, c.semester, c.cal_year, c.revision_num
-    FROM request r, cfr_request c
-    WHERE r.id = c.course_id AND
-        c.dept_name = %s AND
-        c.semester = %s AND
-        c.cal_year = %s
-    GROUP BY c.dept_name, c.semester, c.cal_year, c.revision_num
-    ORDER BY c.revision_num DESC
-"""
-
-SAL_FIELDS = [
-    'leave_type',
-    'inst_name',
-    'savings',
-    'notes'
-]
-
-SELECT_SAVINGS = (
-    "SELECT "+(", ".join(SAL_FIELDS))+" "
-    "FROM sal_savings r, cfr_savings c "
-    "WHERE r.id = c.savings_id AND "
-    "c.dept_name = %s AND "
-    "c.semester = %s AND "
-    "c.cal_year = %s AND "
-    "c.revision_num = %s"
-)
 
 SELECT_SAVINGS_IDS = """
     SELECT c.savings_id
@@ -160,15 +110,15 @@ def new_cfr_from_courses(user: User, course_list):
     num_new_courses = 0
     ret_string = ""
     with Transaction() as cursor:
-        if db_utils.current_cfr(cursor, user) != None:
+        if db_utils.get_current_cfr(cursor, user.dept_name) != None:
             revision = True
-            prev_cfr = db_utils.current_cfr(cursor, user)
+            prev_cfr = db_utils.get_current_cfr(cursor, user.dept_name)
             prev_cfr_data = (prev_cfr[0], prev_cfr[1], prev_cfr[2], prev_cfr[5])
         else:
             revision = False
 
         db_utils.create_new_revision(cursor, user)
-        new_cfr = db_utils.current_cfr(cursor, user)
+        new_cfr = db_utils.get_current_cfr(cursor, user.dept_name)
 
         cfr_data = (new_cfr[0], new_cfr[1], new_cfr[2], new_cfr[5])
         data_ls = []
@@ -229,15 +179,15 @@ def new_cfr_from_sal_savings(user: User, sal_list):
     num_new_sal_savings = 0
     ret_string = ""
     with Transaction() as cursor:
-        if db_utils.current_cfr(cursor, user) != None:
+        if db_utils.get_current_cfr(cursor, user.dept_name) != None:
             revision = True
-            prev_cfr = db_utils.current_cfr(cursor, user)
+            prev_cfr = db_utils.get_current_cfr(cursor, user.dept_name)
             prev_cfr_data = (prev_cfr[0], prev_cfr[1], prev_cfr[2], prev_cfr[5])
         else:
             revision = False
 
         db_utils.create_new_revision(cursor, user)
-        new_cfr = db_utils.current_cfr(cursor, user)
+        new_cfr = db_utils.get_current_cfr(cursor, user.dept_name)
 
         cfr_data = (new_cfr[0], new_cfr[1], new_cfr[2], new_cfr[5])
         data_ls = []
@@ -281,52 +231,6 @@ def new_cfr_from_sal_savings(user: User, sal_list):
         ret_string += "No salaray savings added or modified."
 
     return ret_string
-
-def get_current_courses(user: User):
-    """
-    Get a list of the courses in the latest cfr for the
-    department represented by the given user as a list
-    of tuples
-    """
-    courses = []
-    with Transaction() as cursor:
-        cfr = db_utils.current_cfr(cursor, user)
-
-        if cfr is not None:
-            cfr_data = (cfr[0], cfr[1], cfr[2], cfr[5])
-            cursor.execute(SELECT_COURSES, cfr_data)
-            courses = cursor.fetchall()
-
-    return courses
-
-def get_courses(cfr: tuple):
-    courses = []
-    with Transaction() as cursor:
-        cursor.execute(SELECT_COURSES, cfr)
-        courses = cursor.fetchall()
-    return courses
-
-def get_current_savings(user: User):
-    savings = []
-    with Transaction() as cursor:
-        cfr = db_utils.current_cfr(cursor, user)
-
-        if cfr is not None:
-            cfr_data = (cfr[0], cfr[1], cfr[2], cfr[5])
-            cursor.execute(SELECT_SAVINGS, cfr_data)
-            savings = cursor.fetchall()
-
-    return savings
-
-def get_all_revisions(user: User):
-    cfrs = []
-    with Transaction() as cursor:
-        semester = db_utils.get_active_semester(cursor)
-        query = (user.dept_name, semester[0], semester[1])
-        cursor.execute(SELECT_REVISIONS, query)
-        cfrs = cursor.fetchall()
-    return cfrs
-
 
 def validate_course(row):
     """

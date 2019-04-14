@@ -5,24 +5,6 @@ from .sql_connection import Transaction
 from . import db_utils
 from .errors import Error400
 
-SEMESTERS_QUERY = """
-SELECT semester, cal_year
-FROM semester
-"""
-
-def get_semesters():
-    semesters = []
-    with Transaction() as cursor:
-        cursor.execute(SEMESTERS_QUERY)
-        semesters = cursor.fetchall()
-    return semesters
-
-def get_active_semester():
-    semester = None
-    with Transaction() as cursor:
-        semester = db_utils.get_active_semester(cursor)
-    return semester
-
 def change_semester(query):
     if 'semester' not in query:
         raise Error400("'semester' parameter missing!")

@@ -13,28 +13,6 @@ INSERT INTO user VALUES (
 )
 """
 
-USERNAMES_QUERY = """
-SELECT username FROM user
-"""
-
-DEPARTMENTS_QUERY = """
-SELECT DISTINCT dept_name FROM submitter
-"""
-
-def get_usernames():
-    usernames = []
-    with Transaction() as cursor:
-        cursor.execute(USERNAMES_QUERY)
-        usernames = [d[0] for d in cursor.fetchall()]
-    return usernames
-
-def get_departments():
-    departments = []
-    with Transaction() as cursor:
-        cursor.execute(DEPARTMENTS_QUERY)
-        departments = [d[0] for d in cursor.fetchall()]
-    return departments
-
 def edit_user(query, current_user):
     if 'user' not in query:
         raise Error400("Missing 'user' parameter!")

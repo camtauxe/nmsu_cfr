@@ -3,6 +3,7 @@ from bs4 import Tag
 from .authentication import User
 from . import request
 from . import page_builder
+from . import db_utils
 
 COURSE_TABLE_HEADERS = [
     "Dept. Priority",
@@ -53,6 +54,10 @@ def replace_cell_with_select(cell: Tag, names: list, values: list, attrs = {}):
         value_accessor= (lambda n, i: values[i]),
         selector= (lambda n, i, v: v == string))
     cell.string = ''
+    if 'contenteditable' in cell.attrs:
+        del cell.attrs['contenteditable']
+    if 'class' in cell.attrs and cell.attrs['class'] == "editable":
+        del cell.attrs['class']
     select.append(options)
     cell.append(select)
 
@@ -92,8 +97,7 @@ def build_tbody_from_tups(tups: list, editable = False) -> Tag:
         add_row_from_tuple(soup.tbody, tup, editable=editable)
     return soup.tbody
 
-def build_edit_course_table_body(user: User) -> Tag:
-    course_list = request.get_current_courses(user)
+def build_edit_course_table_body(course_list) -> Tag:
     body = build_tbody_from_tups(course_list, editable=True)
     if len(course_list) == 0:
         add_empty_row(body, len(request.REQ_FIELDS), editable=True)
@@ -103,7 +107,7 @@ def build_edit_course_table_body(user: User) -> Tag:
 
     return body
 
-def build_view_courses_table(cfr: tuple) -> Tag:
+def build_view_courses_table(courses_list) -> Tag:
     soup = page_builder.soup_from_text("<table></table>")
     soup.table['class'] = "table table-bordered table-striped"
     soup.table['style'] = "padding-bottom: 50px"
@@ -120,14 +124,12 @@ def build_view_courses_table(cfr: tuple) -> Tag:
     body = soup.new_tag('tbody')
     soup.table.append(body)
 
-    courses = request.get_courses(cfr)
-    for course in courses:
+    for course in courses_list:
         add_row_from_tuple(soup.tbody, course)
 
     return soup.table
 
-def build_edit_savings_table_body(user: User) -> Tag:
-    savings_list = request.get_current_savings(user)
+def build_edit_savings_table_body(savings_list) -> Tag:
     body = build_tbody_from_tups(savings_list)
     if len(savings_list) == 0:
         add_empty_row(body, len(request.SAL_FIELDS), editable=True)
