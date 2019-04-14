@@ -148,6 +148,13 @@ USERNAMES_QUERY = """
 SELECT username FROM user
 """
 
+# Get the username of the user with the given username
+# (It looks stupid, but it's used to test if a user exists)
+# Parameters are: username
+SELECT_USER = """
+SELECT username FROM user WHERE username = %s
+"""
+
 # Query to get the names of all departments
 # Returned columns are: dept_name
 DEPARTMENTS_QUERY = """
@@ -173,6 +180,15 @@ def get_usernames(cursor: CursorBase) -> list:
     """
     cursor.execute(USERNAMES_QUERY)
     return [d[0] for d in cursor.fetchall()]
+
+def does_user_exist(cursor: CursorBase, username: str) -> bool:
+    """
+    Return whether or not a user with the given username exists
+    in the database, using the given cursor
+    """
+    cursor.execute(SELECT_USER, (username,))
+    cursor.fetchall()
+    return cursor.rowcount > 0
 
 def get_departments(cursor: CursorBase) -> list:
     """

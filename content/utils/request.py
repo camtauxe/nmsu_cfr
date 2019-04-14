@@ -11,6 +11,10 @@ from .db_utils import REQ_FIELDS
 from .db_utils import SAL_FIELDS
 from .errors import Error400
 
+# Query to select just the coure ids of all of the courses
+# associated with a cr
+# Returned columns are: course_id
+# Parameters are: dept_name, semester, cal_year, revision_num
 SELECT_COURSE_IDS = """
     SELECT c.course_id
     FROM request r, cfr_request c
@@ -21,6 +25,10 @@ SELECT_COURSE_IDS = """
     c.revision_num = %s
 """
 
+# Query to select just the savings ids of all of the savings
+# associated with a cr
+# Returned columns are: savings_id
+# Parameters are: dept_name, semester, cal_year, revision_num
 SELECT_SAVINGS_IDS = """
     SELECT c.savings_id
     FROM request r, cfr_savings c
@@ -31,23 +39,33 @@ SELECT_SAVINGS_IDS = """
     c.revision_num = %s
 """
 
+# Query to insert a new course request into the request table
+# Parameters are: priority, course, sec, mini_session, online_course,
+#   num_students, instructor, banner_id, inst_rank, cost, reason
+# TODO: Should this be auto-generated based on REQ_FIELDS?
 INSERT_COURSE = """
 INSERT INTO request(
-                    priority, 
-                    course, 
-                    sec, 
-                    mini_session, 
-                    online_course, 
-                    num_students,
-                    instructor,
-                    banner_id,
-                    inst_rank,
-                    cost,
-                    reason
-                    )
+    priority, 
+    course, 
+    sec, 
+    mini_session, 
+    online_course, 
+    num_students,
+    instructor,
+    banner_id,
+    inst_rank,
+    cost,
+    reason
+    )
 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 """
 
+# Query to count the number of courses matching the given
+# definition of a course.
+# Returned columns: COUNT(id)
+# Parameters are: priority, course, sec, mini_session, online_course,
+#   num_students, instructor, banner_id, inst_rank, cost, reason
+# TODO: Should this be auto-generated based on REQ_FIELDS?
 COMPARE_COURSE = """
 SELECT COUNT(r.id), r.id
 FROM request r, cfr_request c
@@ -66,21 +84,32 @@ WHERE r.id = c.course_id AND
     c.revision_num = %s
 """
 
-       
+# Query to get the id of the last inserted item
+# Returned coloumns: LAST_INSERT_ID()
 GET_ID = """
 SELECT LAST_INSERT_ID()
 """
 
+# Query to insert a new entry into the cfr_request table
+# Parameters are: course_id, dept_name, semester, cal_year, revision_num
 INSERT_CFR_COURSE = """
 INSERT INTO cfr_request
 VALUES (%s, %s, %s, %s, %s)
 """
 
+# Query to insert a new entry into the sal_savings table
+# Parameters are: leave_type, inst_name, savings, notes
+# TODO: Should this be auto-generated based on SAL_FIELDS?
 INSERT_SAL = """
 INSERT INTO sal_savings(leave_type, inst_name, savings, notes)
 VALUES (%s, %s, %s, %s)
 """
 
+# Query to count the number of sal_savings matching the given
+# definition.
+# Returned columns: COUNT(id)
+# Parameters are: leave_type, inst_name, savings, notes
+# TODO: Should this be auto-generated based on SAL_FIELDS?
 COMPARE_SAL = """
 SELECT COUNT(s.id), s.id
 FROM sal_savings s, cfr_savings c
@@ -92,6 +121,8 @@ WHERE s.id = c.savings_id AND
     c.revision_num = %s
 """
 
+# Query to insert a new entry into the cfr_savings table
+# Parameters are: savings_id, dept_name, semester, cal_year, revision_num
 INSERT_CFR_SAVINGS = """
 INSERT INTO cfr_savings
 VALUES (%s, %s, %s, %s, %s)
@@ -100,7 +131,10 @@ VALUES (%s, %s, %s, %s, %s)
 def new_cfr_from_courses(user: User, course_list):
     """
     Add a new cfr revision for the department represented
-    by the given user using the given course data.
+    by the given user using the given course data. The new
+    revision will be in the currently active semester and
+    based on the current latest revision (or created from
+    scratch if there are no previous revisions).
 
     course_list is a list of dicts with all the fields
     for a course (defined in REQ_FIELDS)
@@ -109,20 +143,27 @@ def new_cfr_from_courses(user: User, course_list):
     num_courses = 0
     num_new_courses = 0
     ret_string = ""
+
     with Transaction() as cursor:
+        # If there is a current cfr, mark that this new one is a revision
+        # and remember the old one
         if db_utils.get_current_cfr(cursor, user.dept_name) != None:
             revision = True
+            # prev_cfr is the full tuple of the previous cfr
             prev_cfr = db_utils.get_current_cfr(cursor, user.dept_name)
+            # prev_cfr_data contains only the primary key
             prev_cfr_data = (prev_cfr[0], prev_cfr[1], prev_cfr[2], prev_cfr[5])
         else:
             revision = False
 
+        # Create the new cfr
         db_utils.create_new_revision(cursor, user)
         new_cfr = db_utils.get_current_cfr(cursor, user.dept_name)
-
+        # cfr_data is just the primary key of the new cfr
         cfr_data = (new_cfr[0], new_cfr[1], new_cfr[2], new_cfr[5])
-        data_ls = []
 
+        # Parse the dicts in course_list into tuples
+        data_ls = []
         for course in course_list:
             course_data = ()
             for field in REQ_FIELDS:
@@ -130,9 +171,17 @@ def new_cfr_from_courses(user: User, course_list):
             data_ls.append(course_data)
 
         new_courses = []
+        # Iterate through courses to add
         for row in data_ls:
+            # Validation will raise an exception if there are
+            # errors, so if execution continues, we can assume
+            # we validated successfully
             validate_course(row)
+
             exists = False
+            # If this is a revision, we first check that an equivalent
+            # course does not already exist
+            # (if one does, remember its id)
             if revision == True:
                 cursor.execute(COMPARE_COURSE, row + (prev_cfr_data[3], ))
                 dup_course = cursor.fetchone()
@@ -140,24 +189,34 @@ def new_cfr_from_courses(user: User, course_list):
                     exists = True
                     course_id = (dup_course[1], )
 
+            # If an equivalent course does not already exist,
+            # insert this one into the database and remember its id
             if exists == False:
                 cursor.execute(INSERT_COURSE, row)
                 num_new_courses += cursor.rowcount
                 new_courses.append(row)
                 cursor.execute(GET_ID, params=None)
                 course_id = cursor.fetchone()
-            
+        
+            # Insert a new entry into cfr_request to link
+            # this course with the new cfr
             cfr_course = course_id + cfr_data
             cursor.execute(INSERT_CFR_COURSE, cfr_course)
             num_courses += cursor.rowcount
-            #courses_inserted.append(cfr_course)
 
+        # End: for row in data_ls:
+
+        # If this is a revision, get the savings associated with
+        # the previous cfr and create entries in cfr_savings
+        # to associate them with the new cfr as well
         if revision:
             cursor.execute(SELECT_SAVINGS_IDS, prev_cfr_data)
             last_savings_ids = cursor.fetchall()
             for savings_id in last_savings_ids:
                 cursor.execute(INSERT_CFR_SAVINGS, (savings_id + cfr_data))
 
+    # Create and return a string specifying the number of
+    # courses that were added
     if num_new_courses > 0:
         ret_string += f"{num_new_courses} courses added or modified:\n"
         for row in new_courses:
@@ -170,28 +229,41 @@ def new_cfr_from_courses(user: User, course_list):
 def new_cfr_from_sal_savings(user: User, sal_list):
     """
     Add a new cfr revision for the department represented
-    by the given user using the given salary savings data.
+    by the given user using the given salary savings data. The new
+    revision will be in the currently active semester and
+    based on the current latest revision (or created from
+    scratch if there are no previous revisions).
 
     sal_list is a list of dicts with all the fields
     for salary savings (defined in SAL_FIELDS)
+
+    TODO: There is a decent amount of code re-use between this and
+    new_cfr_from_courses. Can it be refactored?
     """
 
     num_new_sal_savings = 0
     ret_string = ""
+
     with Transaction() as cursor:
+        # If there is a current cfr, mark that this new one is a revision
+        # and remember the old one
         if db_utils.get_current_cfr(cursor, user.dept_name) != None:
             revision = True
+            # prev_cfr is the full tuple of the previous cfr
             prev_cfr = db_utils.get_current_cfr(cursor, user.dept_name)
+            # prev_cfr_data contains only the primary key
             prev_cfr_data = (prev_cfr[0], prev_cfr[1], prev_cfr[2], prev_cfr[5])
         else:
             revision = False
 
+        # Create the new cfr
         db_utils.create_new_revision(cursor, user)
         new_cfr = db_utils.get_current_cfr(cursor, user.dept_name)
-
+        # cfr_data is just the primary key of the new cfr
         cfr_data = (new_cfr[0], new_cfr[1], new_cfr[2], new_cfr[5])
-        data_ls = []
 
+        # Parse the dicts in sal_list into tuples
+        data_ls = []
         for sal in sal_list:
             sal_data = ()
             for field in SAL_FIELDS:
@@ -199,15 +271,21 @@ def new_cfr_from_sal_savings(user: User, sal_list):
             data_ls.append(sal_data)
 
         new_sal_savings = []
+        # Iterate through savings to add
         for row in data_ls:
             exists = False
+            # If this is a revision, we first check that an equivalent
+            # entry does not already exist
+            # (if one does, remember its id)
             if revision == True:
                 cursor.execute(COMPARE_SAL, row + (prev_cfr_data[3], ))
                 dup_savings = cursor.fetchone()
                 if dup_savings[0] > 0:
                     exists = True
                     savings_id = (dup_savings[1], )
-            
+
+            # If an equivalent entry does not already exist,
+            # insert this one into the database and remember its id
             if exists == False:
                 cursor.execute(INSERT_SAL, row)
                 num_new_sal_savings += cursor.rowcount
@@ -215,15 +293,22 @@ def new_cfr_from_sal_savings(user: User, sal_list):
                 cursor.execute(GET_ID, params=None)
                 savings_id = cursor.fetchone()
 
+            # Insert a new entry into cfr_savings to link
+            # this entry with the new cfr
             cfr_savings = savings_id + cfr_data
             cursor.execute(INSERT_CFR_SAVINGS, cfr_savings)
 
+        # If this is a revision, get the courses associated with
+        # the previous cfr and create entries in cfr_request
+        # to associate them with the new cfr as well
         if revision:
             cursor.execute(SELECT_COURSE_IDS, prev_cfr_data)
             last_course_ids = cursor.fetchall()
             for course_id in last_course_ids:
                 cursor.execute(INSERT_CFR_COURSE, (course_id + cfr_data))
 
+    # Create and return a string specifying the number of
+    # entries that were added
     if num_new_sal_savings > 0:
         ret_string += f"{num_new_sal_savings} savings added or modified."
 
