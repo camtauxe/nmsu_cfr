@@ -10,6 +10,7 @@ from . import cfrenv
 from . import component_builder
 from . import request
 from . import users
+from . import semesters
 from .authentication import User, UserRole
 
 # The RESOURCE_DIR refers to directory containing resource files
@@ -164,6 +165,19 @@ def build_admin_page():
     insert_at_id(page, 'dept_list', dept_options)
     if len(depts) > 0:
         page.find('input', attrs={'name':'dept_name'})['value'] = depts[0]
+
+    semester_list = semesters.get_semesters()
+    active_semester = semesters.get_active_semester()
+
+    semester_names = [f"{d[0]}, {d[1]}" for d in semester_list]
+    semester_options = component_builder.build_option_list(
+        semester_names,
+        value_accessor= 
+            (lambda n, i: str(semester_list[i][0])+" "+str(semester_list[i][1])),
+        selector=
+            (lambda n, i, v: semester_list[i] == active_semester)
+    )
+    insert_at_id(page, 'semesterselect', semester_options)
 
     return page
 

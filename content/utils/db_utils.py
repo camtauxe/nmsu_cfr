@@ -12,8 +12,6 @@ cursors are passed in.
 from .authentication import User
 from mysql.connector.cursor import CursorBase
 
-# Query to the get latest CFR of a department
-# Parameters are: dept_name and dept_name (yes, it is used twice)
 SELECT_CFR_DEPT = """
 SELECT dept_name,
     semester,
@@ -24,24 +22,33 @@ SELECT dept_name,
     cfr_submitter
 FROM cfr_department
 WHERE dept_name = %s AND 
+semester = %s AND
+cal_year = %s AND
 revision_num = (SELECT MAX(revision_num)
                 FROM cfr_department c
                 WHERE c.dept_name = %s)
 """
 
-# Query to insert a new cfr into the cfr_department table
-# Parameters are: dept_name and submitter
 NEW_CFR_DEPT = """
 INSERT INTO cfr_department
-VALUES (%s, 'Spring', YEAR(NOW()), NOW(), NULL, 0, %s)
+VALUES (%s, %s, %s, NOW(), NULL, 0, %s)
 """
 
-# Query to insert a new cfr into the cfr_department table
-# Parameters are: dept_name, semester, revision_num and submitter
 NEW_REVISION = """
 INSERT INTO cfr_department
-VALUES (%s, %s, YEAR(NOW()), %s, NOW(), %s, %s)
+VALUES (%s, %s, %s, %s, NOW(), %s, %s)
 """
+
+ACTIVE_SEMESTER_QUERY = """
+SELECT semester, cal_year
+FROM semester
+WHERE active = 'yes'
+LIMIT 1
+"""
+
+def get_active_semester(cursor: CursorBase):
+    cursor.execute(ACTIVE_SEMESTER_QUERY)
+    return cursor.fetchone()
 
 def current_cfr(cursor: CursorBase, user: User):
     """
@@ -58,7 +65,9 @@ def current_cfr(cursor: CursorBase, user: User):
     """
     
     dept_name = user.dept_name
-    cursor.execute(SELECT_CFR_DEPT, (dept_name, dept_name))
+    semester = get_active_semester(cursor)
+    query = (dept_name, semester[0], semester[1], dept_name)
+    cursor.execute(SELECT_CFR_DEPT, query)
     result = cursor.fetchone()
     
     return result
@@ -74,7 +83,9 @@ def create_cfr(cursor: CursorBase, user: User):
 
     Returns true on success, otherwise returns false
     """
-    cursor.execute(NEW_CFR_DEPT, (user.dept_name, user.username))
+    semester = get_active_semester(cursor)
+    query = (user.dept_name, semester[0], semester[1], user.username)
+    cursor.execute(NEW_CFR_DEPT, query)
 
 def create_new_revision(cursor: CursorBase, user: User):
     """
@@ -90,8 +101,6 @@ def create_new_revision(cursor: CursorBase, user: User):
         create_cfr(cursor, user)
     else:
         revision = current[5] + 1
-        data = (current[0], current[1], current[3], revision, user.username)
+        data = (current[0], current[1], current[2], current[3], revision, user.username)
         cursor.execute(NEW_REVISION, data)
 
-
-    

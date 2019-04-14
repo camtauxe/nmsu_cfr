@@ -8,5 +8,6 @@ DROP TABLE IF EXISTS sal_savings;
 DROP TABLE IF EXISTS cfr_request;
 DROP TABLE IF EXISTS cfr_savings;
 DROP TABLE IF EXISTS dummy_data;
+DROP TABLE IF EXISTS semester;
 
 set foreign_key_checks = 1;

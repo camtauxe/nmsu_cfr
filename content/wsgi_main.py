@@ -11,6 +11,7 @@ from utils import sql_connection
 from utils import authentication
 from utils import cfrenv
 from utils import users
+from utils import semesters
 from utils import request
 from utils import dummy
 from utils import errors
@@ -229,6 +230,20 @@ def application(environ, start_response):
         start_response('303 See Other',[('Location','/')])
         return "OK".encode('utf-8')
 
+    def handle_change_semester(**kwargs):
+        if kwargs['user'].role != authentication.UserRole.ADMIN:
+            raise RuntimeError("Only admins can do this!")
+        semesters.change_semester(dict_from_POST())
+        start_response('303 See Other',[('Location','/')])
+        return "OK".encode('utf-8')
+
+    def handle_add_semester(**kwargs):
+        if kwargs['user'].role != authentication.UserRole.ADMIN:
+            raise RuntimeError("Only admins can do this!")
+        semesters.add_semester(dict_from_POST())
+        start_response('303 See Other',[('Location','/')])
+        return "OK".encode('utf-8')
+
     # Register handlers into a dictionary.
     # The login-exempt handlers can be called
     # without the user needing to be logged in
@@ -252,6 +267,8 @@ def application(environ, start_response):
         'add_sal_savings':      handle_cfr_from_sal_savings,
         'add_user':             handle_add_user,
         'edit_user':            handle_edit_user,
+        'change_semester':      handle_change_semester,
+        'add_semester':         handle_add_semester,
         'add_dummy':            handle_add_dummy
     }
 

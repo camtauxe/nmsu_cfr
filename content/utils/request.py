@@ -321,10 +321,8 @@ def get_current_savings(user: User):
 def get_all_revisions(user: User):
     cfrs = []
     with Transaction() as cursor:
-        # Semester and year are placeholder values
-        # later to be replaced with a reference to
-        # the current semester
-        query = (user.dept_name, 'Spring', '2019')
+        semester = db_utils.get_active_semester(cursor)
+        query = (user.dept_name, semester[0], semester[1])
         cursor.execute(SELECT_REVISIONS, query)
         cfrs = cursor.fetchall()
     return cfrs
