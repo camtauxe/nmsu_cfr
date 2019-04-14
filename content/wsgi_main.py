@@ -162,15 +162,25 @@ def application(environ, start_response):
         respond()
         return page_builder.soup_to_bytes(page)
 
-    def handle_previous_semesters(**kwargs):
-        page = page_builder.build_previous_semesters_page(kwargs['user'])
+    def handle_revisions(**kwargs):
+        dept = None
+        if 'QUERY_STRING' in environ:
+            query = parse_qs(environ['QUERY_STRING'])
+            if 'dept' in query:
+                dept= query['dept'][0]
+        
+        page = page_builder.build_revisions_page(kwargs['user'], dept_override=dept)
         respond()
         return page_builder.soup_to_bytes(page)
 
-    def handle_revisions(**kwargs):
-        if kwargs['user'].role != authentication.UserRole.SUBMITTER:
-            raise RuntimeError("Only submitters can do this!")
-        page = page_builder.build_revisions_page(kwargs['user'])
+    def handle_previous_semesters(**kwargs):
+        dept = None
+        if 'QUERY_STRING' in environ:
+            query = parse_qs(environ['QUERY_STRING'])
+            if 'dept' in query:
+                dept= query['dept'][0]
+
+        page = page_builder.build_previous_semesters_page(kwargs['user'], dept_override=dept)
         respond()
         return page_builder.soup_to_bytes(page)
 

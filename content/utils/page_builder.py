@@ -144,12 +144,41 @@ def build_savings_page(user: User):
     table_head.insert_after(body)
     return page
 
-def build_revisions_page(user: User):
-    content = soup_from_text(f"<h1>Revision History ({user.dept_name})</h1>")
+def build_department_selector(current_dept: str = None):
+    soup = soup_from_text('<select></select>')
+    select = soup.find('select')
+    select['class'] = 'form-control'
+    select['onchange'] = """
+window.location.href = window.location.pathname + "?dept="+encodeURIComponent(this.value)
+    """
+    
+    departments = db_utils.quick_exec(db_utils.get_departments)
+    options = component_builder.build_option_list(
+        departments,
+        selector= (lambda n, i, v: n == current_dept)
+    )
+    select.append(options)
+
+    return soup
+
+def build_revisions_page(user: User, dept_override: str = None):
+    content = soup_from_text("")
+
+    if user.role == UserRole.SUBMITTER:
+        dept_name = user.dept_name
+    else:
+        selector = build_department_selector(dept_override)
+        if dept_override:
+            dept_name = dept_override
+        else:
+            dept_name = str(selector.find('option').string)
+        content.append(selector)
+
+    content.append(soup_from_text(f"<h1>Revision History ({dept_name})</h1>"))
 
     course_lists = []
     with Transaction() as cursor:
-        revisions = db_utils.get_all_revisions_for_active_semester(cursor, user.dept_name)
+        revisions = db_utils.get_all_revisions_for_active_semester(cursor, dept_name)
         for revision in revisions:
             courses = db_utils.get_courses(cursor, revision)
             course_lists.append(courses)
@@ -160,8 +189,20 @@ def build_revisions_page(user: User):
     page = build_page_around_content(content)
     return page
 
-def build_previous_semesters_page(user: User):
-    content = soup_from_text(f"<h1>Full Revision History ({user.dept_name})</h1>")
+def build_previous_semesters_page(user: User, dept_override: str = None):
+    content = soup_from_text("")
+
+    if user.role == UserRole.SUBMITTER:
+        dept_name = user.dept_name
+    else:
+        selector = build_department_selector(dept_override)
+        if dept_override:
+            dept_name = dept_override
+        else:
+            dept_name = str(selector.find('option').string)
+        content.append(selector)
+
+    content.append(soup_from_text(f"<h1>Full Revision History ({dept_name})</h1>"))
 
     histories = []
     tab_names = []
@@ -169,7 +210,7 @@ def build_previous_semesters_page(user: User):
     with Transaction() as cursor:
         for s in db_utils.get_semesters(cursor):
             revisions = []
-            for r in db_utils.get_all_revisions_for_semester(cursor, user.dept_name, s):
+            for r in db_utils.get_all_revisions_for_semester(cursor, dept_name, s):
                 revisions.append(db_utils.get_courses(cursor, r))
 
             histories.append(component_builder.build_revision_history(revisions))
