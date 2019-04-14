@@ -1,5 +1,5 @@
 """
-Functions related to submitting a request
+Functions related to manipulating requests, salary savings and cfrs in the database
 """
 import json
 import decimal
