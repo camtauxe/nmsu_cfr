@@ -145,3 +145,61 @@ def build_edit_savings_table_body(savings_list) -> Tag:
         )
 
     return body
+
+def build_revision_history(course_lists: list) -> Soup:
+    soup = page_builder.soup_from_text("")
+
+    for i in range(len(course_lists)):
+        header = soup.new_tag('h3')
+        header.string = f"Revision {len(course_lists) - i}"
+        soup.append(header)
+
+        table = build_view_courses_table(course_lists[i])
+        soup.append(table)
+
+    return soup
+
+def build_tabs(content_list: list, tab_names: list, tab_ids: list) -> Tag:
+    soup = page_builder.soup_from_text('<div id="tabs"></div>')
+
+    tabnav = soup.new_tag('div')
+    tabnav['id'] = 'tabbed-nav'
+    tabnav['class'] = 'noprint'
+
+    tablist = soup.new_tag('ul')
+    tablist['class'] = 'nav nav-tabs'
+    tablist['role'] = 'tablist'
+
+    tabcontent = soup.new_tag('div')
+    tabcontent['class'] = 'tab-content padded-15'
+
+    for i in range(min([len(content_list), len(tab_names), len(tab_ids)])):
+        tab = soup.new_tag('li')
+        tab['role'] = 'presentation'
+
+        tablink = soup.new_tag('a')
+        tablink['href'] = '#'+tab_ids[i]
+        tablink['aria-controls'] = tab_ids[i]
+        tablink['role'] = 'tab'
+        tablink['data-toggle'] = 'tab'
+        tablink.string = tab_names[i]
+
+        content = soup.new_tag('div')
+        content['role'] = 'tabpanel'
+        content['class'] = 'tab-pane fade'
+        content['id'] = tab_ids[i]
+
+        if i == 0:
+            content['class'] = 'tab-pane fade in active'
+            tablink['class'] = 'active'
+
+        content.append(content_list[i])
+        tabcontent.append(content)
+        tab.append(tablink)
+        tablist.append(tab)
+
+    tabnav.append(tablist)
+    soup.append(tabnav)
+    soup.append(tabcontent)
+
+    return soup

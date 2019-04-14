@@ -147,15 +147,37 @@ def build_savings_page(user: User):
 def build_revisions_page(user: User):
     content = soup_from_text(f"<h1>Revision History ({user.dept_name})</h1>")
 
+    course_lists = []
     with Transaction() as cursor:
         revisions = db_utils.get_all_revisions_for_active_semester(cursor, user.dept_name)
         for revision in revisions:
             courses = db_utils.get_courses(cursor, revision)
-            table_title = content.new_tag('h3')
-            table_title.string = f"Revision {revision[5]}"
-            content.append(table_title)
-            table = component_builder.build_view_courses_table(courses)
-            content.append(table)
+            course_lists.append(courses)
+
+    history = component_builder.build_revision_history(course_lists)
+    content.append(history)
+
+    page = build_page_around_content(content)
+    return page
+
+def build_previous_semesters_page(user: User):
+    content = soup_from_text(f"<h1>Full Revision History ({user.dept_name})</h1>")
+
+    histories = []
+    tab_names = []
+    tab_ids = []
+    with Transaction() as cursor:
+        for s in db_utils.get_semesters(cursor):
+            revisions = []
+            for r in db_utils.get_all_revisions_for_semester(cursor, user.dept_name, s):
+                revisions.append(db_utils.get_courses(cursor, r))
+
+            histories.append(component_builder.build_revision_history(revisions))
+            tab_names.append(f"{s[0]}, {s[1]}")
+            tab_ids.append(f"{s[0]}{s[1]}")
+
+    tabs = component_builder.build_tabs(histories, tab_names, tab_ids)
+    content.append(tabs)
 
     page = build_page_around_content(content)
     return page
