@@ -2,6 +2,27 @@
 
 var txt, xmlhttp;
 
+//variables for modal
+
+
+//when user clicks on the "funding requested" in the anthropology row a modal is displayed
+function cfrAnthroModal() {
+  document.getElementById("cfrAnthroModal").style.display = "block";
+}
+
+function cancelCfrAnthro() {
+  document.getElementById("cfrAnthroModal").style.display = "none";
+}
+
+function ssAnthroModal() {
+  document.getElementById("ssAnthroModal").style.display = "block";
+}
+
+function cancelSSAnthro() {
+  document.getElementById("ssAnthroModal").style.display = "none";
+}
+
+
 /* Function: addRow()
     Purpose: Adds row to CFR table when the add row button is clicked*/
 function addRow() {
