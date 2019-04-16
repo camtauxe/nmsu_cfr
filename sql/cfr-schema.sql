@@ -11,7 +11,14 @@ create table submitter
     dept_name      varchar(50) not null,
     primary key (username),
     foreign key (username)
-       references user(username)
+       references user(username) on delete cascade
+   );
+
+create table semester
+   (semester   enum('Fall', 'Spring', 'Summer') not null,
+    cal_year   numeric(4,0) not null,
+    active     enum('yes','no') not null,
+    primary key (semester, cal_year)
    );
 
 create table cfr_department
@@ -24,7 +31,9 @@ create table cfr_department
     cfr_submitter      varchar(32),
     primary key (dept_name, semester, cal_year, revision_num),
     foreign key (cfr_submitter)
-	   references user(username)
+      references user(username) on delete set null,
+    foreign key (semester, cal_year)
+      references semester(semester, cal_year)
    );
 
 create table request
@@ -44,7 +53,7 @@ create table request
     approver      varchar(32),
     primary key (id),
     foreign key (approver)
-	   references user(username)
+	   references user(username) on delete set null
    );  
 
 create table cfr_request
@@ -70,7 +79,7 @@ create table sal_savings
     approver       varchar(32),
     primary key (id),
     foreign key (approver)
-	   references user(username)
+	   references user(username) on delete set null
    );
    
 create table cfr_savings
@@ -84,7 +93,7 @@ create table cfr_savings
            references sal_savings(id),
      foreign key (dept_name, semester, cal_year, revision_num)
            references cfr_department(dept_name, semester, cal_year, revision_num)
-	);
+   );
 
 create table dummy_data 
    (
@@ -95,12 +104,3 @@ create table dummy_data
 
       primary key (name)
    );
-
-
-
-
-
-
-
-      
-       			     

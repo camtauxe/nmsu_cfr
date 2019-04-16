@@ -9,9 +9,9 @@ from pathlib import PurePath
 from utils import page_builder
 from utils import sql_connection
 from utils import authentication
-from utils import home_page
 from utils import cfrenv
-from utils import create_user
+from utils import users
+from utils import semesters
 from utils import request
 from utils import dummy
 from utils import errors
@@ -99,7 +99,7 @@ def application(environ, start_response):
         """
         Return the home page for the logged-in user
         """
-        page = home_page.build_home_page(kwargs['user'])
+        page = page_builder.build_home_page(kwargs['user'])
         respond()
         return page_builder.soup_to_bytes(page)
 
@@ -149,28 +149,62 @@ def application(environ, start_response):
             return page_builder.soup_to_bytes(page)
 
     def handle_cfr(**kwargs):
+        """
+        Return the course funding request submission page
+        """
         if kwargs['user'].role != authentication.UserRole.SUBMITTER:
-            raise RuntimeError("Only submitters can do this!")
-        page = page_builder.build_cfr_page(kwargs['user'])
-        respond()
-        return page_builder.soup_to_bytes(page)
+            if kwargs['user'].role != authentication.UserRole.APPROVER:
+                raise RuntimeError("Only submitters can do this!")
+            else:
+                page = page_builder.build_cfr_list(kwargs['user'])
+                respond()
+                return page_builder.soup_to_bytes(page)
+        else:
+            page = page_builder.build_cfr_page(kwargs['user'])
+            respond()
+            return page_builder.soup_to_bytes(page)
 
     def handle_salary_saving(**kwargs):
+        """
+        Return the salary savings submission page
+        """
         if kwargs['user'].role != authentication.UserRole.SUBMITTER:
             raise RuntimeError("Only submitters can do this!")
         page = page_builder.build_savings_page(kwargs['user'])
         respond()
         return page_builder.soup_to_bytes(page)
 
-    def handle_previous_semesters(**kwargs):
-        page = page_builder.build_page_from_file("previous_semesters.html")
+    def handle_revisions(**kwargs):
+        """
+        Return the revisions page. If the user is an approver or admin,
+        they can also supply a 'dept' value in the query string to view
+        the revisions of a particular department. Otherwise, the page
+        will only have the revisions for the user's department
+        """
+        dept = None
+        if 'QUERY_STRING' in environ:
+            query = parse_qs(environ['QUERY_STRING'])
+            if 'dept' in query:
+                dept= query['dept'][0]
+        
+        page = page_builder.build_revisions_page(kwargs['user'], dept_override=dept)
         respond()
         return page_builder.soup_to_bytes(page)
 
-    def handle_revisions(**kwargs):
-        if kwargs['user'].role != authentication.UserRole.SUBMITTER:
-            raise RuntimeError("Only submitters can do this!")
-        page = page_builder.build_revisions_page(kwargs['user'])
+    def handle_previous_semesters(**kwargs):
+        """
+        Return the previous semesters page. If the user is an approver or admin,
+        they can also supply a 'dept' value in the query string to view
+        the history of a particular department. Otherwise, the page
+        will only have the history for the user's department
+        """
+        dept = None
+        if 'QUERY_STRING' in environ:
+            query = parse_qs(environ['QUERY_STRING'])
+            if 'dept' in query:
+                dept= query['dept'][0]
+
+        page = page_builder.build_previous_semesters_page(kwargs['user'], dept_override=dept)
         respond()
         return page_builder.soup_to_bytes(page)
 
@@ -195,18 +229,25 @@ def application(environ, start_response):
             "This was supposed to happen because you selected 'error'"
         )
 
-    #For 'add_course' add a course to a cfr
     def handle_cfr_from_courses(**kwargs):
+        """
+        Handle POST request to create a new cfr from a list
+        of courses specified in JSON in the request body.
+        """
         if kwargs['user'].role != authentication.UserRole.SUBMITTER:
-            raise RuntimeError("Only submitters can do this!")
+            if kwargs['user'].role != authentication.UserRole.APPROVER:
+                raise RuntimeError("Only submitters can do this!")
         body_text = environ['wsgi.input'].read()
         data = json.loads(body_text)
         courses_inserted = request.new_cfr_from_courses(kwargs['user'], data)
         respond(mime = 'text/plain')
         return f"{courses_inserted}".encode('utf-8')
 
-    #For 'add_sal_savings' add salary savings to a cfr
     def handle_cfr_from_sal_savings(**kwargs):
+        """
+        Handle POST request to create a new cfr from a list
+        of salary savings specified in JSON in the request body.
+        """
         if kwargs ['user'].role != authentication.UserRole.SUBMITTER:
             raise RuntimeError("Only submitters can do this!")
         body_text = environ['wsgi.input'].read()
@@ -215,13 +256,61 @@ def application(environ, start_response):
         respond(mime = 'text/plain')
         return f"{savings_inserted}".encode('utf-8')
 
-    # Register handlers into a dictionary
-    def handle_new_user(**kwargs):
+
+    def handle_edit_user(**kwargs):
+        """
+        Handle POST request to edit or delete a user using form
+        data in the request body. If successful, redirects to the
+        home page.
+        """
         if kwargs['user'].role != authentication.UserRole.ADMIN:
             raise RuntimeError("Only admins can do this!")
-        rows_inserted = create_user.create_user(dict_from_POST())
-        respond(mime = 'text/plain')
-        return f"{rows_inserted} user(s) inserted.".encode('utf-8')
+        users.edit_user(dict_from_POST(), kwargs['user'])
+        start_response('303 See Other',[('Location','/')])
+        return "OK".encode('utf-8')
+
+    def handle_add_user(**kwargs):
+        """
+        Handle POST request to add a user using form
+        data in the request body. If successful, redirects to the
+        home page.
+        """
+        if kwargs['user'].role != authentication.UserRole.ADMIN:
+            raise RuntimeError("Only admins can do this!")
+        users.add_user(dict_from_POST())
+        start_response('303 See Other',[('Location','/')])
+        return "OK".encode('utf-8')
+
+    def handle_change_semester(**kwargs):
+        """
+        Handle POST request to change the active semester using form
+        data in the request body. If successful, redirects to the
+        home page.
+        """
+        if kwargs['user'].role != authentication.UserRole.ADMIN:
+            raise RuntimeError("Only admins can do this!")
+        semesters.change_semester(dict_from_POST())
+        start_response('303 See Other',[('Location','/')])
+        return "OK".encode('utf-8')
+
+    def handle_add_semester(**kwargs):
+        """
+        Handle POST request to add a semester using form
+        data in the request body. If successful, redirects to the
+        home page.
+        """
+        if kwargs['user'].role != authentication.UserRole.ADMIN:
+            raise RuntimeError("Only admins can do this!")
+        semesters.add_semester(dict_from_POST())
+        start_response('303 See Other',[('Location','/')])
+        return "OK".encode('utf-8')
+
+    # def handle_cfr_list(**kwargs):
+    #     if kwargs['user'].role != authentication.UserRole.APPROVER:
+    #         raise RuntimeError("Only approvers can do this!")
+    #     page = page_builder.build_cfr_list(kwargs['user'])
+    #     respond()
+    #     return page_builder.soup_to_bytes(page)
 
     # Register handlers into a dictionary.
     # The login-exempt handlers can be called
@@ -244,8 +333,11 @@ def application(environ, start_response):
         'error':                handle_error,
         'add_course':           handle_cfr_from_courses,
         'add_sal_savings':      handle_cfr_from_sal_savings,
-        'new_user':             handle_new_user,
-        'add_dummy':            handle_add_dummy
+        'add_user':             handle_add_user,
+        'edit_user':            handle_edit_user,
+        'change_semester':      handle_change_semester,
+        'add_semester':         handle_add_semester,
+        'add_dummy':            handle_add_dummy,
     }
 
     # Initialize the CFR environment
