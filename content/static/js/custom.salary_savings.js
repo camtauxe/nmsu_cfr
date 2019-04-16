@@ -45,49 +45,89 @@ function salarySubmit(){
             aObj[i].parentNode.removeChild(aObj[i]);
         }
     }
-    //gets the salary savings table
-    var table = document.getElementById('salaryTable');
-    //row is an array where each element corresponds to a row in the table
-    var row = table.getElementsByTagName('tr');
-    //iterates through each row
-    for (i=0; i<row.length; i++){
-        //cell is an array of cells in the row
-        var cell = row[i].getElementsByTagName('td');
-        //adds the data from the cells into the javascript array
-        salaryObj.push(
-            {
-            leave_type: row[i].getElementsByTagName('select')[0].value,
-            inst_name: cell[1].innerText.trim(),
-            savings: cell[2].innerText.trim(),
-            notes: cell[3].innerText.trim(),
-            confirmedAmount: "",
-        });
+    if (testData()) {
+        //gets the salary savings table
+        var table = document.getElementById('salaryTable');
+        //row is an array where each element corresponds to a row in the table
+        var row = table.getElementsByTagName('tr');
+        //iterates through each row
+        for (i=0; i<row.length; i++){
+            //cell is an array of cells in the row
+            var cell = row[i].getElementsByTagName('td');
+            //adds the data from the cells into the javascript array
+            salaryObj.push(
+                {
+                leave_type:         row[i].getElementsByTagName('select')[0].value,
+                inst_name:          cell[1].innerText.trim(),
+                savings:            cell[2].innerText.trim(),
+                notes:              cell[3].innerText.trim(),
+                confirmedAmount:    "",
+            });
+        }
+        //prints the javascript object to the console
+        console.log(salaryObj);
+        //converts the javascript object into JSON so that it can be sent via HTTP request
+        var salaryJSON = JSON.stringify(salaryObj);
+
+        //ADD HTTP REQUEST
+        xmlhttp = new XMLHttpRequest();
+
+        xmlhttp.onreadystatechange = function() {
+          if (this.readyState == 4) {
+            document.getElementById("submitSalaryButton").disabled = false;
+            if (this.status == 200) {
+              window.alert("Successfully submitted changes!")
+            }
+            else if (this.status == 400) {
+              window.alert("Something was wrong with the submitted courses!\n"+this.response)
+            }
+            else {
+              window.alert("Something went wrong! The changes were not submitted.\n Server returned: "+this.status)
+            }
+          }
+        };
+        
+        document.getElementById("submitSalaryButton").disabled = true;
+        xmlhttp.open("POST", "/add_sal_savings", true);
+        xmlhttp.setRequestHeader("Content-Type", "text/json; charset=utf-8");
+        xmlhttp.send(salaryJSON);
     }
-    //prints the javascript object to the console
-    console.log(salaryObj);
-    //converts the javascript object into JSON so that it can be sent via HTTP request
-    var salaryJSON = JSON.stringify(salaryObj);
-
-    //ADD HTTP REQUEST
-    xmlhttp = new XMLHttpRequest();
-
-    xmlhttp.onreadystatechange = function() {
-      if (this.readyState == 4) {
-        document.getElementById("submitSalaryButton").disabled = false;
-        if (this.status == 200) {
-          window.alert("Successfully submitted changes!")
-        }
-        else if (this.status == 400) {
-          window.alert("Something was wrong with the submitted courses!\n"+this.response)
-        }
-        else {
-          window.alert("Something went wrong! The changes were not submitted.\n Server returned: "+this.status)
-        }
-      }
-    };
-    
-    document.getElementById("submitSalaryButton").disabled = true;
-    xmlhttp.open("POST", "/add_sal_savings", true);
-    xmlhttp.setRequestHeader("Content-Type", "text/json; charset=utf-8");
-    xmlhttp.send(salaryJSON);
 };
+
+/* Function: testData() 
+    Purpose: tests the data entries does not send the request if entries are not correct*/
+  function testData(){
+    //checks if there are any errors
+    var test = 1;
+    //gets the salary savings table element
+    var table = document.getElementById('salaryTable');
+    //gets the salary savings table footer element
+    var foot = document.getElementById('salaryFooter');
+    //row = an array of the rows of the table
+    var row = table.getElementsByTagName('tr');
+    //frow = an arrow of the rows of the footer of the table
+    var frow = foot.getElementsByTagName('tr');
+        //fcell = an array of the cells in the first row of the footer
+    var fcell = frow[0].getElementsByTagName('td');
+
+    //for each row in the table the elements are added to the cfr object
+    for (i = 0; i<row.length; i++){
+      var cell = row[i].getElementsByTagName('td');
+
+      //makes sure the third column entries are numbers
+      if (Number.isNaN(Number(cell[2].innerText.trim()))){
+        //if the data is not a number the cell will turn red and an error message will display at the bottom of the column
+        cell[2].className = "danger";
+        fcell[2].style.visibility = "visible";
+        test = test - 1;
+      }
+
+    }
+
+    //if anything is wrong the salary savings will not be sent
+    if (test <= 0){
+      foot.style.visibility = "hidden";
+      return false;
+    }
+    return true;
+  };
