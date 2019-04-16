@@ -3,26 +3,35 @@
 
 <h2>View and Edit CFRs</h2>
 <!-- CFR Table -->
-<table id="cfrTable_full" class="table table-bordered table-striped table-hover">
+<table class="table table-bordered table-striped table-hover" onload="totalRow()">
     <caption></caption>
     <thead>
         <tr>
             <th>Department</th>
-            <th>Funding Requested</th>
-            <th>Salary Savings</th>
+             <th class="tooltiptitle">
+                    <span class="tooltip tooltip-inner">
+                    Select a cell in this column to view/edit the CFR for that department</span>
+                Funding Requested
+            </th>
+            <th class="tooltiptitle">
+                    <span class="tooltip tooltip-inner">
+                    Select a cell in this column to view/edit the Sources of Salary Savings
+                     for that department</span>
+                Salary Savings
+            </th>
             <th>Dean Committed</th>
             <th>Funds Needed</th>
             <th>Approve</th>
         </tr>
     </thead>
     <!--The tbody is inserted here by the backend-->
-    <tbody>
+    <tbody id="cfrTable_appr">
         <tr id="anthroRow">
             <td>Anthropology</td>
             <td class="editable" onclick="cfrAnthroModal()">$0</td>
             <td class="editable" onclick="ssAnthroModal()">$15000</td>
             <td class="editable" contenteditable="true">$0</td>
-            <td>$0</td>
+            <td></td>
             <td><input type="checkbox"></td>
         </tr>
 
@@ -67,10 +76,14 @@
             <td>$10000</td>
             <td>$5000</td>
             <td class="editable" contenteditable="true">$2000</td>
-            <td>$3000</td>
+            <td></td>
             <td><input type="checkbox"></td>
         </tr>
     </tbody>
 </table>
    
+<button id="submitCFRbutton" type="submit" onclick="totalRow()" class="btn btn-primary">Submit Changes</button>
 
+<script type="text/javascript">
+    window.onload = totalRow();
+</script>
