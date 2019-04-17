@@ -11,7 +11,7 @@
              <th class="tooltiptitle">
                     <span class="tooltip tooltip-inner">
                     Select a cell in this column to view/edit the CFR for that department</span>
-                Funding Requested
+                CFR Funding Requested
             </th>
             <th class="tooltiptitle">
                     <span class="tooltip tooltip-inner">
@@ -21,18 +21,21 @@
             </th>
             <th>Dean Committed</th>
             <th>Funds Needed</th>
-            <th>Approve</th>
+            <th colspan="2">Approve Department</th>
+            <th>Status</th>
         </tr>
     </thead>
     <!--The tbody is inserted here by the backend-->
     <tbody id="cfrTable_appr">
         <tr id="anthroRow">
             <td>Anthropology</td>
-            <td class="editable" onclick="cfrAnthroModal()">$0</td>
-            <td class="editable" onclick="ssAnthroModal()">$15000</td>
+            <td>$0</td>
+            <td>$15000</td>
             <td class="editable" contenteditable="true">$0</td>
             <td></td>
-            <td><input type="checkbox"></td>
+            <td><button class="btn btn-primary" onclick="cfrAnthroModal()">Approve CFRs</button></td>
+            <td><button class="btn btn-primary" onclick="ssAnthroModal()">Approve Savings</button></td>
+            <td><image src="../static/images/check.png" height="30px"></td>
         </tr>
 
         <div id="cfrAnthroModal" class="modal">
@@ -40,7 +43,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <span class="close">&times;</span>
-              <h2>Anthropology CFRs</h2>
+              <h1>Anthropology CFRs</h1>
             </div>
             <div class="modal-body">
               <p>Most recent course funding request table for the Anthropology department would go here.</p>
@@ -58,7 +61,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <span class="close">&times;</span>
-              <h2>Antropology Salary Savings</h2>
+              <h1>Antropology Salary Savings</h1>
             </div>
             <div class="modal-body">
               <p>Most recent sources of salary savings table for the Anthropoogy department would go here.</p>
@@ -77,7 +80,9 @@
             <td>$5000</td>
             <td class="editable" contenteditable="true">$2000</td>
             <td></td>
-            <td><input type="checkbox"></td>
+            <td><button class="btn btn-primary">Approve CFRs</button></td>
+            <td><button class="btn btn-primary">Approve Savings</button></td>
+            <td><image src="../static/images/x.png" height="30px"></td>
         </tr>
     </tbody>
 </table>
