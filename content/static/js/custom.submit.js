@@ -80,7 +80,7 @@ function CFRsubmit() {
         aObj[i].parentNode.removeChild(aObj[i]);
       }
   }
-  if (testData()){
+  if (testDataCFR()){
     //gets the cfr Table element
     var table = document.getElementById('cfrTable');
     //row = an array of the rows of the table
@@ -164,7 +164,7 @@ function CFRsubmit() {
 
 /* Function: testData() 
     Purpose: tests the data entries does not send the request if entries are not correct*/
-  function testData(){
+  function testDataCFR(){
     //checks if there are any errors
     var test = 1;
     //gets the cfr table element

@@ -45,7 +45,7 @@ function salarySubmit(){
             aObj[i].parentNode.removeChild(aObj[i]);
         }
     }
-    if (testData()) {
+    if (testDataSalary()) {
         //gets the salary savings table
         var table = document.getElementById('salaryTable');
         //row is an array where each element corresponds to a row in the table
@@ -64,25 +64,25 @@ function salarySubmit(){
                 confirmedAmount:    "",
             });
         }
-        //prints the javascript object to the console
+        //prints the cfr object to the console for testing
         console.log(salaryObj);
-        //converts the javascript object into JSON so that it can be sent via HTTP request
+        //creates a JSON object from the salary object
         var salaryJSON = JSON.stringify(salaryObj);
 
-        //ADD HTTP REQUEST
+        //ADD HTTP REQUEST TO SEND JSON OBJECT
         xmlhttp = new XMLHttpRequest();
 
         xmlhttp.onreadystatechange = function() {
           if (this.readyState == 4) {
             document.getElementById("submitSalaryButton").disabled = false;
             if (this.status == 200) {
-              window.alert("Successfully submitted changes!")
+              window.alert("Successfully submitted course funding requests!")
             }
             else if (this.status == 400) {
               window.alert("Something was wrong with the submitted courses!\n"+this.response)
             }
             else {
-              window.alert("Something went wrong! The changes were not submitted.\n Server returned: "+this.status)
+              window.alert("Something went wrong! The courses were not submitted.\n Server returned: "+this.status)
             }
           }
         };
@@ -94,9 +94,9 @@ function salarySubmit(){
     }
 };
 
-/* Function: testData() 
+/* Function: testDataSalary() 
     Purpose: tests the data entries does not send the request if entries are not correct*/
-  function testData(){
+  function testDataSalary(){
     //checks if there are any errors
     var test = 1;
     //gets the salary savings table element
@@ -110,7 +110,7 @@ function salarySubmit(){
         //fcell = an array of the cells in the first row of the footer
     var fcell = frow[0].getElementsByTagName('td');
 
-    //for each row in the table the elements are added to the cfr object
+    //for each row in the table the elements are added to the salary object
     for (i = 0; i<row.length; i++){
       var cell = row[i].getElementsByTagName('td');
 
