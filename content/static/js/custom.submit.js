@@ -160,6 +160,9 @@ function CFRsubmit() {
         }
       }
     }
+
+    //format the cost column so that it only has two decimals
+
   };
 
 /* Function: testData() 
@@ -280,6 +283,14 @@ function CFRsubmit() {
       // if the instructor is TBD set the column to N/A
       else if (cell[6].innerText.trim().toLowerCase()=="tbd"){
         cell[8].innerText = "N/A";
+      }
+
+      //makes sure the cost column entries are numbers
+      if (Number.isNaN(Number(cell[9].innerText.trim()))){
+        //if the data is not a number the cell will turn red and an error message will display at the bottom of the column
+        cell[9].className = "danger";
+        fcell[9].style.visibility = "visible";
+        test = test - 1;
       }
 
     }
