@@ -40,7 +40,7 @@ function salarySubmit(){
     //iterates through each row in the table
     while(i--) {
         //checks if the row is empty or checked
-        if(aObj[i].getElementsByTagName('td')[1].innerHTML == "" || aObj[i].getElementsByTagName('input')[0].checked) {
+        if(aObj[i].getElementsByTagName('input')[0].checked) {
             //deletes row
             aObj[i].parentNode.removeChild(aObj[i]);
         }
@@ -113,6 +113,13 @@ function salarySubmit(){
     //for each row in the table the elements are added to the salary object
     for (i = 0; i<row.length; i++){
       var cell = row[i].getElementsByTagName('td');
+
+      //makes sure the second column isn't empty
+      if (cell[1].innerText.trim() === ""){
+        cell[1].className = "danger";
+        fcell[1].style.visibility = "visible";
+        test = test - 1;
+      }
 
       //makes sure the third column entries are numbers
       if (Number.isNaN(Number(cell[2].innerText.trim()))){
