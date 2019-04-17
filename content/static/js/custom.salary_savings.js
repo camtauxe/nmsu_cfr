@@ -30,6 +30,7 @@ function addSalaryRow(){
 };
 
 function salarySubmit(){
+    resetSalaryTableState();
     //creates a javascript array object for the salary submissions
     var salaryObj = [
     ];
@@ -137,4 +138,34 @@ function salarySubmit(){
       return false;
     }
     return true;
+  };
+
+  /* Function: resetTableState()
+    Purpose: resets the table styling if any entries were formerly incorrect*/
+  function resetSalaryTableState(){
+    //gets the cfr Table element
+    var table = document.getElementById('salaryTable');
+    //row = an array of the rows of the table
+    var row = table.getElementsByTagName('tr');
+    //gets the cfr table footer element
+    var foot = document.getElementById('salaryFooter');
+    //resets table footer to not be displayed
+    foot.style.visibility = "collapse";
+    //frow = an array of the rows of the footer of the table
+    var frow = foot.getElementsByTagName('tr');
+    //fcell = an array of the cells in the first row of the footer
+    var fcell = frow[0].getElementsByTagName('td');
+
+    //for each row in the table the cells are set back to normal styling and the error messages are hidden
+    for (i = 0; i<row.length; i++){
+      var cell = row[i].getElementsByTagName('td');
+      for (j = 0; j<cell.length; j++){
+        if (cell[j].className == "danger"){
+          cell[j].classList.remove("danger");
+        }
+        if (fcell[j].style.visibility == "visible"){
+          fcell[j].style.visibility = "hidden";
+        }
+      }
+    }
   };
