@@ -128,6 +128,22 @@ INSERT INTO cfr_savings
 VALUES (%s, %s, %s, %s, %s)
 """
 
+# Update statement to update commitment_code and cost of a course
+# when a course is approved 
+APPROVE_COURSES = """
+UPDATE request r
+SET commitment_code = %s, cost = %s, approver = %s
+WHERE EXISTS (SELECT *
+              FROM cfr_request c
+              WHERE r.id = c.course_id AND
+                    r.course = %s AND
+                    r.sec = %s AND
+                    c.dept_name = %s AND
+                    c.semester = %s AND
+                    c.cal_year = %s AND
+                    c.revision_num = %s)
+"""
+
 def new_cfr_from_courses(user: User, course_list):
     """
     Add a new cfr revision for the department represented
@@ -377,3 +393,28 @@ def validate_course(row):
         float(cost)
     except ValueError:
         raise Error400('The ' + REQ_FIELDS[9] + ' field must be a valid float')
+
+def approve_courses(current_user: User, approved_courses):
+    ret_string = "Courses approved:\n"
+    username = current_user.username
+    dept_name = approved_courses['dept_name']
+    with Transaction() as cursor:
+        current_cfr = db_utils.get_current_cfr(cursor, dept_name)
+        #current_cfr is the full tuple of the current cfr 
+        #for the department selected
+        cfr_key = (current_cfr[0], current_cfr[1], current_cfr[2], current_cfr[5])
+        #cfr_key is the primary key for the cfr
+
+        for course in approved_courses['courses']:
+            #if course has a commitment code, it is approved
+            if course['commitment_code'] != None:
+                update_course = (course['commitment_code'], course['cost'], username, course["course"], course["sec"])
+                #update course is a tuple that contains the commitment code,
+                #cost, course, section and approver's username
+                cursor.execute(APPROVE_COURSES, update_course + cfr_key)
+                ret_string += f"{course['course']} {course['sec']} \n"
+            else: 
+                print(f"{course['course']} {course['sec']} not approved, no commitment code found")
+    
+    return ret_string
+

@@ -1,0 +1,3 @@
+{"dept_name" : "Art",
+ "courses" : [{"commitment_code" : "EM", "course" : "ART253", "sec" : "M04", "cost" : "7.33"},
+            {"commitment_code" : "SS", "course" : "ART105", "sec" : "D11", "cost" : "100.00"}]}

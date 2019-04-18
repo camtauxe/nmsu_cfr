@@ -297,6 +297,19 @@ def application(environ, start_response):
         start_response('303 See Other',[('Location','/')])
         return "OK".encode('utf-8')
 
+    def handle_approve_courses(**kwargs):
+        """
+        Hangle POST request to approve courses from a list 
+        specified in JSON in the request body.
+        """
+        if kwargs ['user'].role != authentication.UserRole.APPROVER:
+            raise RuntimeError("Only approvers can do this!")
+        body_text = environ['wsgi.input'].read()
+        data = json.loads(body_text)
+        courses_approved = request.approve_courses(kwargs['user'], data)
+        respond(mime = 'text/plain')
+        return f"{courses_approved}".encode('utf-8')
+
     # Register handlers into a dictionary.
     # The login-exempt handlers can be called
     # without the user needing to be logged in
@@ -322,6 +335,7 @@ def application(environ, start_response):
         'edit_user':            handle_edit_user,
         'change_semester':      handle_change_semester,
         'add_semester':         handle_add_semester,
+        'approve_courses' :     handle_approve_courses,
         'add_dummy':            handle_add_dummy
     }
 
