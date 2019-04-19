@@ -303,6 +303,11 @@ def new_cfr_from_sal_savings(user: User, sal_list):
         new_sal_savings = []
         # Iterate through savings to add
         for row in data_ls:
+            # Validation will raise an exception if there are
+            # errors, so if execution continues, we can assume
+            # we validated successfully
+            validate_sal_saving(row)
+
             exists = False
             # If this is a revision, we first check that an equivalent
             # entry does not already exist
@@ -408,6 +413,28 @@ def validate_course(row):
     except ValueError:
         raise Error400('The ' + REQ_FIELDS[9] + ' field must be a valid float')
 
+def validate_sal_saving(row):
+    """
+    Field validation for Sources of Salary Savings
+
+    row is a list of tuples containing all fields
+    (defined in SAL_FIELDS) of a salary saving
+    request
+
+    NOTE: There is no validation in place for
+    inst_name or notes
+    """
+
+    leave_type = row[0]
+    if leave_type not in ('Sabbatical', 'RBO', 'LWOP', 'Other'):
+        raise Error400('The ' + SAL_FIELDS[0] + ' field must be \"Sabbatical,\" \"RBO,\" \"LWOP,\" or \"Other\"')
+
+    savings = row[2].replace("$", "").replace(",", "")
+    try:
+        float(savings)
+    except ValueError:
+        raise Error400('The ' + SAL_FIELDS[2] + ' field must be a valid float')
+
 def approve_courses(current_user: User, approved_courses):
     """
     Approve courses within the current cfr for the selected
@@ -474,5 +501,4 @@ def approve_sal_savings(current_user: User, approved_savings):
                 print(f"Savings for {savings['inst_name']} has no confirmed amount")
 
     return ret_string
-
 
