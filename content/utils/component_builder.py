@@ -267,6 +267,24 @@ def build_edit_savings_table_body(savings_list: list) -> Tag:
 
     return body
 
+def build_approve_table_body(summary: list):
+    body = build_tbody_from_tups(summary)
+
+    for row in body.find_all('tr', recursive=False):
+        img = page_builder.soup_from_text('<img height="30px"></img>')
+        last_cell = row('td')[-1]
+        if last_cell.string.lower() == 'true':
+            src = "/static/images/check.png"
+        else:
+            src = "/static/images/x.png"
+        img.img['src'] = src
+        last_cell.string = ''
+        last_cell.append(img)
+
+    return body
+
+
+
 def build_revision_history(course_lists: list) -> Soup:
     """
     Build a series of tables representing the revisions defined

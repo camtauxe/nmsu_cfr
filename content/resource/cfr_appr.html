@@ -1,7 +1,29 @@
 
-<h1>Course Funding Request</h1>
+<h1>CFR Approvals</h1>
 
-<h2>View and Edit CFRs</h2>
+<table id="approveTable" class="table table-bordered table-striped table-hover" onload="totalRow()">
+  <caption></caption>
+  <thead>
+      <tr>
+          <th>Department</th>
+           <th class="tooltiptitle">
+                  <span class="tooltip tooltip-inner">
+                  Select a cell in this column to view/edit the CFR for that department</span>
+              CFR Funding Requested
+          </th>
+          <th class="tooltiptitle">
+                  <span class="tooltip tooltip-inner">
+                  Select a cell in this column to view/edit the Sources of Salary Savings
+                   for that department</span>
+              Salary Savings
+          </th>
+          <th>Dean Committed</th>
+          <th>Funds Needed</th>
+          <th colspan="2">Approve Department</th>
+          <th>Status</th>
+      </tr>
+  </thead>
+</table>
 <!-- CFR Table -->
 <table class="table table-bordered table-striped table-hover" onload="totalRow()">
     <caption></caption>

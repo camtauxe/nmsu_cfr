@@ -152,17 +152,11 @@ def application(environ, start_response):
         """
         Return the course funding request submission page
         """
-        if kwargs['user'].role != authentication.UserRole.SUBMITTER:
-            if kwargs['user'].role != authentication.UserRole.APPROVER:
-                raise RuntimeError("Only submitters can do this!")
-            else:
-                page = page_builder.build_cfr_list(kwargs['user'])
-                respond()
-                return page_builder.soup_to_bytes(page)
-        else:
-            page = page_builder.build_cfr_page(kwargs['user'])
-            respond()
-            return page_builder.soup_to_bytes(page)
+        if kwargs['user'].role == authentication.UserRole.ADMIN:
+            raise RuntimeError("Only submitters or approvers can do this!")
+        page = page_builder.build_cfr_page(kwargs['user'])
+        respond()
+        return page_builder.soup_to_bytes(page)
 
     def handle_salary_saving(**kwargs):
         """

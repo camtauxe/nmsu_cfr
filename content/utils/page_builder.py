@@ -131,17 +131,28 @@ def build_cfr_page(user: User) -> Soup:
     Build the course funding request page for the given user and
     return it as a BeautifulSoup
     """
+    if user.role == UserRole.SUBMITTER:
+        page = build_page_from_file("cfr.html")
+        # Build table body from current courses list
+        courses = db_utils.quick_exec(db_utils.get_current_courses, user.dept_name)
+        body = component_builder.build_edit_course_table_body(courses)
+        body['id'] = 'cfrTable'
 
-    page = build_page_from_file("cfr.html")
-    # Build table body from current courses list
-    courses = db_utils.quick_exec(db_utils.get_current_courses, user.dept_name)
-    body = component_builder.build_edit_course_table_body(courses)
-    body['id'] = 'cfrTable'
+        # Insert table body after table head
+        table_head = page.find('table',id='cfrTable_full').find('thead')
+        table_head.insert_after(body)
 
-    # Insert table body after table head
-    table_head = page.find('table',id='cfrTable_full').find('thead')
-    table_head.insert_after(body)
+    else:
+        page = build_page_from_file("cfr_appr.html")
+
+        summary = db_utils.quick_exec(db_utils.get_approver_summary)
+        body = component_builder.build_approve_table_body(summary)
+        
+        table_head = page.find('table', id='approveTable').find('thead')
+        table_head.insert_after(body)
+
     return page
+
 
 def build_cfr_list(user: User) -> Soup:
     page = build_page_from_file("cfr_appr.html")
