@@ -13,6 +13,15 @@
     </tr>
 </thead>
 <!-- tbody is inserted by backend-->
+<tfoot id="salaryFooter" style="visibility: collapse">
+        <tr>
+            <td></td>
+            <td style="visibility: hidden"><i>* Entries must not be empty</i></td>
+            <td style="visibility: hidden"><i>* Entries must be a number</i></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tfoot>
 </table>
 <button type="button" onclick="addSalaryRow()" class="btn btn-primary noprint" style="margin-left: 95%">
     <img src="/static/images/plus-icon.png" style="height: 15px; vertical-align: text-top;">

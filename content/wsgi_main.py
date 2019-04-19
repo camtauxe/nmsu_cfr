@@ -153,10 +153,16 @@ def application(environ, start_response):
         Return the course funding request submission page
         """
         if kwargs['user'].role != authentication.UserRole.SUBMITTER:
-            raise RuntimeError("Only submitters can do this!")
-        page = page_builder.build_cfr_page(kwargs['user'])
-        respond()
-        return page_builder.soup_to_bytes(page)
+            if kwargs['user'].role != authentication.UserRole.APPROVER:
+                raise RuntimeError("Only submitters can do this!")
+            else:
+                page = page_builder.build_cfr_list(kwargs['user'])
+                respond()
+                return page_builder.soup_to_bytes(page)
+        else:
+            page = page_builder.build_cfr_page(kwargs['user'])
+            respond()
+            return page_builder.soup_to_bytes(page)
 
     def handle_salary_saving(**kwargs):
         """
@@ -229,7 +235,8 @@ def application(environ, start_response):
         of courses specified in JSON in the request body.
         """
         if kwargs['user'].role != authentication.UserRole.SUBMITTER:
-            raise RuntimeError("Only submitters can do this!")
+            if kwargs['user'].role != authentication.UserRole.APPROVER:
+                raise RuntimeError("Only submitters can do this!")
         body_text = environ['wsgi.input'].read()
         data = json.loads(body_text)
         courses_inserted = request.new_cfr_from_courses(kwargs['user'], data)
@@ -248,6 +255,7 @@ def application(environ, start_response):
         savings_inserted = request.new_cfr_from_sal_savings(kwargs['user'], data)
         respond(mime = 'text/plain')
         return f"{savings_inserted}".encode('utf-8')
+
 
     def handle_edit_user(**kwargs):
         """

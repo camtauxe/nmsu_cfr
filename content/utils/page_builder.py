@@ -143,6 +143,10 @@ def build_cfr_page(user: User) -> Soup:
     table_head.insert_after(body)
     return page
 
+def build_cfr_list(user: User) -> Soup:
+    page = build_page_from_file("cfr_appr.html")
+    return page
+
 def build_savings_page(user: User) -> Soup:
     """
     Build the sources of salary savings page for the given user and
