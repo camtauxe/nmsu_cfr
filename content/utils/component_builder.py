@@ -35,6 +35,10 @@ LEAVE_TYPE_NAMES = [
     "Other Funded Leave"
 ]
 
+TABLE_BUTTON = """
+<button class="btn btn-primary" style="margin:3px"></button>
+"""
+
 def build_option_list(
     names: list,
     value_accessor = (lambda n, i: n),
@@ -270,16 +274,35 @@ def build_edit_savings_table_body(savings_list: list) -> Tag:
 def build_approve_table_body(summary: list):
     body = build_tbody_from_tups(summary)
 
+    index = 0
     for row in body.find_all('tr', recursive=False):
         img = page_builder.soup_from_text('<img height="30px"></img>')
         last_cell = row('td')[-1]
-        if last_cell.string.lower() == 'true':
+
+        approved = summary[index][5]
+        if approved:
             src = "/static/images/check.png"
         else:
             src = "/static/images/x.png"
         img.img['src'] = src
         last_cell.string = ''
         last_cell.append(img)
+
+        new_cell = add_cell_to_row(row)
+        if approved:
+            new_cell.string = "Already approved"
+        else:
+            course_button = page_builder.soup_from_text(TABLE_BUTTON)
+            course_button.button['onclick'] = f"summonModal(\"modal_cfr_{index}\")"
+            course_button.button.string = "Approve Courses"
+            new_cell.append(course_button)
+
+            savings_button = page_builder.soup_from_text(TABLE_BUTTON)
+            savings_button.button['onclick'] = f"summonModal(\"modal_ss_{index}\")"
+            savings_button.button.string = "Approve Savings"
+            new_cell.append(savings_button)
+
+        index += 1
 
     return body
 
