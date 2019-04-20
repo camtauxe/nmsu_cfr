@@ -145,17 +145,27 @@ def build_cfr_page(user: User) -> Soup:
     else:
         page = build_page_from_file("cfr_appr.html")
 
-        summary = db_utils.quick_exec(db_utils.get_approver_summary)
-        body = component_builder.build_approve_table_body(summary)
+        data = db_utils.quick_exec(db_utils.get_approver_data)
+        body = component_builder.build_approve_table_body(data['summary'])
         
         table_head = page.find('table', id='approveTable').find('thead')
         table_head.insert_after(body)
 
-    return page
+        for i in range(len(data['dept_names'])):
+            cfr_modal = component_builder.build_modal(
+                f"{data['dept_names'][i]} Courses",
+                f"modal_cfr_{i}",
+                f"{data['dept_names'][i]} Courses"
+            )
+            page.body.append(cfr_modal)
 
+            savings_modal = component_builder.build_modal(
+                f"{data['dept_names'][i]} Savings",
+                f"modal_ss_{i}",
+                f"{data['dept_names'][i]} Savings"
+            )
+            page.body.append(savings_modal)
 
-def build_cfr_list(user: User) -> Soup:
-    page = build_page_from_file("cfr_appr.html")
     return page
 
 def build_savings_page(user: User) -> Soup:

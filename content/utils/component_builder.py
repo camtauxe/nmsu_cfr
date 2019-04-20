@@ -333,6 +333,38 @@ def build_revision_history(course_lists: list) -> Soup:
 
     return soup
 
+def build_modal(title: str, modal_id: str, content) -> Tag:
+    soup = page_builder.soup_from_text("<div class=\"modal\"></div>")
+    soup.div['id'] = modal_id
+
+    content_div = soup.new_tag('div')
+    content_div['class'] = 'modal-content'
+
+    header_container = soup.new_tag('div')
+    header_container['class'] = 'modal-header'
+    header = soup.new_tag('h1')
+    header.string = title
+    header_container.append(header)
+
+    body = soup.new_tag('div')
+    body['class'] = 'modal-body'
+    body.append(content)
+
+    footer = soup.new_tag('div')
+    footer['class'] = 'modal-footer'
+    close_button = soup.new_tag('button')
+    close_button['class'] = 'btn btn-default'
+    close_button['onclick'] = f"dismissModal(\"{modal_id}\")"
+    close_button.string = 'Close'
+    footer.append(close_button)
+
+    content_div.append(header_container)
+    content_div.append(body)
+    content_div.append(footer)
+
+    soup.div.append(content_div)
+    return soup.div
+
 def build_tabs(content_list: list, tab_names: list, tab_ids: list) -> Tag:
     """
     Build a tab pane element from the given content with the given names

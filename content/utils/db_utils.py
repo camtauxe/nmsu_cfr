@@ -413,8 +413,16 @@ def get_current_savings(cursor: CursorBase, dept_name: str) -> list:
     else:
         return []
 
-def get_approver_summary(cursor: CursorBase) -> list:
-    tups = []
+def get_approver_data(cursor: CursorBase) -> dict:
+    data = {
+        'summary': [],
+        'dept_names': [],
+        'course_lists': [],
+        'course_approvals_lists': [],
+        'savings_lists': [],
+        'savings_approvals_lists': []
+    }
+
     depts = get_departments(cursor)
     for dept in depts:
         cfr = get_current_cfr(cursor, dept)
@@ -447,6 +455,12 @@ def get_approver_summary(cursor: CursorBase) -> list:
         funds_needed = total_cost - total_savings - total_committed
         if funds_needed < 0:
             funds_needed = 0
-        tups.append((dept, total_cost, total_savings, total_committed, funds_needed, all_approved))
-    
-    return tups
+        
+        data['dept_names'].append(dept)
+        data['summary'].append((dept, total_cost, total_savings, total_committed, funds_needed, all_approved))
+        data['course_lists'].append(courses)
+        data['course_approvals_lists'].append(course_approvals)
+        data['savings_lists'].append(savings)
+        data['savings_approvals_lists'].append(savings_approvals)
+
+    return data
