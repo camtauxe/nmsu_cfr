@@ -151,18 +151,53 @@ def build_cfr_page(user: User) -> Soup:
         table_head = page.find('table', id='approveTable').find('thead')
         table_head.insert_after(body)
 
-        for i in range(len(data['dept_names'])):
+        for (i, dept_name) in enumerate(data['dept_names']):
+
+            cfr_modal_content = soup_from_text("")
+            cfr_modal_id = f"modal_cfr_{i}"
+
+            unapproved_courses = [cl for cl in data['course_lists'][i] if cl[11] is None]
+
+            if len(unapproved_courses) == 0:
+                cfr_modal_content.append("No unapproved courses left")
+            else:
+                cfr_modal_content.append(component_builder.build_approve_course_table(
+                    unapproved_courses
+                ))
+                cfr_submit = cfr_modal_content.new_tag('button')
+                cfr_submit['class'] = 'btn btn-primary'
+                cfr_submit['onclick'] = f"approveCFR(\"{cfr_modal_id}\", \"{dept_name}\")"
+                cfr_submit.string = "Submit"
+                cfr_modal_content.append(cfr_submit)
+
             cfr_modal = component_builder.build_modal(
-                f"{data['dept_names'][i]} Courses",
-                f"modal_cfr_{i}",
-                f"{data['dept_names'][i]} Courses"
+                f"{dept_name} Courses",
+                cfr_modal_id,
+                cfr_modal_content
             )
             page.body.append(cfr_modal)
 
+            savings_modal_content = soup_from_text("")
+            savings_modal_id = f"modal_ss_{i}"
+
+            unapproved_savings = [sl for sl in data['savings_lists'][i] if sl[4] is None]
+
+            if len(unapproved_savings) == 0:
+                savings_modal_content.append("No unapproved savings left")
+            else:
+                savings_modal_content.append(component_builder.build_approve_savings_table(
+                    unapproved_savings
+                ))
+                savings_submit = savings_modal_content.new_tag('button')
+                savings_submit['class'] = 'btn btn-primary'
+                savings_submit['onclick'] = f"approveSS(\"{savings_modal_id}\", \"{dept_name}\")"
+                savings_submit.string = "Submit"
+                savings_modal_content.append(savings_submit)
+
             savings_modal = component_builder.build_modal(
-                f"{data['dept_names'][i]} Savings",
-                f"modal_ss_{i}",
-                f"{data['dept_names'][i]} Savings"
+                f"{dept_name} Savings",
+                savings_modal_id,
+                savings_modal_content
             )
             page.body.append(savings_modal)
 

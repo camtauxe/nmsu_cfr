@@ -418,9 +418,7 @@ def get_approver_data(cursor: CursorBase) -> dict:
         'summary': [],
         'dept_names': [],
         'course_lists': [],
-        'course_approvals_lists': [],
-        'savings_lists': [],
-        'savings_approvals_lists': []
+        'savings_lists': []
     }
 
     depts = get_departments(cursor)
@@ -458,9 +456,9 @@ def get_approver_data(cursor: CursorBase) -> dict:
         
         data['dept_names'].append(dept)
         data['summary'].append((dept, total_cost, total_savings, total_committed, funds_needed, all_approved))
-        data['course_lists'].append(courses)
-        data['course_approvals_lists'].append(course_approvals)
-        data['savings_lists'].append(savings)
-        data['savings_approvals_lists'].append(savings_approvals)
+        data['course_lists'].append(
+            [course+course_approvals[i] for (i, course) in enumerate(courses)])
+        data['savings_lists'].append(
+            [saving + savings_approvals[i] for (i, saving) in enumerate(savings)])
 
     return data

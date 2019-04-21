@@ -25,6 +25,31 @@ COURSE_TABLE_HEADERS = [
     "Reason"
 ]
 
+COURSE_APPROVAL_HEADERS = [
+    "Priority",
+    "Course",
+    "Sec",
+    "Mini Session?",
+    "Online Class?",
+    "Students",
+    "Instructor",
+    "Banner ID",
+    "Instructor Rank",
+    "Cost",
+    "Reason",
+    "Commitment Code",
+    "Approve"
+]
+
+SAVINGS_APPROVAL_HEADERS = [
+    "Type",
+    "Instructor",
+    "Savings",
+    "Notes",
+    "Confirmed Amount",
+    "Approve"
+]
+
 # The values and user-readable names for different kinds of paid leave.
 # Used in the options for a leave type select element
 LEAVE_TYPE_VALUES = ['Sabbatical', 'RBO', 'LWOP', 'Other']
@@ -33,6 +58,10 @@ LEAVE_TYPE_NAMES = [
     "Research Buy-Out (Provide Index Number)",
     "Leave Without Pay",
     "Other Funded Leave"
+]
+
+COMMITMENT_CODES = [
+    "EM", "SS", "CO", "DE"
 ]
 
 TABLE_BUTTON = """
@@ -306,7 +335,77 @@ def build_approve_table_body(summary: list):
 
     return body
 
+def build_approve_savings_table(savings_list: list) -> Tag:
+    soup = page_builder.soup_from_text("<table></table>")
+    soup.table['class'] = 'table table-bordered table-striped'
+    soup.table['style'] = 'padding-bottom: 50px'
 
+    head = soup.new_tag('thead')
+    row = soup.new_tag('tr')
+    head.append(row)
+    for header in SAVINGS_APPROVAL_HEADERS:
+        cell = soup.new_tag('th')
+        cell.string = header
+        row.append(cell)
+    soup.table.append(head)
+
+    body = soup.new_tag('tbody')
+    soup.table.append(body)
+
+    for i in range(len(savings_list)):
+        data = savings_list[i][:4] + (savings_list[i][5], savings_list[i][4])
+        if data[4] is None:
+            data = data[:4] + (0,) + data[5:]
+        new_row = add_row_from_tuple(body, data)
+
+        cells = new_row.find_all('td')
+        cost_cell = cells[4]
+        cost_cell['contenteditable'] = "true",
+        cost_cell['class'] = "editable"
+
+        approve_cell = cells[-1]
+        replace_cell_with_checkbox(approve_cell)
+
+    return soup.table
+
+def build_approve_course_table(course_list: list) -> Tag:
+    soup = page_builder.soup_from_text("<table></table>")
+    soup.table['class'] = 'table table-bordered table-striped'
+    soup.table['style'] = 'padding-bottom: 50px'
+
+    head = soup.new_tag('thead')
+    row = soup.new_tag('tr')
+    head.append(row)
+    for header in COURSE_APPROVAL_HEADERS:
+        cell = soup.new_tag('th')
+        cell.string = header
+        row.append(cell)
+    soup.table.append(head)
+
+    body = soup.new_tag('tbody')
+    soup.table.append(body)
+
+    for i in range(len(course_list)):
+        data = course_list[i][:11] + (course_list[i][12], course_list[i][11])
+        new_row = add_row_from_tuple(body, data)
+
+        cells = new_row.find_all('td')
+        cost_cell = cells[9]
+        cost_cell['contenteditable'] = "true",
+        cost_cell['class'] = "editable"
+
+        commitment_cell = cells[-2]
+        replace_cell_with_select(
+            commitment_cell,
+            names=COMMITMENT_CODES,
+            values=COMMITMENT_CODES,
+             attrs= {'class': 'form-control'},
+        )
+
+        approve_cell = cells[-1]
+        replace_cell_with_checkbox(approve_cell)
+
+    return soup.table
 
 def build_revision_history(course_lists: list) -> Soup:
     """
