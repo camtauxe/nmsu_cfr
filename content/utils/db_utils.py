@@ -39,8 +39,30 @@ SELECT_COURSES = (
     "c.dept_name = %s AND "
     "c.semester = %s AND "
     "c.cal_year = %s AND "
-    "c.revision_num = %s"
+    "c.revision_num = %s "
+    "ORDER BY r.id"
 )
+
+SELECT_TOTAL_COST = """
+SELECT SUM(r.cost)
+FROM request r, cfr_request c
+WHERE r.id = c.course_id AND
+    c.dept_name = %s AND
+    c.semester = %s AND
+    c.cal_year = %s AND
+    c.revision_num = %s
+"""
+
+SELECT_COURSE_APPROVALS = """
+SELECT r.approver, r.commitment_code
+FROM request r, cfr_request c
+WHERE r.id = c.course_id AND
+    c.dept_name = %s AND
+    c.semester = %s AND
+    c.cal_year = %s AND
+    c.revision_num = %s
+ORDER BY r.id
+"""
 
 # Definition of all the fields in a salary savings entry.
 # These should correspond to the field names in the database
@@ -61,15 +83,36 @@ SELECT_SAVINGS = (
     "c.dept_name = %s AND "
     "c.semester = %s AND "
     "c.cal_year = %s AND "
-    "c.revision_num = %s"
+    "c.revision_num = %s "
+    "ORDER BY r.id"
 )
+
+SELECT_TOTAL_SAVINGS = """
+SELECT SUM(s.savings), SUM(s.confirmed_amt)
+FROM sal_savings s, cfr_request c
+WHERE s.id = c.course_id AND
+    c.dept_name = %s AND
+    c.semester = %s AND
+    c.cal_year = %s AND
+    c.revision_num = %s
+"""
+
+SELECT_SAVINGS_APPROVALS = """
+SELECT s.approver, s.confirmed_amt
+FROM sal_savings s, cfr_request c
+WHERE s.id = c.course_id AND
+    c.dept_name = %s AND
+    c.semester = %s AND
+    c.cal_year = %s AND
+    c.revision_num = %s
+ORDER BY s.id
+"""
 
 # Query to select the most recent cfr revision
 # for a department in a semester
 # Returned columns are: dept_name, semester, cal_year, date_initial,
 #   date_revised, revision_num and cfr_submitter
-# Parameters are: dept_name, semester, cal_year and dept_name
-#   (yes, dept_name is used twice)
+# Parameters are: dept_name, semester, cal_year
 SELECT_CFR_DEPT = """
 SELECT dept_name,
     semester,
@@ -81,10 +124,9 @@ SELECT dept_name,
 FROM cfr_department
 WHERE dept_name = %s AND 
 semester = %s AND
-cal_year = %s AND
-revision_num = (SELECT MAX(revision_num)
-                FROM cfr_department c
-                WHERE c.dept_name = %s)
+cal_year = %s
+ORDER BY revision_num DESC
+LIMIT 1
 """
 
 # Query to select all of the cfr revisions for
@@ -231,7 +273,7 @@ def get_current_cfr(cursor: CursorBase, dept_name: str) -> tuple:
     This will return None if there are no CFRs for the department
     """
     semester = get_active_semester(cursor)
-    query = (dept_name, semester[0], semester[1], dept_name)
+    query = (dept_name, semester[0], semester[1])
     cursor.execute(SELECT_CFR_DEPT, query)
     result = cursor.fetchone()
     
@@ -310,6 +352,11 @@ def get_courses(cursor: CursorBase, cfr: tuple) -> list:
     cursor.execute(SELECT_COURSES, cfr_data)
     return cursor.fetchall()
 
+def get_course_approvals(cursor: CursorBase, cfr: tuple) -> list:
+    cfr_data = (cfr[0], cfr[1], cfr[2], cfr[5])
+    cursor.execute(SELECT_COURSE_APPROVALS, cfr_data)
+    return cursor.fetchall()
+
 def get_current_courses(cursor: CursorBase, dept_name: str) -> list:
     """
     Get a list of courses associated with the current cfr (latest revision
@@ -344,6 +391,11 @@ def get_savings(cursor: CursorBase, cfr: tuple) -> list:
     cursor.execute(SELECT_SAVINGS, cfr_data)
     return cursor.fetchall()
 
+def get_savings_approvals(cursor: CursorBase, cfr: tuple) -> list:
+    cfr_data = (cfr[0], cfr[1], cfr[2], cfr[5])
+    cursor.execute(SELECT_SAVINGS_APPROVALS, cfr_data)
+    return cursor.fetchall()
+
 def get_current_savings(cursor: CursorBase, dept_name: str) -> list:
     """
     Get a list of the salary savings entries associated with the current cfr (latest revision
@@ -361,3 +413,52 @@ def get_current_savings(cursor: CursorBase, dept_name: str) -> list:
     else:
         return []
 
+def get_approver_data(cursor: CursorBase) -> dict:
+    data = {
+        'summary': [],
+        'dept_names': [],
+        'course_lists': [],
+        'savings_lists': []
+    }
+
+    depts = get_departments(cursor)
+    for dept in depts:
+        cfr = get_current_cfr(cursor, dept)
+        if cfr is None:
+            continue
+
+        courses = get_courses(cursor, cfr)
+        if len(courses) == 0:
+            continue
+        course_approvals = get_course_approvals(cursor, cfr)
+
+        savings = get_savings(cursor, cfr)
+        savings_approvals = get_savings_approvals(cursor, cfr)
+
+        all_approved = True
+        total_cost = 0
+        for i in range(len(courses)):
+            total_cost += courses[i][9]
+            all_approved = all_approved and (course_approvals[i][0] is not None)
+
+        total_savings = 0
+        total_committed = 0
+        for i in range(len(savings)):
+            total_savings += savings[i][2]
+            if savings_approvals[i][0] is not None:
+                total_committed += savings_approvals[i][1]
+            else:
+                all_approved = False
+
+        funds_needed = total_cost - total_savings - total_committed
+        if funds_needed < 0:
+            funds_needed = 0
+        
+        data['dept_names'].append(dept)
+        data['summary'].append((dept, total_cost, total_savings, total_committed, funds_needed, all_approved))
+        data['course_lists'].append(
+            [course+course_approvals[i] for (i, course) in enumerate(courses)])
+        data['savings_lists'].append(
+            [saving + savings_approvals[i] for (i, saving) in enumerate(savings)])
+
+    return data

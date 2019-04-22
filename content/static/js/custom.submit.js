@@ -2,6 +2,41 @@
 
 var txt, xmlhttp;
 
+//variables for modal
+
+
+//when user clicks on the "funding requested" in the anthropology row a modal is displayed
+function cfrAnthroModal() {
+  document.getElementById("cfrAnthroModal").style.display = "block";
+}
+
+function cancelCfrAnthro() {
+  document.getElementById("cfrAnthroModal").style.display = "none";
+}
+
+function ssAnthroModal() {
+  document.getElementById("ssAnthroModal").style.display = "block";
+}
+
+function cancelSSAnthro() {
+  document.getElementById("ssAnthroModal").style.display = "none";
+}
+
+function totalRow() {
+  var table = document.getElementById('cfrTable_appr');
+  //row = an array of the rows of the table
+  var row = table.getElementsByTagName('tr');
+  for (var i=0; i<row.length; i++){
+    var cell = row[i].getElementsByTagName('td');
+    var c1 = cell[1].innerText.trim();
+    var c2 = cell[2].innerText.trim();
+    var c3 = cell[3].innerText.trim();
+    var value = (parseInt(c1.substring(1,c1.length) - parseInt(c2.substring(1, c2.length)) - parseInt(c3.substring(1, c3.length))));
+    cell[4].innerText = "$" + value;
+  }
+}
+
+
 /* Function: addRow()
     Purpose: Adds row to CFR table when the add row button is clicked*/
 function addRow() {
@@ -45,7 +80,7 @@ function CFRsubmit() {
         aObj[i].parentNode.removeChild(aObj[i]);
       }
   }
-  if (testData()){
+  if (testDataCFR()){
     //gets the cfr Table element
     var table = document.getElementById('cfrTable');
     //row = an array of the rows of the table
@@ -125,11 +160,14 @@ function CFRsubmit() {
         }
       }
     }
+
+    //format the cost column so that it only has two decimals
+
   };
 
 /* Function: testData() 
     Purpose: tests the data entries does not send the request if entries are not correct*/
-  function testData(){
+  function testDataCFR(){
     //checks if there are any errors
     var test = 1;
     //gets the cfr table element
@@ -245,6 +283,14 @@ function CFRsubmit() {
       // if the instructor is TBD set the column to N/A
       else if (cell[6].innerText.trim().toLowerCase()=="tbd"){
         cell[8].innerText = "N/A";
+      }
+
+      //makes sure the cost column entries are numbers
+      if (Number.isNaN(Number(cell[9].innerText.trim()))){
+        //if the data is not a number the cell will turn red and an error message will display at the bottom of the column
+        cell[9].className = "danger";
+        fcell[9].style.visibility = "visible";
+        test = test - 1;
       }
 
     }

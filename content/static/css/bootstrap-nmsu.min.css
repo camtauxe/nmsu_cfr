@@ -7178,7 +7178,7 @@ button.close {
     word-wrap: normal;
     font-size: 12px;
     left: 0px;
-    bottom: 50%;
+    bottom: 100%;
     opacity: 0;
     filter: alpha(opacity=0);
 }

@@ -5,5 +5,4 @@ services:
     image: nmsu_cfr:latest
     container_name: cfr
     env_file: cfr.env
-    ports:
-      - 80:80
+    network_mode: "host"

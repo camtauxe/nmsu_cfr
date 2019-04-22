@@ -25,6 +25,31 @@ COURSE_TABLE_HEADERS = [
     "Reason"
 ]
 
+COURSE_APPROVAL_HEADERS = [
+    "Priority",
+    "Course",
+    "Sec",
+    "Mini Session?",
+    "Online Class?",
+    "Students",
+    "Instructor",
+    "Banner ID",
+    "Instructor Rank",
+    "Cost",
+    "Reason",
+    "Commitment Code",
+    "Approve"
+]
+
+SAVINGS_APPROVAL_HEADERS = [
+    "Type",
+    "Instructor",
+    "Savings",
+    "Notes",
+    "Confirmed Amount",
+    "Approve"
+]
+
 # The values and user-readable names for different kinds of paid leave.
 # Used in the options for a leave type select element
 LEAVE_TYPE_VALUES = ['Sabbatical', 'RBO', 'LWOP', 'Other']
@@ -34,6 +59,14 @@ LEAVE_TYPE_NAMES = [
     "Leave Without Pay",
     "Other Funded Leave"
 ]
+
+COMMITMENT_CODES = [
+    "EM", "SS", "CO", "DE"
+]
+
+TABLE_BUTTON = """
+<button class="btn btn-primary" style="margin:3px"></button>
+"""
 
 def build_option_list(
     names: list,
@@ -267,6 +300,113 @@ def build_edit_savings_table_body(savings_list: list) -> Tag:
 
     return body
 
+def build_approve_table_body(summary: list):
+    body = build_tbody_from_tups(summary)
+
+    index = 0
+    for row in body.find_all('tr', recursive=False):
+        img = page_builder.soup_from_text('<img height="30px"></img>')
+        last_cell = row('td')[-1]
+
+        approved = summary[index][5]
+        if approved:
+            src = "/static/images/check.png"
+        else:
+            src = "/static/images/x.png"
+        img.img['src'] = src
+        last_cell.string = ''
+        last_cell.append(img)
+
+        new_cell = add_cell_to_row(row)
+        if approved:
+            new_cell.string = "Already approved"
+        else:
+            course_button = page_builder.soup_from_text(TABLE_BUTTON)
+            course_button.button['onclick'] = f"summonModal(\"modal_cfr_{index}\")"
+            course_button.button.string = "Approve Courses"
+            new_cell.append(course_button)
+
+            savings_button = page_builder.soup_from_text(TABLE_BUTTON)
+            savings_button.button['onclick'] = f"summonModal(\"modal_ss_{index}\")"
+            savings_button.button.string = "Approve Savings"
+            new_cell.append(savings_button)
+
+        index += 1
+
+    return body
+
+def build_approve_savings_table(savings_list: list) -> Tag:
+    soup = page_builder.soup_from_text("<table></table>")
+    soup.table['class'] = 'table table-bordered table-striped'
+    soup.table['style'] = 'padding-bottom: 50px'
+
+    head = soup.new_tag('thead')
+    row = soup.new_tag('tr')
+    head.append(row)
+    for header in SAVINGS_APPROVAL_HEADERS:
+        cell = soup.new_tag('th')
+        cell.string = header
+        row.append(cell)
+    soup.table.append(head)
+
+    body = soup.new_tag('tbody')
+    soup.table.append(body)
+
+    for i in range(len(savings_list)):
+        data = savings_list[i][:4] + (savings_list[i][5], savings_list[i][4])
+        if data[4] is None:
+            data = data[:4] + (0,) + data[5:]
+        new_row = add_row_from_tuple(body, data)
+
+        cells = new_row.find_all('td')
+        cost_cell = cells[4]
+        cost_cell['contenteditable'] = "true",
+        cost_cell['class'] = "editable"
+
+        approve_cell = cells[-1]
+        replace_cell_with_checkbox(approve_cell)
+
+    return soup.table
+
+def build_approve_course_table(course_list: list) -> Tag:
+    soup = page_builder.soup_from_text("<table></table>")
+    soup.table['class'] = 'table table-bordered table-striped'
+    soup.table['style'] = 'padding-bottom: 50px'
+
+    head = soup.new_tag('thead')
+    row = soup.new_tag('tr')
+    head.append(row)
+    for header in COURSE_APPROVAL_HEADERS:
+        cell = soup.new_tag('th')
+        cell.string = header
+        row.append(cell)
+    soup.table.append(head)
+
+    body = soup.new_tag('tbody')
+    soup.table.append(body)
+
+    for i in range(len(course_list)):
+        data = course_list[i][:11] + (course_list[i][12], course_list[i][11])
+        new_row = add_row_from_tuple(body, data)
+
+        cells = new_row.find_all('td')
+        cost_cell = cells[9]
+        cost_cell['contenteditable'] = "true",
+        cost_cell['class'] = "editable"
+
+        commitment_cell = cells[-2]
+        replace_cell_with_select(
+            commitment_cell,
+            names=COMMITMENT_CODES,
+            values=COMMITMENT_CODES,
+             attrs= {'class': 'form-control'},
+        )
+
+        approve_cell = cells[-1]
+        replace_cell_with_checkbox(approve_cell)
+
+    return soup.table
+
 def build_revision_history(course_lists: list) -> Soup:
     """
     Build a series of tables representing the revisions defined
@@ -291,6 +431,38 @@ def build_revision_history(course_lists: list) -> Soup:
         soup.append(table)
 
     return soup
+
+def build_modal(title: str, modal_id: str, content) -> Tag:
+    soup = page_builder.soup_from_text("<div class=\"modal\"></div>")
+    soup.div['id'] = modal_id
+
+    content_div = soup.new_tag('div')
+    content_div['class'] = 'modal-content'
+
+    header_container = soup.new_tag('div')
+    header_container['class'] = 'modal-header'
+    header = soup.new_tag('h1')
+    header.string = title
+    header_container.append(header)
+
+    body = soup.new_tag('div')
+    body['class'] = 'modal-body'
+    body.append(content)
+
+    footer = soup.new_tag('div')
+    footer['class'] = 'modal-footer'
+    close_button = soup.new_tag('button')
+    close_button['class'] = 'btn btn-default'
+    close_button['onclick'] = f"dismissModal(\"{modal_id}\")"
+    close_button.string = 'Close'
+    footer.append(close_button)
+
+    content_div.append(header_container)
+    content_div.append(body)
+    content_div.append(footer)
+
+    soup.div.append(content_div)
+    return soup.div
 
 def build_tabs(content_list: list, tab_names: list, tab_ids: list) -> Tag:
     """
