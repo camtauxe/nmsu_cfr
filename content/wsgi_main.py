@@ -312,6 +312,15 @@ def application(environ, start_response):
         respond(mime = 'text/plain')
         return f"{courses_approved}".encode('utf-8')
 
+    def handle_add_commitments(**kwargs):
+        if kwargs ['user'].role != authentication.UserRole.APPROVER:
+            raise RuntimeError("Only approvers can do this!")
+        body_text = environ['wsgi.input'].read()
+        data = json.loads(body_text)
+        request.commit_cfr(data)
+        respond(mime = 'text/plain')
+        return f"OK".encode('utf-8')
+
     # Register handlers into a dictionary.
     # The login-exempt handlers can be called
     # without the user needing to be logged in
@@ -338,6 +347,7 @@ def application(environ, start_response):
         'change_semester':      handle_change_semester,
         'add_semester':         handle_add_semester,
         'approve_courses' :     handle_approve_courses,
+        'add_commitments':      handle_add_commitments,
         'add_dummy':            handle_add_dummy
     }
 

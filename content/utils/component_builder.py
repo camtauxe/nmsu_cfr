@@ -305,6 +305,10 @@ def build_approve_table_body(summary: list):
 
     index = 0
     for row in body.find_all('tr', recursive=False):
+        commitment_cell = row('td')[3]
+        commitment_cell['contenteditable'] = "true"
+        commitment_cell['class'] = "editable"
+
         img = page_builder.soup_from_text('<img height="30px"></img>')
         last_cell = row('td')[-1]
 

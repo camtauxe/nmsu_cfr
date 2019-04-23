@@ -57,3 +57,39 @@ function approveCFR(modal_id, dept_name) {
     req.setRequestHeader("Content-Type","text/json; charset=utf-8");
     req.send(JSON.stringify(requestJSON))
 }
+
+function submitCommitments() {
+
+    requestJSON = [];
+
+    rows = document.getElementById('approveTable').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    for (i = 0; i < rows.length; i++) {
+        row = rows[i];
+        cells = row.getElementsByTagName('td');
+
+        requestJSON.push({
+            dept_name: cells[0].innerText.trim(),
+            amount: cells[3].innerText.trim()
+        });
+    }
+
+    req = new XMLHttpRequest();
+    req.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            if (this.status == 200) {
+                window.alert("Successfully submitted! (The page will now refresh)");
+                location.reload()
+            }
+            else if (this.status == 400) {
+                window.alert("Something was wrong with the submitted data!\n"+this.response);
+            }
+            else {
+                window.alert("Something went wrong! The changes were not submitted.\n Server returned: "+this.status);
+            }
+        }
+    }
+    req.open('POST', "/add_commitments", true);
+    req.setRequestHeader("Content-Type","text/json; charset=utf-8");
+    req.send(JSON.stringify(requestJSON));
+
+}

@@ -145,6 +145,15 @@ WHERE EXISTS (SELECT *
                 
 """
 
+ADD_COMMITMENT = """
+UPDATE cfr_department
+SET dean_committed = %s
+WHERE dept_name = %s AND
+    semester = %s AND
+    cal_year = %s AND
+    revision_num = %s
+"""
+
 def new_cfr_from_courses(user: User, course_list):
     """
     Add a new cfr revision for the department represented
@@ -456,3 +465,25 @@ def approve_courses(current_user: User, approved_courses):
     
     return ret_string
 
+def commit_cfr(commitment_list: list):
+
+    with Transaction() as cursor:
+        for commitment in commitment_list:
+            if 'dept_name' not in commitment:
+                raise Error400("Entry missing 'dept_name' field!")
+            dept_name = commitment['dept_name']
+
+            if 'amount' not in commitment:
+                raise Error400("Entry missing 'amount' field!")
+            try:
+                amount = float(commitment['amount'])
+            except ValueError:
+                raise Error400("'amount' field must be a float!")
+
+            cfr = db_utils.get_current_cfr(cursor, dept_name)
+            if cfr is None:
+                raise Error400("Selected department has no current request!")
+            #cfr_data is the primary key of cfr
+            cfr_data = (cfr[0], cfr[1], cfr[2], cfr[5])
+
+            cursor.execute(ADD_COMMITMENT, (amount,)+cfr_data)
