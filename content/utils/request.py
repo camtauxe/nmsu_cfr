@@ -145,19 +145,6 @@ WHERE EXISTS (SELECT *
                 
 """
 
-APPROVE_SAVINGS = """
-UPDATE sal_savings s
-SET confirmed_amt = %s, approver = %s
-WHERE EXISTS (SELECT *
-              FROM cfr_savings c
-              WHERE s.id = c.savings_id AND
-                    s.inst_name = %s AND
-                    c.dept_name = %s AND
-                    c.semester = %s AND
-                    c.cal_year = %s AND
-                    c.revision_num = %s)
-"""
-
 def new_cfr_from_courses(user: User, course_list):
     """
     Add a new cfr revision for the department represented
@@ -467,38 +454,5 @@ def approve_courses(current_user: User, approved_courses):
             else: 
                 print(f"{course['course']} {course['sec']} not approved, no commitment code found")
     
-    return ret_string
-
-def approve_sal_savings(current_user: User, approved_savings):
-    """
-    Approve salary savings in the current cfr for the
-    selected department. Approved salaray savings must 
-    have a confirmed amount. 
-
-    approved savings is a object containing the 
-    department name selected and a list of the salary 
-    savings that have been approved. Salary savings
-    are identified by the instructor name.
-    """
-    ret_string = "Salary savings approved:\n"
-    username = current_user.username
-    dept_name = approved_savings['dept_name']
-    with Transaction() as cursor:
-        current_cfr = db_utils.get_current_cfr(cursor, dept_name)
-        #current_cfr is the full tuple of the current cfr
-        cfr_key = (current_cfr[0], current_cfr[1], current_cfr[2], current_cfr[5])
-        #cfr_key is the primary key for the cfr
-
-        for savings in approved_savings['savings']:
-            if savings['confirmed_amt'] != None:
-            #if savings has a confirmed amount it is approved
-                update_savings = (savings['confirmed_amt'], username, savings['inst_name'])
-                #update_savings is a tuple that contains the values 
-                #from the json: confirmed_amt, username, inst_name
-                cursor.execute(APPROVE_SAVINGS, update_savings + cfr_key)
-                ret_string += f"Savings for {savings['inst_name']} confirmed for {savings['confirmed_amt']}\n"
-            else:
-                print(f"Savings for {savings['inst_name']} has no confirmed amount")
-
     return ret_string
 

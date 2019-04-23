@@ -312,19 +312,6 @@ def application(environ, start_response):
         respond(mime = 'text/plain')
         return f"{courses_approved}".encode('utf-8')
 
-    def handle_approve_sal_savings(**kwargs):
-        """
-        Handle POST request to approve salary savings from a
-        list specified in JSON in request body
-        """
-        if kwargs ['user'].role != authentication.UserRole.APPROVER:
-            raise RuntimeError("Only approvers can do this!")
-        body_text = environ['wsgi.input'].read()
-        data = json.loads(body_text)
-        savings_approved = request.approve_sal_savings(kwargs['user'], data)
-        respond(mime = 'text/plain')
-        return f"{savings_approved}".encode('utf-8')
-
     # Register handlers into a dictionary.
     # The login-exempt handlers can be called
     # without the user needing to be logged in
@@ -351,7 +338,6 @@ def application(environ, start_response):
         'change_semester':      handle_change_semester,
         'add_semester':         handle_add_semester,
         'approve_courses' :     handle_approve_courses,
-        'approve_sal_savings' : handle_approve_sal_savings,
         'add_dummy':            handle_add_dummy
     }
 

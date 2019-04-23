@@ -417,8 +417,7 @@ def get_approver_data(cursor: CursorBase) -> dict:
     data = {
         'summary': [],
         'dept_names': [],
-        'course_lists': [],
-        'savings_lists': []
+        'course_lists': []
     }
 
     depts = get_departments(cursor)
@@ -433,7 +432,6 @@ def get_approver_data(cursor: CursorBase) -> dict:
         course_approvals = get_course_approvals(cursor, cfr)
 
         savings = get_savings(cursor, cfr)
-        savings_approvals = get_savings_approvals(cursor, cfr)
 
         all_approved = True
         total_cost = 0
@@ -445,10 +443,6 @@ def get_approver_data(cursor: CursorBase) -> dict:
         total_committed = 0
         for i in range(len(savings)):
             total_savings += savings[i][2]
-            if savings_approvals[i][0] is not None:
-                total_committed += savings_approvals[i][1]
-            else:
-                all_approved = False
 
         funds_needed = total_cost - total_savings - total_committed
         if funds_needed < 0:
@@ -458,7 +452,5 @@ def get_approver_data(cursor: CursorBase) -> dict:
         data['summary'].append((dept, total_cost, total_savings, total_committed, funds_needed, all_approved))
         data['course_lists'].append(
             [course+course_approvals[i] for (i, course) in enumerate(courses)])
-        data['savings_lists'].append(
-            [saving + savings_approvals[i] for (i, saving) in enumerate(savings)])
 
     return data

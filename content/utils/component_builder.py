@@ -326,47 +326,9 @@ def build_approve_table_body(summary: list):
             course_button.button.string = "Approve Courses"
             new_cell.append(course_button)
 
-            savings_button = page_builder.soup_from_text(TABLE_BUTTON)
-            savings_button.button['onclick'] = f"summonModal(\"modal_ss_{index}\")"
-            savings_button.button.string = "Approve Savings"
-            new_cell.append(savings_button)
-
         index += 1
 
     return body
-
-def build_approve_savings_table(savings_list: list) -> Tag:
-    soup = page_builder.soup_from_text("<table></table>")
-    soup.table['class'] = 'table table-bordered table-striped'
-    soup.table['style'] = 'padding-bottom: 50px'
-
-    head = soup.new_tag('thead')
-    row = soup.new_tag('tr')
-    head.append(row)
-    for header in SAVINGS_APPROVAL_HEADERS:
-        cell = soup.new_tag('th')
-        cell.string = header
-        row.append(cell)
-    soup.table.append(head)
-
-    body = soup.new_tag('tbody')
-    soup.table.append(body)
-
-    for i in range(len(savings_list)):
-        data = savings_list[i][:4] + (savings_list[i][5], savings_list[i][4])
-        if data[4] is None:
-            data = data[:4] + (0,) + data[5:]
-        new_row = add_row_from_tuple(body, data)
-
-        cells = new_row.find_all('td')
-        cost_cell = cells[4]
-        cost_cell['contenteditable'] = "true",
-        cost_cell['class'] = "editable"
-
-        approve_cell = cells[-1]
-        replace_cell_with_checkbox(approve_cell)
-
-    return soup.table
 
 def build_approve_course_table(course_list: list) -> Tag:
     soup = page_builder.soup_from_text("<table></table>")

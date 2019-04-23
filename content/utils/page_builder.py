@@ -177,30 +177,6 @@ def build_cfr_page(user: User) -> Soup:
             )
             page.body.append(cfr_modal)
 
-            savings_modal_content = soup_from_text("")
-            savings_modal_id = f"modal_ss_{i}"
-
-            unapproved_savings = [sl for sl in data['savings_lists'][i] if sl[4] is None]
-
-            if len(unapproved_savings) == 0:
-                savings_modal_content.append("No unapproved savings left")
-            else:
-                savings_modal_content.append(component_builder.build_approve_savings_table(
-                    unapproved_savings
-                ))
-                savings_submit = savings_modal_content.new_tag('button')
-                savings_submit['class'] = 'btn btn-primary'
-                savings_submit['onclick'] = f"approveSS(\"{savings_modal_id}\", \"{dept_name}\")"
-                savings_submit.string = "Submit"
-                savings_modal_content.append(savings_submit)
-
-            savings_modal = component_builder.build_modal(
-                f"{dept_name} Savings",
-                savings_modal_id,
-                savings_modal_content
-            )
-            page.body.append(savings_modal)
-
     return page
 
 def build_savings_page(user: User) -> Soup:
