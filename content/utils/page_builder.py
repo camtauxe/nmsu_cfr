@@ -179,21 +179,43 @@ def build_cfr_page(user: User) -> Soup:
 
     return page
 
-def build_savings_page(user: User) -> Soup:
+def build_savings_page(user: User, dept_override: str = None) -> Soup:
     """
     Build the sources of salary savings page for the given user and
     return it as a BeautifulSoup
     """
-    page = build_page_from_file("salary_saving.html")
-    # Build table body from current salary list
-    savings = db_utils.quick_exec(db_utils.get_current_savings, user.dept_name)
-    body = component_builder.build_edit_savings_table_body(savings)
-    body['id'] = 'salaryTable'
+    if user.role == UserRole.SUBMITTER:
+        page = build_page_from_file("salary_saving.html")
+        # Build table body from current salary list
+        savings = db_utils.quick_exec(db_utils.get_current_savings, user.dept_name)
+        body = component_builder.build_edit_savings_table_body(savings)
+        body['id'] = 'salaryTable'
 
-    # Insert table body after table head
-    table_head = page.find('table',id='salaryTable_full').find('thead')
-    table_head.insert_after(body)
-    return page
+        # Insert table body after table head
+        table_head = page.find('table',id='salaryTable_full').find('thead')
+        table_head.insert_after(body)
+
+        return page
+    else:
+        content = soup_from_text("")
+        selector = build_department_selector(dept_override)
+        if dept_override:
+            dept_name = dept_override
+        else:
+            dept_name = str(selector.find('option').string)
+
+        content.append(selector)
+        content.append(soup_from_text(f"<h1>Salary Savings ({dept_name})</h1>"))
+
+        with Transaction() as cursor:
+            cfr = db_utils.get_current_cfr(cursor, dept_name)
+            if cfr is None:
+                content.append("This department does not having any savings listed.")
+            else:
+                savings = db_utils.get_savings(cursor, cfr)
+                content.append(component_builder.build_view_savings_table(savings))
+
+        return build_page_around_content(content)
 
 def build_department_selector(current_dept: str = None):
     """

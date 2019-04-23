@@ -162,9 +162,13 @@ def application(environ, start_response):
         """
         Return the salary savings submission page
         """
-        if kwargs['user'].role != authentication.UserRole.SUBMITTER:
-            raise RuntimeError("Only submitters can do this!")
-        page = page_builder.build_savings_page(kwargs['user'])
+        dept = None
+        if 'QUERY_STRING' in environ:
+            query = parse_qs(environ['QUERY_STRING'])
+            if 'dept' in query:
+                dept= query['dept'][0]
+
+        page = page_builder.build_savings_page(kwargs['user'], dept_override=dept)
         respond()
         return page_builder.soup_to_bytes(page)
 

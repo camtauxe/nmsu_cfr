@@ -41,13 +41,11 @@ COURSE_APPROVAL_HEADERS = [
     "Approve"
 ]
 
-SAVINGS_APPROVAL_HEADERS = [
+SAVINGS_HEADERS = [
     "Type",
     "Instructor",
     "Savings",
-    "Notes",
-    "Confirmed Amount",
-    "Approve"
+    "Notes"
 ]
 
 # The values and user-readable names for different kinds of paid leave.
@@ -270,6 +268,32 @@ def build_view_courses_table(courses_list: list) -> Tag:
 
     return soup.table
 
+def build_view_savings_table(savings_list: list) -> Tag:
+    # Build table
+    soup = page_builder.soup_from_text("<table></table>")
+    soup.table['class'] = "table table-bordered table-striped"
+    soup.table['style'] = "padding-bottom: 50px"
+    
+    # Build thead
+    head = soup.new_tag('thead')
+    row = soup.new_tag('tr')
+    head.append(row)
+    for header in SAVINGS_HEADERS:
+        cell = soup.new_tag('th')
+        cell.string = header
+        row.append(cell)
+    soup.table.append(head)
+
+    # Build tbody
+    body = soup.new_tag('tbody')
+    soup.table.append(body)
+
+    # Add courses to tbody
+    for entry in savings_list:
+        add_row_from_tuple(soup.tbody, entry)
+
+    return soup.table
+
 def build_edit_savings_table_body(savings_list: list) -> Tag:
     """
     Build the tbody for an editable table of salary savings defined
@@ -388,13 +412,16 @@ def build_revision_history(course_lists: list) -> Soup:
     """
     soup = page_builder.soup_from_text("")
 
-    for i in range(len(course_lists)):
-        header = soup.new_tag('h3')
-        header.string = f"Revision {len(course_lists) - i}"
-        soup.append(header)
+    if len(course_lists) == 0:
+        soup.append("No revisions available.")
+    else:
+        for i in range(len(course_lists)):
+            header = soup.new_tag('h3')
+            header.string = f"Revision {len(course_lists) - i}"
+            soup.append(header)
 
-        table = build_view_courses_table(course_lists[i])
-        soup.append(table)
+            table = build_view_courses_table(course_lists[i])
+            soup.append(table)
 
     return soup
 
