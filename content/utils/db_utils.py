@@ -111,7 +111,7 @@ ORDER BY s.id
 # Query to select the most recent cfr revision
 # for a department in a semester
 # Returned columns are: dept_name, semester, cal_year, date_initial,
-#   date_revised, revision_num and cfr_submitter
+#   date_revised, revision_num, cfr_submitted and dean_committed
 # Parameters are: dept_name, semester, cal_year
 SELECT_CFR_DEPT = """
 SELECT dept_name,
@@ -120,7 +120,8 @@ SELECT dept_name,
     date_initial,
     date_revised,
     revision_num,
-    cfr_submitter
+    cfr_submitter,
+    dean_committed
 FROM cfr_department
 WHERE dept_name = %s AND 
 semester = %s AND
@@ -132,7 +133,7 @@ LIMIT 1
 # Query to select all of the cfr revisions for
 # a department in a semester
 # Returned columns are: dept_name, semester, cal_year, date_initial,
-#   date_revised, revision_num and cfr_submitter
+#   date_revised, revision_num, cfr_submitter and dean_committed
 # Parameters are: dept_name, semester, and cal_year
 SELECT_REVISIONS = """
     SELECT dept_name,
@@ -141,7 +142,8 @@ SELECT_REVISIONS = """
         date_initial,
         date_revised,
         revision_num,
-        cfr_submitter
+        cfr_submitter,
+        dean_committed
     FROM cfr_department
     WHERE
         dept_name = %s AND
@@ -157,15 +159,15 @@ SELECT_REVISIONS = """
 # Parameters are: semester, cal_year, date_initial and cfr_submitter
 NEW_CFR_DEPT = """
 INSERT INTO cfr_department
-VALUES (%s, %s, %s, NOW(), NULL, 0, %s)
+VALUES (%s, %s, %s, NOW(), NULL, 0, %s, 0)
 """
 
 # Query to insert a new entry into the cfr_department table
 # as a new revision to a previous cfr
-# Parameters are: semester, cal_year, date_initial, revision_num and cfr_submitter
+# Parameters are: semester, cal_year, date_initial, revision_num, cfr_submitter and dean_committed
 NEW_REVISION = """
 INSERT INTO cfr_department
-VALUES (%s, %s, %s, %s, NOW(), %s, %s)
+VALUES (%s, %s, %s, %s, NOW(), %s, %s, %s)
 """
 
 # Query to get the currently active semester
@@ -268,7 +270,7 @@ def get_current_cfr(cursor: CursorBase, dept_name: str) -> tuple:
     
     The returned value is a tuple with the following fields (in this order):
     dept_name, semester, cal_year, date_initial, date_revised,
-    revision_num, cfr_submitter
+    revision_num, cfr_submitter, dean_committed
 
     This will return None if there are no CFRs for the department
     """
@@ -304,7 +306,7 @@ def create_new_revision(cursor: CursorBase, user: User):
         create_cfr(cursor, user)
     else:
         revision = current[5] + 1
-        data = (current[0], current[1], current[2], current[3], revision, user.username)
+        data = (current[0], current[1], current[2], current[3], revision, user.username, current[7])
         cursor.execute(NEW_REVISION, data)
 
 def get_all_revisions_for_semester(cursor: CursorBase, dept_name: str, semester: tuple) -> list:
@@ -317,7 +319,7 @@ def get_all_revisions_for_semester(cursor: CursorBase, dept_name: str, semester:
 
     The returned value is a list of tuples with the following fields (in this order):
     dept_name, semester, cal_year, date_initial, date_revised,
-    revision_num, cfr_submitter
+    revision_num, cfr_submitter, dean_committed
     """
     query = (dept_name, semester[0], semester[1])
     cursor.execute(SELECT_REVISIONS, query)
@@ -330,7 +332,7 @@ def get_all_revisions_for_active_semester(cursor: CursorBase, dept_name: str) ->
 
     The returned value is a list of tuples with the following fields (in this order):
     dept_name, semester, cal_year, date_initial, date_revised,
-    revision_num, cfr_submitter
+    revision_num, cfr_submitter, dean_committed
     """
     semester = get_active_semester(cursor)
     return get_all_revisions_for_semester(cursor, dept_name, semester)
@@ -345,7 +347,7 @@ def get_courses(cursor: CursorBase, cfr: tuple) -> list:
 
     cfr should be a tuple with the following fields (in this order):
     dept_name, semester, cal_year, [date_initial], [date_revised],
-    revision_num, [cfr_submitter]
+    revision_num, [cfr_submitter], [dean_committed]
     (fields in brackets are not used, but this order is still expected)
     """
     cfr_data = (cfr[0], cfr[1], cfr[2], cfr[5])
@@ -384,7 +386,7 @@ def get_savings(cursor: CursorBase, cfr: tuple) -> list:
 
     cfr should be a tuple with the following fields (in this order):
     dept_name, semester, cal_year, [date_initial], [date_revised],
-    revision_num, [cfr_submitter]
+    revision_num, [cfr_submitter], [dean_committed]
     (fields in brackets are not used, but this order is still expected)
     """
     cfr_data = (cfr[0], cfr[1], cfr[2], cfr[5])
@@ -440,16 +442,17 @@ def get_approver_data(cursor: CursorBase) -> dict:
             all_approved = all_approved and (course_approvals[i][0] is not None)
 
         total_savings = 0
-        total_committed = 0
         for i in range(len(savings)):
             total_savings += savings[i][2]
 
-        funds_needed = total_cost - total_savings - total_committed
+
+        committed = cfr[7]
+        funds_needed = total_cost - total_savings - committed
         if funds_needed < 0:
             funds_needed = 0
         
         data['dept_names'].append(dept)
-        data['summary'].append((dept, total_cost, total_savings, total_committed, funds_needed, all_approved))
+        data['summary'].append((dept, total_cost, total_savings, committed, funds_needed, all_approved))
         data['course_lists'].append(
             [course+course_approvals[i] for (i, course) in enumerate(courses)])
 

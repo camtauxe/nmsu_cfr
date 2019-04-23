@@ -67,7 +67,7 @@ VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 #   num_students, instructor, banner_id, inst_rank, cost, reason
 # TODO: Should this be auto-generated based on REQ_FIELDS?
 COMPARE_COURSE = """
-SELECT COUNT(r.id), r.id
+SELECT COUNT(r.id)
 FROM request r, cfr_request c
 WHERE r.id = c.course_id AND
     r.priority = %s AND

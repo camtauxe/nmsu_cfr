@@ -29,6 +29,7 @@ create table cfr_department
     date_revised      datetime,
     revision_num      int,
     cfr_submitter      varchar(32),
+    dean_committed      decimal(19,2),
     primary key (dept_name, semester, cal_year, revision_num),
     foreign key (cfr_submitter)
       references user(username) on delete set null,
