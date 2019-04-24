@@ -8,6 +8,15 @@ as an argument which they use to execute queries.
 These functions are written assuming the cursor that is passed in is
 the default kind. They may behave unpredictably if different kinds of
 cursors are passed in.
+
+TODO: There are some maintainability problems with how a lot of data
+that this module deals with is represented. CFRs, Courses and Savings are
+all represented as tuples and data is accessed with hard-coded indices.
+There are a number of things that can be done to fix this, such as creating
+classes or some heavy use of type-hinting. As is, making changes to the
+way data is represented (for example adding a field to REQ_FIELDS) can break
+things in a lot of places because the rest of the code isn't designed to deal
+with it very dynamically.
 """
 from .authentication import User
 from mysql.connector.cursor import CursorBase
@@ -43,6 +52,9 @@ SELECT_COURSES = (
     "ORDER BY r.id"
 )
 
+# Get the total cost of all courses associated with a cfr
+# Returned columns: SUM(r.cost)
+# Parameters are: dept_name, semester, cal_year and revision_num
 SELECT_TOTAL_COST = """
 SELECT SUM(r.cost)
 FROM request r, cfr_request c
@@ -53,6 +65,9 @@ WHERE r.id = c.course_id AND
     c.revision_num = %s
 """
 
+# Get the approval information for the courses associated with a cfr
+# Returned columns are: approver, commitment_code
+# Parameters are: dept_name, semester, cal_year and revision_num
 SELECT_COURSE_APPROVALS = """
 SELECT r.approver, r.commitment_code
 FROM request r, cfr_request c
@@ -87,6 +102,9 @@ SELECT_SAVINGS = (
     "ORDER BY r.id"
 )
 
+# Get the total savings for the salary savings associated with a cfr
+# Returned columns are: SUM(savings), SUM(confirmed_amt)
+# Parameters are: dept_name, semester, cal_year and revision_num
 SELECT_TOTAL_SAVINGS = """
 SELECT SUM(s.savings), SUM(s.confirmed_amt)
 FROM sal_savings s, cfr_request c
@@ -95,17 +113,6 @@ WHERE s.id = c.course_id AND
     c.semester = %s AND
     c.cal_year = %s AND
     c.revision_num = %s
-"""
-
-SELECT_SAVINGS_APPROVALS = """
-SELECT s.approver, s.confirmed_amt
-FROM sal_savings s, cfr_request c
-WHERE s.id = c.course_id AND
-    c.dept_name = %s AND
-    c.semester = %s AND
-    c.cal_year = %s AND
-    c.revision_num = %s
-ORDER BY s.id
 """
 
 # Query to select the most recent cfr revision
@@ -355,6 +362,18 @@ def get_courses(cursor: CursorBase, cfr: tuple) -> list:
     return cursor.fetchall()
 
 def get_course_approvals(cursor: CursorBase, cfr: tuple) -> list:
+    """
+    Get a list of the approval information for the courses associated with the
+    given cfr, using the given cursor.
+
+    The returned value is a list of tuples with fields corresponding to the
+    'approver' and 'commitment_code_ columns in the database.
+
+    cfr should be a tuple with the following fields (in this order):
+    dept_name, semester, cal_year, [date_initial], [date_revised],
+    revision_num, [cfr_submitter], [dean_committed]
+    (fields in brackets are not used, but this order is still expected)
+    """
     cfr_data = (cfr[0], cfr[1], cfr[2], cfr[5])
     cursor.execute(SELECT_COURSE_APPROVALS, cfr_data)
     return cursor.fetchall()
@@ -393,11 +412,6 @@ def get_savings(cursor: CursorBase, cfr: tuple) -> list:
     cursor.execute(SELECT_SAVINGS, cfr_data)
     return cursor.fetchall()
 
-def get_savings_approvals(cursor: CursorBase, cfr: tuple) -> list:
-    cfr_data = (cfr[0], cfr[1], cfr[2], cfr[5])
-    cursor.execute(SELECT_SAVINGS_APPROVALS, cfr_data)
-    return cursor.fetchall()
-
 def get_current_savings(cursor: CursorBase, dept_name: str) -> list:
     """
     Get a list of the salary savings entries associated with the current cfr (latest revision
@@ -416,6 +430,30 @@ def get_current_savings(cursor: CursorBase, dept_name: str) -> list:
         return []
 
 def get_approver_data(cursor: CursorBase) -> dict:
+    """
+    Get a dictionary of data used for assembling the approver page, using the
+    given cursor.
+
+    The returned dictionary has the following fields: Each field is a list
+    where each element corresponds to a particular department (only departments
+    with current cfrs are included).
+
+    summary:
+        A list with one element for each department's latest cfr
+        where each element is a tuple with the following fields:
+        department name, total course costs, total savings, dean commitment,
+        funds needed and finally a boolean value indicating whether or not
+        each course has been approved.
+        (This is directly used to build the main table)
+    dept_names:
+        A list of the names of each department
+    course_lists:
+        A list of lists. Each list corresponds to a department and contains a list
+        of tuples for the courses in that department's latest cfr. NOTE: The fields
+        in these tuples are a little different than elsewhere in the code. They
+        have all the fields listed in REQ_FIELDS PLUS two more fields for the
+        approver and commitment code.
+    """
     data = {
         'summary': [],
         'dept_names': [],
@@ -425,10 +463,12 @@ def get_approver_data(cursor: CursorBase) -> dict:
     depts = get_departments(cursor)
     for dept in depts:
         cfr = get_current_cfr(cursor, dept)
+        # Skip department if there is no current cfr
         if cfr is None:
             continue
 
         courses = get_courses(cursor, cfr)
+        # Skip department if there are no courses in this cfr
         if len(courses) == 0:
             continue
         course_approvals = get_course_approvals(cursor, cfr)

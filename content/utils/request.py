@@ -145,6 +145,8 @@ WHERE EXISTS (SELECT *
                 
 """
 
+# Query to add a dean commitment to a cfr
+# Parameters are: dean_committed, dept_name, semester, cal_year, revision_num
 ADD_COMMITMENT = """
 UPDATE cfr_department
 SET dean_committed = %s
@@ -466,7 +468,16 @@ def approve_courses(current_user: User, approved_courses):
     return ret_string
 
 def commit_cfr(commitment_list: list):
+    """
+    Add dean commitments to a selection of department's current cfrs
+    
+    commitment_list is a list of dicts where each dict has the fields
+    'dept_name' and 'amount' to represent how much to commit to each
+    department.
 
+    If the data has errors or a given department does not have a 
+    current cfr, a 400 error will be thrown.
+    """
     with Transaction() as cursor:
         for commitment in commitment_list:
             if 'dept_name' not in commitment:

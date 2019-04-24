@@ -1,3 +1,6 @@
+<!--
+    Content for the admin controls page
+-->
 <h1>Admin Controls</h1>
 <div id="tab-example">
     <div id="tabbed-nav" class="noprint">
@@ -17,6 +20,7 @@
         </ul>
     </div>
     <div class="tab-content padded-15">
+        <!-- Tab 1: Edit existing users-->
         <div role="tabpanel" class="tab-pane fade in active" id="editusertab">
             <h3>Edit existing user</h3>
             <form action="/edit_user" method="post" enctype="application/x-www-form-urlencoded">
@@ -41,6 +45,7 @@
             </form>
         </div>
 
+        <!--Tab 2: Add new user-->
         <div role="tabpanel" class="tab-pane fade" id="addusertab">
             <h3>Add new user</h3>
             <form action="/add_user" method="post" enctype="application/x-www-form-urlencoded">
@@ -78,6 +83,7 @@
             </form>
         </div>
 
+        <!--Tab 3: Change active semester-->
         <div role="tabpanel" class="tab-pane fade" id="editsemestertab">
             <h3>Change active semester</h3>
             <form action="change_semester" method="post" enctype="application/x-www-form-urlencoded">
@@ -92,6 +98,7 @@
             </form>
         </div>
 
+        <!--Tab 4: Add new semester-->
         <div role="tabpanel" class="tab-pane fade" id="addsemestertab">
             <h3>Add new semester</h3>
             <form action="add_semester" method="post" enctype="application/x-www-form-urlencoded">

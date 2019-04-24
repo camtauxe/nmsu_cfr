@@ -96,6 +96,47 @@ def build_page_from_file(path, absolute_path = False, includeNavbar = True) -> S
     content = soup_from_file(path, absolute_path = absolute_path)
     return build_page_around_content(content, includeNavbar = includeNavbar)
 
+def build_department_selector(current_dept: str = None):
+    """
+    Create a select element for selecting departments and return it as
+    a BeautifulSoup. This is used for the approver side of the 
+    revisions and previous semesters pages.
+
+    When changed, the select element will cause the page to refresh with
+    the newly selected department as a query in the URL.
+
+    If a current_dept is provided, that department will be marked as selected.
+    """
+
+    soup = soup_from_text('<select></select>')
+    select = soup.find('select')
+    select['class'] = 'form-control'
+    # Add Javascript to refresh the page on change
+    select['onchange'] = """
+window.location.href = window.location.pathname + "?dept="+encodeURIComponent(this.value)
+    """
+    
+    # Create options from list of departments
+    departments = db_utils.quick_exec(db_utils.get_departments)
+    options = component_builder.build_option_list(
+        departments,
+        selector= (lambda n, i, v: n == current_dept)
+    )
+    select.append(options)
+
+    return soup
+
+def soup_to_bytes(soup: Soup) -> bytes:
+    """
+    Encode a BeautifulSoup into an array of bytes encoded in UTF-8.
+    This is what will be sent back to the web server.
+
+    This process will also remove all html comments.
+    """
+    for comment in soup.find_all(text=lambda text:isinstance(text, Comment)):
+        comment.extract()
+    return str(soup).encode('UTF-8')
+
 def build_login_page(message = None):
     """
     Build a login page.
@@ -131,6 +172,8 @@ def build_cfr_page(user: User) -> Soup:
     Build the course funding request page for the given user and
     return it as a BeautifulSoup
     """
+
+    # If the user is a submitter, build the cfr submission page
     if user.role == UserRole.SUBMITTER:
         page = build_page_from_file("cfr.html")
         # Build table body from current courses list
@@ -142,25 +185,31 @@ def build_cfr_page(user: User) -> Soup:
         table_head = page.find('table',id='cfrTable_full').find('thead')
         table_head.insert_after(body)
 
+    # Otherwise build the approval page
     else:
         page = build_page_from_file("cfr_appr.html")
 
+        # Build approval table
         data = db_utils.quick_exec(db_utils.get_approver_data)
         body = component_builder.build_approve_table_body(data['summary'])
-        
         table_head = page.find('table', id='approveTable').find('thead')
         table_head.insert_after(body)
 
+        # Iterate through each department in the data
         for (i, dept_name) in enumerate(data['dept_names']):
 
+            # Create a modal to contain the course approval table for
+            # this department
             cfr_modal_content = soup_from_text("")
             cfr_modal_id = f"modal_cfr_{i}"
 
+            # Only courses that have not yet been approved are shown
             unapproved_courses = [cl for cl in data['course_lists'][i] if cl[11] is None]
 
             if len(unapproved_courses) == 0:
                 cfr_modal_content.append("No unapproved courses left")
             else:
+                # Build the course approval table and a submit button
                 cfr_modal_content.append(component_builder.build_approve_course_table(
                     unapproved_courses
                 ))
@@ -170,6 +219,7 @@ def build_cfr_page(user: User) -> Soup:
                 cfr_submit.string = "Submit"
                 cfr_modal_content.append(cfr_submit)
 
+            # Add modal to page
             cfr_modal = component_builder.build_modal(
                 f"{dept_name} Courses",
                 cfr_modal_id,
@@ -183,7 +233,13 @@ def build_savings_page(user: User, dept_override: str = None) -> Soup:
     """
     Build the sources of salary savings page for the given user and
     return it as a BeautifulSoup
+
+    If the user is an approver or admin, a dept_override can be added
+    to change which department's savings are displayed. dept_override
+    is ignored if the user is a submitter.
     """
+
+    # If the user is a submitter, build the submit salary savings page
     if user.role == UserRole.SUBMITTER:
         page = build_page_from_file("salary_saving.html")
         # Build table body from current salary list
@@ -196,7 +252,10 @@ def build_savings_page(user: User, dept_override: str = None) -> Soup:
         table_head.insert_after(body)
 
         return page
+
+    # Otherwise build the view salary savings page
     else:
+        # Build a selector for the department
         content = soup_from_text("")
         selector = build_department_selector(dept_override)
         if dept_override:
@@ -210,42 +269,17 @@ def build_savings_page(user: User, dept_override: str = None) -> Soup:
         with Transaction() as cursor:
             cfr = db_utils.get_current_cfr(cursor, dept_name)
             if cfr is None:
-                content.append("This department does not having any savings listed.")
+                content.append("This department has not submitted anything yet.")
             else:
                 savings = db_utils.get_savings(cursor, cfr)
-                content.append(component_builder.build_view_savings_table(savings))
+                if len(savings) == 0:
+                    content.append("This department has not submitted any savings.")
+                else:
+                    content.append(
+                        component_builder.build_view_savings_table(savings)
+                    )
 
         return build_page_around_content(content)
-
-def build_department_selector(current_dept: str = None):
-    """
-    Create a select element for selecting departments and return it as
-    a BeautifulSoup. This is used for the approver side of the 
-    revisions and previous semesters pages.
-
-    When changed, the select element will cause the page to refresh with
-    the newly selected department as a query in the URL.
-
-    If a current_dept is provided, that department will be marked as selected.
-    """
-
-    soup = soup_from_text('<select></select>')
-    select = soup.find('select')
-    select['class'] = 'form-control'
-    # Add Javascript to refresh the page on change
-    select['onchange'] = """
-window.location.href = window.location.pathname + "?dept="+encodeURIComponent(this.value)
-    """
-    
-    # Create options from list of departments
-    departments = db_utils.quick_exec(db_utils.get_departments)
-    options = component_builder.build_option_list(
-        departments,
-        selector= (lambda n, i, v: n == current_dept)
-    )
-    select.append(options)
-
-    return soup
 
 def build_revisions_page(user: User, dept_override: str = None):
     """
@@ -393,14 +427,3 @@ def build_500_error_page(exception) -> Soup:
         insert_at_id(page, "stacktrace", traceback.format_exc(), raw_text=True)
 
     return page
-
-def soup_to_bytes(soup: Soup) -> bytes:
-    """
-    Encode a BeautifulSoup into an array of bytes encoded in UTF-8.
-    This is what will be sent back to the web server.
-
-    This process will also remove all html comments.
-    """
-    for comment in soup.find_all(text=lambda text:isinstance(text, Comment)):
-        comment.extract()
-    return str(soup).encode('UTF-8')

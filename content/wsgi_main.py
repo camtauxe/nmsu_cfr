@@ -13,7 +13,6 @@ from utils import cfrenv
 from utils import users
 from utils import semesters
 from utils import request
-from utils import dummy
 from utils import errors
 
 def application(environ, start_response):
@@ -95,14 +94,10 @@ def application(environ, start_response):
     #                   this is gaurenteed to not be None.
     ############################################
 
-    def handle_root(**kwargs):
-        """
-        Return the home page for the logged-in user
-        """
-        page = page_builder.build_home_page(kwargs['user'])
-        respond()
-        return page_builder.soup_to_bytes(page)
-
+    ###########################################
+    # LOGIN-EXEMPT HANDLERS
+    #   These can be called with the user being logged in
+    ###########################################
     
     def handle_login(**kwargs):
         """
@@ -148,6 +143,19 @@ def application(environ, start_response):
             page = page_builder.build_login_page()
             return page_builder.soup_to_bytes(page)
 
+    ###########################################
+    # PAGE HANDLERS
+    #   These handlers all return web pages
+    ###########################################
+
+    def handle_root(**kwargs):
+        """
+        Return the home page for the logged-in user
+        """
+        page = page_builder.build_home_page(kwargs['user'])
+        respond()
+        return page_builder.soup_to_bytes(page)
+
     def handle_cfr(**kwargs):
         """
         Return the course funding request submission page
@@ -160,7 +168,9 @@ def application(environ, start_response):
 
     def handle_salary_saving(**kwargs):
         """
-        Return the salary savings submission page
+        Return the salary savings submission page.
+        If the user is an approver or admin,
+        they can also supply a 'dept' value in the query string.
         """
         dept = None
         if 'QUERY_STRING' in environ:
@@ -206,26 +216,10 @@ def application(environ, start_response):
         respond()
         return page_builder.soup_to_bytes(page)
 
-    def handle_add_dummy(**kwargs):
-        text = environ['wsgi.input'].read()
-        dummy.insert_dummy_data(text)
-        respond(mime = "text/plain")
-        return "OK".encode('utf-8')
-
-    # For 'echo' send the request body back as plain text
-    def handle_echo(**kwargs):
-        respond(mime = "text/plain; charset=utf-8")
-        text = environ['wsgi.input'].read()
-        if isinstance(text, str):
-            return text.encode('utf-8')
-        else:
-            return text
-
-    # For 'error' throw an error to test the the error-catching system.
-    def handle_error(**kwargs):
-        raise RuntimeError(
-            "This was supposed to happen because you selected 'error'"
-        )
+    ###########################################
+    # POST HANDLERS
+    #   These are responses to POST requests
+    ###########################################
 
     def handle_cfr_from_courses(**kwargs):
         """
@@ -254,6 +248,35 @@ def application(environ, start_response):
         respond(mime = 'text/plain')
         return f"{savings_inserted}".encode('utf-8')
 
+    def handle_approve_courses(**kwargs):
+        """
+        Handle POST request to approve courses from a list 
+        specified in JSON in the request body.
+        """
+        if kwargs ['user'].role != authentication.UserRole.APPROVER:
+            raise RuntimeError("Only approvers can do this!")
+        body_text = environ['wsgi.input'].read()
+        data = json.loads(body_text)
+        courses_approved = request.approve_courses(kwargs['user'], data)
+        respond(mime = 'text/plain')
+        return f"{courses_approved}".encode('utf-8')
+
+    def handle_add_commitments(**kwargs):
+        """
+        Handle POST request to add dean commitments to cfrs specified
+        in JSON in the request body
+        """
+        if kwargs ['user'].role != authentication.UserRole.APPROVER:
+            raise RuntimeError("Only approvers can do this!")
+        body_text = environ['wsgi.input'].read()
+        data = json.loads(body_text)
+        request.commit_cfr(data)
+        respond(mime = 'text/plain')
+        return "OK".encode('utf-8')
+
+    ###########################################
+    # ADMIN ACTIONS
+    ###########################################
 
     def handle_edit_user(**kwargs):
         """
@@ -303,35 +326,11 @@ def application(environ, start_response):
         start_response('303 See Other',[('Location','/')])
         return "OK".encode('utf-8')
 
-    def handle_approve_courses(**kwargs):
-        """
-        Handle POST request to approve courses from a list 
-        specified in JSON in the request body.
-        """
-        if kwargs ['user'].role != authentication.UserRole.APPROVER:
-            raise RuntimeError("Only approvers can do this!")
-        body_text = environ['wsgi.input'].read()
-        data = json.loads(body_text)
-        courses_approved = request.approve_courses(kwargs['user'], data)
-        respond(mime = 'text/plain')
-        return f"{courses_approved}".encode('utf-8')
-
-    def handle_add_commitments(**kwargs):
-        if kwargs ['user'].role != authentication.UserRole.APPROVER:
-            raise RuntimeError("Only approvers can do this!")
-        body_text = environ['wsgi.input'].read()
-        data = json.loads(body_text)
-        request.commit_cfr(data)
-        respond(mime = 'text/plain')
-        return f"OK".encode('utf-8')
-
     # Register handlers into a dictionary.
     # The login-exempt handlers can be called
     # without the user needing to be logged in
     login_exempt_handlers = {
-        'login':    handle_login,
-        'echo':     handle_echo,
-        'error':    handle_error
+        'login':    handle_login
     }
     # These handlers require the user to be logged in.
     # Attempting to access them without being logged in
@@ -342,17 +341,14 @@ def application(environ, start_response):
         'salary_saving':        handle_salary_saving,
         'previous_semesters':   handle_previous_semesters,
         'revisions':            handle_revisions,
-        'echo':                 handle_echo,
-        'error':                handle_error,
         'add_course':           handle_cfr_from_courses,
         'add_sal_savings':      handle_cfr_from_sal_savings,
+        'approve_courses' :     handle_approve_courses,
+        'add_commitments':      handle_add_commitments,
         'add_user':             handle_add_user,
         'edit_user':            handle_edit_user,
         'change_semester':      handle_change_semester,
         'add_semester':         handle_add_semester,
-        'approve_courses' :     handle_approve_courses,
-        'add_commitments':      handle_add_commitments,
-        'add_dummy':            handle_add_dummy
     }
 
     # Initialize the CFR environment

@@ -1,5 +1,10 @@
 """
-Functions related to authenticating a user
+Functions related to user authentication. Also contains the
+User class to represent a logged-in user.
+
+TODO: Hashing passwords in the database and saving logins to the client
+with cookies is reasonably secure, but we should use something more secure
+if this system ever makes it to large-scale use.
 """
 import hashlib
 import http.cookies as cookies

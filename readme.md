@@ -45,5 +45,14 @@ DEBUG=yes
 ```
 Because the *cfr.env* file is specific to you and because it may contain private information (such as a database password), it is ignored by git.
 
+### First-time setup
+Log on to the database, you have connected to and run the following scripts in order
+- *sql/clear_db.sql*
+- *create_schema.sql*
+- *init_db.sql*
+
+This will initialize the database with a single user, 'admin' with the
+password 'admin'. With this, you can log in **CHANGE THE DEFAULT ADMIN PASSWORD** and then add users as well as select the active semester.
+
 ### Debug Mode
 If the environment variable **DEBUG** is set to **yes** in *cfr.env*, then the system will be started in debug mode. This will display extra information to the user in the event of a 500 Internal Server Error.

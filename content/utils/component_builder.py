@@ -25,6 +25,8 @@ COURSE_TABLE_HEADERS = [
     "Reason"
 ]
 
+# User-readable headers for the course approval table that the
+# approvers will see, with columns for approving individual courses
 COURSE_APPROVAL_HEADERS = [
     "Priority",
     "Course",
@@ -41,6 +43,8 @@ COURSE_APPROVAL_HEADERS = [
     "Approve"
 ]
 
+# User-readable headers for the read-only version of a salary savings table
+# These should map to the fields of db_utils.SAL_FIELDS
 SAVINGS_HEADERS = [
     "Type",
     "Instructor",
@@ -58,10 +62,13 @@ LEAVE_TYPE_NAMES = [
     "Other Funded Leave"
 ]
 
+# The possible values for a course commitment code (used as options in
+# the selector)
 COMMITMENT_CODES = [
     "EM", "SS", "CO", "DE"
 ]
 
+# Template for a button appearing within a table
 TABLE_BUTTON = """
 <button class="btn btn-primary" style="margin:3px"></button>
 """
@@ -269,6 +276,15 @@ def build_view_courses_table(courses_list: list) -> Tag:
     return soup.table
 
 def build_view_savings_table(savings_list: list) -> Tag:
+    """
+    Build the table element for a read-only table of savings defined
+    in savings_list and return the table as a tag
+
+    Each tuple in savings_list should have values corresponding to the
+    fields described in db_utils.SAL_FIELDS. The returned table will
+    have headers corresponding to SAVINGS_HEADERS
+    """
+
     # Build table
     soup = page_builder.soup_from_text("<table></table>")
     soup.table['class'] = "table table-bordered table-striped"
@@ -325,17 +341,34 @@ def build_edit_savings_table_body(savings_list: list) -> Tag:
     return body
 
 def build_approve_table_body(summary: list):
+    """
+    Build the tbody of the main table for the approver course funding request page.
+
+    summary is a list with one element for each department's latest cfr
+    where each element is a tuple with the following fields:
+        department name, total course costs, total savings, dean commitment,
+        funds needed and finally a boolean value indicating whether or not
+        each course has been approved.
+    This summary can be gotten as the 'summary' element of the dict returned
+    by db_utils.get_approver_data()
+    """
+
+    # Create the table rows from the summary
     body = build_tbody_from_tups(summary)
 
     index = 0
+    # Iterate through each row
     for row in body.find_all('tr', recursive=False):
+
+        # Make just the dean_commitment cell editable
         commitment_cell = row('td')[3]
         commitment_cell['contenteditable'] = "true"
         commitment_cell['class'] = "editable"
 
+        # Replace the last cell with an image depending on whether or
+        # not all the courses in the cfr have been approved
         img = page_builder.soup_from_text('<img height="30px"></img>')
         last_cell = row('td')[-1]
-
         approved = summary[index][5]
         if approved:
             src = "/static/images/check.png"
@@ -345,6 +378,8 @@ def build_approve_table_body(summary: list):
         last_cell.string = ''
         last_cell.append(img)
 
+        # Add a new column to each row which will contain to open the
+        # respective modal if not all courses have been approved
         new_cell = add_cell_to_row(row)
         if approved:
             new_cell.string = "Already approved"
@@ -359,10 +394,24 @@ def build_approve_table_body(summary: list):
     return body
 
 def build_approve_course_table(course_list: list) -> Tag:
+    """
+    Build the "Approve Courses" table that the approver uses to 
+    approve and set commitment codes for courses.
+
+    NOTE: The elements of course_list here are a little different
+    than in other parts of the code. Each element is a tuple with
+    all the fields of db_utils.REQ_FIELDS PLUS two more fields
+    for the request approver and commitment code.
+    Tuples like these can be gotten as the elements of the 'course_lists'
+    elements in the dict returned by db_utils.get_approver_data()
+    """
+
+    # Build table
     soup = page_builder.soup_from_text("<table></table>")
     soup.table['class'] = 'table table-bordered table-striped'
     soup.table['style'] = 'padding-bottom: 50px'
 
+    # Add thead
     head = soup.new_tag('thead')
     row = soup.new_tag('tr')
     head.append(row)
@@ -372,18 +421,22 @@ def build_approve_course_table(course_list: list) -> Tag:
         row.append(cell)
     soup.table.append(head)
 
+    # Add tbody
     body = soup.new_tag('tbody')
     soup.table.append(body)
 
+    # Iterate through courses
     for i in range(len(course_list)):
         data = course_list[i][:11] + (course_list[i][12], course_list[i][11])
         new_row = add_row_from_tuple(body, data)
 
+        # Make cell for course cost editable
         cells = new_row.find_all('td')
         cost_cell = cells[9]
         cost_cell['contenteditable'] = "true",
         cost_cell['class'] = "editable"
 
+        # Replace the cell with the commitment code with a select element
         commitment_cell = cells[-2]
         replace_cell_with_select(
             commitment_cell,
@@ -392,6 +445,7 @@ def build_approve_course_table(course_list: list) -> Tag:
              attrs= {'class': 'form-control'},
         )
 
+        # Replace the cell with the approval status with a checkbox
         approve_cell = cells[-1]
         replace_cell_with_checkbox(approve_cell)
 
@@ -426,22 +480,36 @@ def build_revision_history(course_lists: list) -> Soup:
     return soup
 
 def build_modal(title: str, modal_id: str, content) -> Tag:
+    """
+    Build a modal and return it as a tag.
+
+    title is the text to display in the modal header
+    modal_id will the id of the modal element
+    and content will be appended to the modal's body.
+
+    Every modal contains a "Close" button in its footer
+    """
+
+    # Build modal div
     soup = page_builder.soup_from_text("<div class=\"modal\"></div>")
     soup.div['id'] = modal_id
 
     content_div = soup.new_tag('div')
     content_div['class'] = 'modal-content'
 
+    # Add header
     header_container = soup.new_tag('div')
     header_container['class'] = 'modal-header'
     header = soup.new_tag('h1')
     header.string = title
     header_container.append(header)
 
+    # Add body and append content
     body = soup.new_tag('div')
     body['class'] = 'modal-body'
     body.append(content)
 
+    # Add footer with close button
     footer = soup.new_tag('div')
     footer['class'] = 'modal-footer'
     close_button = soup.new_tag('button')
@@ -450,6 +518,7 @@ def build_modal(title: str, modal_id: str, content) -> Tag:
     close_button.string = 'Close'
     footer.append(close_button)
 
+    # Assemble
     content_div.append(header_container)
     content_div.append(body)
     content_div.append(footer)
