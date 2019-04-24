@@ -150,23 +150,6 @@ def build_login_page(message = None):
         insert_at_id(page, 'loginp', error_message)
     return page
 
-def build_home_page(user: User) -> Soup:
-    """
-    Builds the home page for a given user and returns it
-    as a BeautifulSoup.
-    If the provided user is None, then this function returns
-    a generic "You are not logged in" home page.
-    """
-    if user is None:
-        content = "You are not logged in."
-        return build_page_around_content(content)
-
-    if user.role == UserRole.ADMIN:
-        return build_admin_page()
-    else:
-        content = f"Hello, {user.username}!"
-        return build_page_around_content(content)
-
 def build_cfr_page(user: User) -> Soup:
     """
     Build the course funding request page for the given user and

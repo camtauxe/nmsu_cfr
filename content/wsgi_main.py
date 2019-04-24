@@ -150,11 +150,17 @@ def application(environ, start_response):
 
     def handle_root(**kwargs):
         """
-        Return the home page for the logged-in user
+        The root page ('/') redirects to the cfr page
+        for submitters and approvers, but creates the admin
+        page for admins.
         """
-        page = page_builder.build_home_page(kwargs['user'])
-        respond()
-        return page_builder.soup_to_bytes(page)
+        if kwargs['user'].role == authentication.UserRole.ADMIN:
+            page = page_builder.build_admin_page()
+            respond()
+            return page_builder.soup_to_bytes(page)
+        else:
+            start_response('303 See Other',[('Location','/cfr')])
+            return "REDIRECT".encode('utf-8')
 
     def handle_cfr(**kwargs):
         """
