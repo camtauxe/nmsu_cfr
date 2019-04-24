@@ -60,14 +60,14 @@ INSERT INTO request(
 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 """
 
-# Query to count the number of courses matching the given
+# Query for courses matching the given
 # definition of a course.
-# Returned columns: COUNT(id)
+# Returned columns: COUNT(id), r.id
 # Parameters are: priority, course, sec, mini_session, online_course,
 #   num_students, instructor, banner_id, inst_rank, cost, reason
 # TODO: Should this be auto-generated based on REQ_FIELDS?
 COMPARE_COURSE = """
-SELECT COUNT(r.id)
+SELECT r.id
 FROM request r, cfr_request c
 WHERE r.id = c.course_id AND
     r.priority = %s AND
@@ -82,6 +82,7 @@ WHERE r.id = c.course_id AND
     r.cost = %s AND
     r.reason = %s AND 
     c.revision_num = %s
+LIMIT 1
 """
 
 # Query to get the id of the last inserted item
@@ -105,13 +106,13 @@ INSERT INTO sal_savings(leave_type, inst_name, savings, notes)
 VALUES (%s, %s, %s, %s)
 """
 
-# Query to count the number of sal_savings matching the given
+# Query for sal_savings matching the given
 # definition.
-# Returned columns: COUNT(id)
+# Returned columns: COUNT(id), s.id
 # Parameters are: leave_type, inst_name, savings, notes
 # TODO: Should this be auto-generated based on SAL_FIELDS?
 COMPARE_SAL = """
-SELECT COUNT(s.id), s.id
+SELECT s.id
 FROM sal_savings s, cfr_savings c
 WHERE s.id = c.savings_id AND
     s.leave_type = %s AND
@@ -119,6 +120,7 @@ WHERE s.id = c.savings_id AND
     s.savings = %s AND
     s.notes = %s AND
     c.revision_num = %s
+LIMIT 1
 """
 
 # Query to insert a new entry into the cfr_savings table
@@ -213,9 +215,9 @@ def new_cfr_from_courses(user: User, course_list):
             if revision == True:
                 cursor.execute(COMPARE_COURSE, row + (prev_cfr_data[3], ))
                 dup_course = cursor.fetchone()
-                if dup_course[0] > 0:
+                if dup_course is not None:
                     exists = True
-                    course_id = (dup_course[1], )
+                    course_id = (dup_course[0], )
 
             # If an equivalent course does not already exist,
             # insert this one into the database and remember its id
@@ -313,9 +315,9 @@ def new_cfr_from_sal_savings(user: User, sal_list):
             if revision == True:
                 cursor.execute(COMPARE_SAL, row + (prev_cfr_data[3], ))
                 dup_savings = cursor.fetchone()
-                if dup_savings[0] > 0:
+                if dup_savings is not None:
                     exists = True
-                    savings_id = (dup_savings[1], )
+                    savings_id = (dup_savings[0], )
 
             # If an equivalent entry does not already exist,
             # insert this one into the database and remember its id
