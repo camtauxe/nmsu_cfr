@@ -55,4 +55,6 @@ bash $TEST "/revisions?dept=history" 200
 bash $TEST /previous_semesters 200
 bash $TEST "/previous_semesters?dept=art" 200
 
+
+
 set +e
