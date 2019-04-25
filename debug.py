@@ -13,7 +13,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__),'content'))
 import wsgi_main #pylint: disable=import-error
 
 COOKIE_FILE = os.path.join(os.path.dirname(__file__),'.debug_cookies')
-cookie_regex = re.compile(r'Set-Cookie:\s+(?P<key>\w+)\s*=\s*"?(?P<value>\w*)"?\s*;?')
+cookie_regex = re.compile(r'Set-Cookie:\s+(?P<key>\w+)\s*=\s*"?(?P<value>[^\s;]*)"?\s*;?')
 cookie = cookies.SimpleCookie()
 
 def load_cookie():
