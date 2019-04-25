@@ -212,6 +212,21 @@ DEPARTMENTS_QUERY = """
 SELECT DISTINCT dept_name FROM submitter
 """
 
+# Query to get emails of submitters in a certain department
+# Returned columns are: username
+EMAILS_BY_DEPT = """
+SELECT username
+FROM submitter 
+WHERE dept_name = %s
+"""
+
+# Querty to get emails of users of a certain type
+EMAILS_BY_TYPE = """
+SELECT username
+FROM user
+WHERE type = %s
+"""
+
 def quick_exec(function: callable, *args):
     """
     Execute another db_utils function as an atomic transaction
@@ -497,3 +512,25 @@ def get_approver_data(cursor: CursorBase) -> dict:
             [course+course_approvals[i] for (i, course) in enumerate(courses)])
 
     return data
+
+def list_emails(emails):
+    email_list = []
+    for address in emails:
+        email_list.append(address)
+    return email_list
+
+def get_emails_by_dept(dept_name):
+    with Transaction() as cursor:
+        cursor.execute(EMAILS_BY_DEPT, dept_name)
+        dept_emails = cursor.fetchall()
+
+    email_list = list_emails(dept_emails)
+    return email_list
+
+def get_emails_by_type(type):
+    with Transaction() as cursor:
+        cursor.exectue(EMAILS_BY_TYPE, type)
+        emails_by_type = cursor.fetchall()
+
+    email_list = list_emails(emails_by_type)
+    return email_list

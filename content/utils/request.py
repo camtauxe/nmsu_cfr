@@ -191,6 +191,7 @@ def new_cfr_from_courses(user: User, course_list):
         new_cfr = db_utils.get_current_cfr(cursor, user.dept_name)
         # cfr_data is just the primary key of the new cfr
         cfr_data = (new_cfr[0], new_cfr[1], new_cfr[2], new_cfr[5])
+        dept_name = new_cfr[0]
 
         # Parse the dicts in course_list into tuples
         data_ls = []
@@ -251,6 +252,15 @@ def new_cfr_from_courses(user: User, course_list):
         ret_string += f"{num_new_courses} courses added or modified:\n"
         for row in new_courses:
             ret_string += f"{row[1]}\t{row[2]}\n"
+
+        #Place holder for email notifications
+        #Right now this just prints usernames
+        if revision:
+            print_str = f"revision: email to submitters: {db_utils.get_emails_by_dept(dept_name)}\n and approvers: {db_utils.get_emails_by_type('approver')}\n"
+            print(print_str)
+        else:
+            print("new_cfr\n")
+
     else:
         ret_string += "No courses added or modified."
 
