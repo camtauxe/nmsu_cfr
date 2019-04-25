@@ -36,6 +36,11 @@ bash $TEST /salary_saving 200
 bash $TEST /revisions 200
 bash $TEST /previous_semesters 200
 
+# Submit stuff
+bash $TEST /add_course 200 $DATADIR/art_courses1.json $JSON
+bash $TEST /add_sal_savings 200 $DATADIR/art_savings1.json $JSON
+bash $TEST /add_course 200 $DATADIR/art_courses2.json $JSON
+
 # Log in as submit2 and test 4 main pages
 bash $TEST /login 303 $DATADIR/submit2_login.data $FORM
 grep submit2 .curl_cookies
@@ -43,6 +48,11 @@ bash $TEST /cfr 200
 bash $TEST /salary_saving 200
 bash $TEST /revisions 200
 bash $TEST /previous_semesters 200
+
+# Submit stuff
+bash $TEST /add_sal_savings 200 $DATADIR/history_savings1.json $JSON
+bash $TEST /add_course 200 $DATADIR/history_courses1.json $JSON
+bash $TEST /add_sal_savings 200 $DATADIR/history_savings2.json $JSON
 
 # Log in as approve and test 4 main pages (wth queries)
 bash $TEST /login 303 $DATADIR/approve_login.data $FORM
@@ -54,7 +64,5 @@ bash $TEST /revisions 200
 bash $TEST "/revisions?dept=history" 200
 bash $TEST /previous_semesters 200
 bash $TEST "/previous_semesters?dept=art" 200
-
-
 
 set +e
