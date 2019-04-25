@@ -4,7 +4,7 @@ set -e
 set -x
 
 mysql -u root -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('TR@V1S');"
-mysql -u root -pTR@V1S -e "create database cfr; use cfr; source sql/cfr-schema.sql; source sql/db-test-init.sql;"
+mysql -u root -pTR@V1S -e "create database cfr; use cfr; source sql/create_schema.sql; source sql/init_db.sql;"
 
 sleep 5
 

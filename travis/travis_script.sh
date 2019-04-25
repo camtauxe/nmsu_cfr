@@ -3,25 +3,29 @@
 set -e
 
 TEST=$TRAVIS_BUILD_DIR/travis/test_response_code.sh
+DATADIR=$TRAVIS_BUILD_DIR/testdata
+
+FORM=application/x-www-form-urlencoded
+JSON=text/json
 
 # Basic tests without logging in
 bash $TEST / 303
 bash $TEST /nope 404
-bash $TEST /error 500
 bash $TEST /login 200
 
-# Login as submitter1, try visiting /cfr, then log out
-bash $TEST /login 303 $TRAVIS_BUILD_DIR/travis/submitter1_login.data application/x-www-form-urlencoded
-bash $TEST /cfr 200
-bash $TEST /login 200
+# Login as admin, change password, then log in again
+bash $TEST /login 303 $DATADIR/admin_login.data $FORM
+bash $TEST /edit_user 303 $DATADIR/change_admin_password.data $FORM
+bash $TEST /login 303 $DATADIR/admin_new_login.data $FORM
+grep admin .curl_cookies
 
-# Login as admin and try to create a user
-bash $TEST /login 303 $TRAVIS_BUILD_DIR/travis/admin_login.data application/x-www-form-urlencoded
-bash $TEST /add_user 303 $TRAVIS_BUILD_DIR/travis/new_user.data application/x-www-form-urlencoded
+# Create user accounts (2 submitters and an approver)
+bash $TEST /add_user 303 $DATADIR/create_submit1.data $FORM
+bash $TEST /add_user 303 $DATADIR/create_submit2.data $FORM
+bash $TEST /add_user 303 $DATADIR/create_approve.data $FORM
 
-# Login as the newly-created user
-bash $TEST /login 303 $TRAVIS_BUILD_DIR/travis/new_user_login.data application/x-www-form-urlencoded
-# Test that login worked by checking cookies
-grep newguy .curl_cookies
+# Add a new semester and make it active
+bash $TEST /add_semester 303 $DATADIR/add_semester.data $FORM
+bash $TEST /change_semester 303 $DATADIR/change_semester.data $FORM
 
 set +e
