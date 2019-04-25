@@ -67,6 +67,6 @@ bash $TEST "/previous_semesters?dept=art" 200
 
 #Approve stuff
 bash $TEST /approve_courses 200 $DATADIR/approve_courses.json $JSON
-bash $TEST /add_commitments 200 $DATA_DIR/add_commitments.json $JSON
+bash $TEST /add_commitments 200 $DATADIR/add_commitments.json $JSON
 
 set +e
