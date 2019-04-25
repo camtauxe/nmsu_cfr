@@ -3,7 +3,7 @@
 set -e
 
 TEST=$TRAVIS_BUILD_DIR/travis/test_response_code.sh
-DATADIR=$TRAVIS_BUILD_DIR/testdata
+DATADIR=$TRAVIS_BUILD_DIR/travis/testdata
 
 FORM=application/x-www-form-urlencoded
 JSON=text/json
@@ -27,5 +27,32 @@ bash $TEST /add_user 303 $DATADIR/create_approve.data $FORM
 # Add a new semester and make it active
 bash $TEST /add_semester 303 $DATADIR/add_semester.data $FORM
 bash $TEST /change_semester 303 $DATADIR/change_semester.data $FORM
+
+# Log in as submit1 and test 4 main pages
+bash $TEST /login 303 $DATADIR/submit1_login.data $FORM
+grep submit1 .curl_cookies
+bash $TEST /cfr 200
+bash $TEST /salary_saving 200
+bash $TEST /revisions 200
+bash $TEST /previous_semesters 200
+
+# Log in as submit2 and test 4 main pages
+bash $TEST /login 303 $DATADIR/submit2_login.data $FORM
+grep submit2 .curl_cookies
+bash $TEST /cfr 200
+bash $TEST /salary_saving 200
+bash $TEST /revisions 200
+bash $TEST /previous_semesters 200
+
+# Log in as approve and test 4 main pages (wth queries)
+bash $TEST /login 303 $DATADIR/approve_login.data $FORM
+grep approve .curl_cookies
+bash $TEST /cfr 200
+bash $TEST /salary_saving 200
+bash $TEST "/salary_saving?dept=art" 200
+bash $TEST /revisions 200
+bash $TEST "/revisions?dept=history" 200
+bash $TEST /previous_semesters 200
+bash $TEST "/previous_semesters?dept=art" 200
 
 set +e
