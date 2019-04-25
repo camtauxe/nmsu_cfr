@@ -136,10 +136,11 @@ def add_user(query):
 
         # If the user is a submitter, insert them and their department
         # into the submitter table
-        if role == 'submitter' and 'dept_name' not in query:
-            raise Error400("submitters must have a 'dept_name' parameter")
-        dept_name = query['dept_name'][0]
-        cursor.execute(ADD_SUBMITTER, (username, dept_name))
+        if role == 'submitter':
+            if 'dept_name' not in query:
+                raise Error400("submitters must have a 'dept_name' parameter")
+            dept_name = query['dept_name'][0]
+            cursor.execute(ADD_SUBMITTER, (username, dept_name))
 
 
 
