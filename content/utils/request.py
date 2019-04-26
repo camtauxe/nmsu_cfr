@@ -416,7 +416,8 @@ def validate_course(row):
 
     banner_id = row[7]
     if len(banner_id) != 9:
-        raise Error400('The ' + REQ_FIELDS[7] + ' field must be a 9-digit number')
+        if banner_id != '0':
+            raise Error400('The ' + REQ_FIELDS[7] + ' field must be a 9-digit number or 0')
     else:
         try:
             banner_id = int(banner_id)
