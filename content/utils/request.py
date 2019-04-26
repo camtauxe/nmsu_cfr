@@ -254,9 +254,7 @@ def new_cfr_from_courses(user: User, course_list):
         for row in new_courses:
             ret_string += f"{row[1]}\t{row[2]}\n"
 
-        #Place holder for email notifications
-        #Right now this just prints usernames
-        
+        # Send email notifiction
         if revision:
             submitter_emails = db_utils.get_emails_by_dept(dept_name)
             approver_emails = db_utils.get_emails_by_type('approver')
@@ -265,7 +263,6 @@ def new_cfr_from_courses(user: User, course_list):
             submitter_emails = db_utils.get_emails_by_dept(dept_name)
             approver_emails = db_utils.get_emails_by_type('approver')
             email_notification.compose_new_cfr_email(dept_name, submitter_emails, approver_emails)
-            print("new_cfr\n")
         
     else:
         ret_string += "No courses added or modified."
@@ -307,7 +304,7 @@ def new_cfr_from_sal_savings(user: User, sal_list):
         new_cfr = db_utils.get_current_cfr(cursor, user.dept_name)
         # cfr_data is just the primary key of the new cfr
         cfr_data = (new_cfr[0], new_cfr[1], new_cfr[2], new_cfr[5])
-
+        dept_name = new_cfr[0]
         # Parse the dicts in sal_list into tuples
         data_ls = []
         for sal in sal_list:
@@ -362,6 +359,16 @@ def new_cfr_from_sal_savings(user: User, sal_list):
     # entries that were added
     if num_new_sal_savings > 0:
         ret_string += f"{num_new_sal_savings} savings added or modified."
+        
+        # Send email notifiction
+        if revision:
+            submitter_emails = db_utils.get_emails_by_dept(dept_name)
+            approver_emails = db_utils.get_emails_by_type('approver')
+            email_notification.compose_cfr_revision_email(dept_name, submitter_emails, approver_emails)
+        else:
+            submitter_emails = db_utils.get_emails_by_dept(dept_name)
+            approver_emails = db_utils.get_emails_by_type('approver')
+            email_notification.compose_new_cfr_email(dept_name, submitter_emails, approver_emails)
 
     else:
         ret_string += "No salaray savings added or modified."
