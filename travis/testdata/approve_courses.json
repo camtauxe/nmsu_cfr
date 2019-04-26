@@ -1,0 +1,17 @@
+{
+    "dept_name": "art",
+    "courses": [
+        {
+            "course": "ART101",
+            "sec": "M01",
+            "commitment_code": "SS",
+            "cost": "4000"
+        },
+        {
+            "course": "ART203",
+            "sec": "M01",
+            "commitment_code": "CO",
+            "cost": "820"
+        }
+    ]
+}

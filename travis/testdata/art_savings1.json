@@ -1,0 +1,14 @@
+[
+    {
+        "leave_type": "LWOP",
+        "inst_name": "Fooguy",
+        "savings": "3000",
+        "notes": "foo lwop"
+    },
+    {
+        "leave_type": "Sabbatical",
+        "inst_name": "Barguy",
+        "savings": "500",
+        "notes": "bar sabbatical"
+    }
+]

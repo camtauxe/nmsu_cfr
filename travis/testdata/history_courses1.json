@@ -1,0 +1,15 @@
+[
+    {
+        "priority": "1",
+        "course": "HIST101",
+        "sec": "M01",
+        "mini_session": "no",
+        "online_course": "no",
+        "num_students": "40",
+        "instructor": "Mr. Quux",
+        "banner_id": "800300300",
+        "inst_rank": "quux",
+        "cost": "2500",
+        "reason": "blah blah blah"
+    }
+]

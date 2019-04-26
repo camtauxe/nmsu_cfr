@@ -1,0 +1,14 @@
+[
+    {
+        "leave_type": "RBO",
+        "inst_name": "John Doe",
+        "savings": "250",
+        "notes": "John Doe Research Buy-out"
+    },
+    {
+        "leave_type": "Other",
+        "inst_name": "Jane Doe",
+        "savings": "1500",
+        "notes": "Jane Doe other"
+    }
+]

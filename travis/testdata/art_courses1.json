@@ -1,0 +1,41 @@
+[
+    {
+        "priority": "1",
+        "course": "ART101",
+        "sec": "M01",
+        "mini_session": "no",
+        "online_course": "no",
+        "num_students": "10",
+        "instructor": "Mr. Foo",
+        "banner_id": "800100100",
+        "inst_rank": "foo",
+        "cost": "4500",
+        "reason": "foobar"
+    },
+    {
+        "priority": "2",
+        "course": "ART101",
+        "sec": "M02",
+        "mini_session": "no",
+        "online_course": "no",
+        "num_students": "20",
+        "instructor": "Mr. Foo",
+        "banner_id": "800100100",
+        "inst_rank": "foo",
+        "cost": "6500",
+        "reason": "quux"
+    },
+    {
+        "priority": "1",
+        "course": "ART203",
+        "sec": "M01",
+        "mini_session": "no",
+        "online_course": "yes",
+        "num_students": "45",
+        "instructor": "Mrs. Bar",
+        "banner_id": "800200200",
+        "inst_rank": "bar",
+        "cost": "500",
+        "reason": "barfoo"
+    }
+]
