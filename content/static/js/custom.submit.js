@@ -1,9 +1,7 @@
 /************************************************** SUBMIT CFR ADDITIONAL SCRIPTS **************************************************/
-
 var txt, xmlhttp;
 
 //variables for modal
-
 
 //when user clicks on the "funding requested" in the anthropology row a modal is displayed
 function cfrAnthroModal() {
@@ -161,8 +159,11 @@ function CFRsubmit() {
       }
     }
 
-    //format the cost column so that it only has two decimals
-
+    //for each row list the course cost with two decimal places
+    /*for (i = 0; i<row.length; i++){
+      cell[9].innerText = Number(cell[9].innerText.trim()).toFixed(2);
+    }
+    console.log(Number(cell[9].innerText.trim()).toFixed(2));*/
   };
 
 /* Function: testData() 
@@ -262,11 +263,11 @@ function CFRsubmit() {
       //makes sure the instructor banner id column has proper inputs
       //set to 0 if n/a, tbd or empty
       if (cell[6].innerText.trim().toLowerCase()=="n/a" || cell[6].innerText.trim().toLowerCase()=="na" || cell[6].innerText.trim()==""){
-        cell[7].innerText = "0";
+        cell[7].innerText = "000000000";
       }
       // if the instructor is TBD set the column to N/A
       else if (cell[6].innerText.trim().toLowerCase()=="tbd"){
-        cell[7].innerText = "0";
+        cell[7].innerText = "000000000";
       }
       //if invalid id the cell will turn red and an error message will display at the bottom of the column
       else if (cell[7].innerText.trim()<800000000){
@@ -291,6 +292,10 @@ function CFRsubmit() {
         cell[9].className = "danger";
         fcell[9].style.visibility = "visible";
         test = test - 1;
+      }
+      //set the cost to 0.00 if left empty
+      else if (cell[9].innerText.trim()==""){
+        cell[9].innerText = 0.00;
       }
 
     }
