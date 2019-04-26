@@ -212,17 +212,25 @@ DEPARTMENTS_QUERY = """
 SELECT DISTINCT dept_name FROM submitter
 """
 
-# Query to get emails of submitters in a certain department
-# Returned columns are: username
-EMAILS_BY_DEPT = """
-SELECT username
-FROM submitter 
-WHERE dept_name = %s
+# Query to get emails of all users
+# Returned columns are: email
+ALL_EMAILS = """
+SELECT email
+FROM user
 """
 
-# Querty to get emails of users of a certain type
+# Query to get emails of submitters in a certain department
+# Returned columns are: email
+EMAILS_BY_DEPT = """
+SELECT email
+FROM user u, submitter s
+WHERE u.username = s.username AND s.dept_name = %s
+"""
+
+# Query to get emails of users of a certain type
+# Returned columns are: email
 EMAILS_BY_TYPE = """
-SELECT username
+SELECT email
 FROM user
 WHERE type = %s
 """
@@ -518,6 +526,15 @@ def list_emails(emails):
     for address in emails:
         email_list.append(address)
     return email_list
+
+def get_all_emails():
+    with Transaction as cursor:
+        cursor.execute(ALL_EMAILS, params=None)
+        all_emails = cursor.fetchall()
+
+    email_list = list_emails(all_emails)
+    return email_list
+
 
 def get_emails_by_dept(dept_name):
     with Transaction() as cursor:

@@ -10,6 +10,7 @@ from . import db_utils
 from .db_utils import REQ_FIELDS
 from .db_utils import SAL_FIELDS
 from .errors import Error400
+from . import email_notification
 
 # Query to select just the coure ids of all of the courses
 # associated with a cr
@@ -255,12 +256,17 @@ def new_cfr_from_courses(user: User, course_list):
 
         #Place holder for email notifications
         #Right now this just prints usernames
+        """
         if revision:
-            print_str = f"revision: email to submitters: {db_utils.get_emails_by_dept(dept_name)}\n and approvers: {db_utils.get_emails_by_type('approver')}\n"
-            print(print_str)
+            submitter_email = user.username
+            approver_emails = db_utils.get_emails_by_type('approver')
+            email_notification.compose_cfr_revision_email(dept_name, submitter_email, approver_emails)
         else:
+            submitter_email = user.username
+            approver_emails = db_utils.get_emails_by_type('approver')
+            email_notification.compose_new_cfr_email(dept_name, submitter_email, approver_emails)
             print("new_cfr\n")
-
+        """
     else:
         ret_string += "No courses added or modified."
 

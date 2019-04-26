@@ -5,6 +5,7 @@ attached or tests can be performed
 import sys
 import os
 import re
+import urllib.parse
 from io import StringIO
 import http.cookies as cookies
 

@@ -9,7 +9,8 @@ from . import db_utils
 # Query to insert a new user into the database
 # Parameters are username, usr_password, banner_id and type (role)
 ADD_USER = """
-INSERT INTO user VALUES (
+INSERT INTO user (username, usr_password, banner_id, type)
+VALUES (
     %s, %s, %s, %s
 )
 """
