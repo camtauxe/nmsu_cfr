@@ -4,7 +4,8 @@ from email.mime.multipart import MIMEMultipart
 
 # SET AS ENVIRONMENT VARIABLES:
 SENDER_ADDRESS = 'CFR@nmsu.edu'
-PASSWORD = 'newmexicostate2019'
+# not the real password
+PASSWORD = 'passwordplaceholder'
 
 def send_email_notification(composed_email):
     """
@@ -59,7 +60,7 @@ def compose_new_cfr_email(dept, submitter_emails, approver_emails):
     send_email_notification(email_to_submitter)
     send_email_notification(email_to_approvers)
 
-def compose_cfr_revision_email(dept, submitter_email, approver_emails):
+def compose_cfr_revision_email(dept, submitter_emails, approver_emails):
     """
     Composes a an email notification to be sent when a
     revision is made to an existing CFR.
@@ -75,7 +76,7 @@ def compose_cfr_revision_email(dept, submitter_email, approver_emails):
 
     # set up message parameters
     email_to_submitter['Subject'] = f'{dept} CFR Revision'
-    email_to_submitter['To'] = f'{submitter_email}'
+    email_to_submitter['To'] = ','.join(submitter_emails)
     email_to_submitter['From'] = SENDER_ADDRESS
 
     email_to_approvers['Subject'] = f'{dept} CFR Revision'
@@ -93,7 +94,7 @@ def compose_cfr_revision_email(dept, submitter_email, approver_emails):
     send_email_notification(email_to_submitter)
     send_email_notification(email_to_approvers)
 
-def compose_cfr_status_email(dept, submitter_email):
+def compose_cfr_status_email(dept, submitter_emails):
     """
     Composes a an email notification to be sent when the
     status of a CFR changes dues to approvals/denials.
@@ -108,7 +109,7 @@ def compose_cfr_status_email(dept, submitter_email):
 
     # set up message parameters
     email_to_submitter['Subject'] = f'{dept} CFR Status Update'
-    email_to_submitter['To'] = f'{submitter_email}'
+    email_to_submitter['To'] = ','.join(submitter_emails)
     email_to_submitter['From'] = SENDER_ADDRESS
 
     # add message body

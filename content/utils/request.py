@@ -256,17 +256,17 @@ def new_cfr_from_courses(user: User, course_list):
 
         #Place holder for email notifications
         #Right now this just prints usernames
-        """
+        
         if revision:
-            submitter_email = user.username
+            submitter_emails = db_utils.get_emails_by_dept(dept_name)
             approver_emails = db_utils.get_emails_by_type('approver')
-            email_notification.compose_cfr_revision_email(dept_name, submitter_email, approver_emails)
+            email_notification.compose_cfr_revision_email(dept_name, submitter_emails, approver_emails)
         else:
-            submitter_email = user.username
+            submitter_emails = db_utils.get_emails_by_dept(dept_name)
             approver_emails = db_utils.get_emails_by_type('approver')
-            email_notification.compose_new_cfr_email(dept_name, submitter_email, approver_emails)
+            email_notification.compose_new_cfr_email(dept_name, submitter_emails, approver_emails)
             print("new_cfr\n")
-        """
+        
     else:
         ret_string += "No courses added or modified."
 
