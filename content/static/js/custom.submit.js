@@ -158,12 +158,6 @@ function CFRsubmit() {
         }
       }
     }
-
-    //for each row list the course cost with two decimal places
-    /*for (i = 0; i<row.length; i++){
-      cell[9].innerText = Number(cell[9].innerText.trim()).toFixed(2);
-    }
-    console.log(Number(cell[9].innerText.trim()).toFixed(2));*/
   };
 
 /* Function: testData() 
