@@ -1,11 +1,12 @@
 import smtplib
+from . import db_utils
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 # SET AS ENVIRONMENT VARIABLES:
 SENDER_ADDRESS = 'CFR@nmsu.edu'
 # not the real password
-PASSWORD = 'passwordplaceholder'
+PASSWORD = 'password place holder'
 
 def send_email_notification(composed_email):
     """
@@ -26,15 +27,18 @@ def send_email_notification(composed_email):
     finally:
         server.quit()
 
-def compose_new_cfr_email(dept, submitter_emails, approver_emails):
+def compose_new_cfr_email(dept):
     """
     Composes a an email notification to be sent when a new
     CFR is created.
 
-    dept is the name of the department the submission is for
-    submitter_email is the email of the submitting party
-    approver_emails is a list of all approver's emails
+    dept is the name of the department the submission is for.
     """
+    # Get a list of submitter emails for a department
+    submitter_emails = db_utils.get_emails_by_dept(dept)
+
+    # Get a list of approver emails
+    approver_emails = db_utils.get_emails_by_type('approver')
 
     # create message
     email_to_submitter = MIMEMultipart()
@@ -60,15 +64,18 @@ def compose_new_cfr_email(dept, submitter_emails, approver_emails):
     send_email_notification(email_to_submitter)
     send_email_notification(email_to_approvers)
 
-def compose_cfr_revision_email(dept, submitter_emails, approver_emails):
+def compose_cfr_revision_email(dept):
     """
     Composes a an email notification to be sent when a
     revision is made to an existing CFR.
 
     dept is the name of the department the submission is for
-    submitter_email is the email of the submitting party
-    approver_emails is a list of all approver's emails
     """
+    # Get a list of submitter emails for a department
+    submitter_emails = db_utils.get_emails_by_dept(dept)
+
+    # Get a list of approver emails
+    approver_emails = db_utils.get_emails_by_type('approver')
 
     # create message
     email_to_submitter = MIMEMultipart()
@@ -94,15 +101,15 @@ def compose_cfr_revision_email(dept, submitter_emails, approver_emails):
     send_email_notification(email_to_submitter)
     send_email_notification(email_to_approvers)
 
-def compose_cfr_status_email(dept, submitter_emails):
+def compose_cfr_status_email(dept):
     """
     Composes a an email notification to be sent when the
     status of a CFR changes dues to approvals/denials.
 
     dept is the name of the department the submission is for
-    submitter_email is the email of the department head whose
-    CFR status was updated
     """
+    # Get a list of submitter emails for a department
+    submitter_emails = db_utils.get_emails_by_dept(dept)
 
     # create message
     email_to_submitter = MIMEMultipart()
@@ -118,3 +125,29 @@ def compose_cfr_status_email(dept, submitter_emails):
 
     # send message
     send_email_notification(email_to_submitter)
+
+def compose_open_semester_email(season):
+    """
+    Composes an email notification to be sent to all users
+    when a cfr semester has been opened
+
+    season is a string containing the name of the opened 
+    semester: 'Fall', 'Spring', 'Summer'
+    """
+    # Get the email adresses of all users
+    email_adresses = db_utils.get_all_emails()
+
+    # Create message
+    email_message = MIMEMultipart()
+
+    # Set up parameters
+    email_message['Subject'] = 'CFR season now open'
+    email_message['TO'] = ','.join(email_adresses)
+    email_message['From'] = SENDER_ADDRESS
+
+    # Add message body
+    message = f'Course funding request season for {season} is now open'
+    email_message.attach(MIMEText(message, 'plain'))
+
+    # Send email
+    send_email_notification(email_message)

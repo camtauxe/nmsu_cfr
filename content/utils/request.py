@@ -258,11 +258,11 @@ def new_cfr_from_courses(user: User, course_list):
         if revision:
             submitter_emails = db_utils.get_emails_by_dept(dept_name)
             approver_emails = db_utils.get_emails_by_type('approver')
-            email_notification.compose_cfr_revision_email(dept_name, submitter_emails, approver_emails)
+            email_notification.compose_cfr_revision_email(dept_name)
         else:
             submitter_emails = db_utils.get_emails_by_dept(dept_name)
             approver_emails = db_utils.get_emails_by_type('approver')
-            email_notification.compose_new_cfr_email(dept_name, submitter_emails, approver_emails)
+            email_notification.compose_new_cfr_email(dept_name)
         
     else:
         ret_string += "No courses added or modified."
@@ -364,11 +364,11 @@ def new_cfr_from_sal_savings(user: User, sal_list):
         if revision:
             submitter_emails = db_utils.get_emails_by_dept(dept_name)
             approver_emails = db_utils.get_emails_by_type('approver')
-            email_notification.compose_cfr_revision_email(dept_name, submitter_emails, approver_emails)
+            email_notification.compose_cfr_revision_email(dept_name)
         else:
             submitter_emails = db_utils.get_emails_by_dept(dept_name)
             approver_emails = db_utils.get_emails_by_type('approver')
-            email_notification.compose_new_cfr_email(dept_name, submitter_emails, approver_emails)
+            email_notification.compose_new_cfr_email(dept_name)
 
     else:
         ret_string += "No salaray savings added or modified."
@@ -524,3 +524,5 @@ def commit_cfr(commitment_list: list):
             cfr_data = (cfr[0], cfr[1], cfr[2], cfr[5])
 
             cursor.execute(ADD_COMMITMENT, (amount,)+cfr_data)
+            #sent email notification to submitters in a department
+            email_notification.compose_cfr_status_email(dept_name)

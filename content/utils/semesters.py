@@ -4,6 +4,7 @@ Functions related to manipulating semesters in the database
 from .sql_connection import Transaction
 from . import db_utils
 from .errors import Error400
+from .email_notification import compose_open_semester_email
 
 # Query to deactivate the currently active semester
 DEACTIVATE_ACTIVE_SEMESTER = """
@@ -56,6 +57,10 @@ def change_semester(query):
     with Transaction() as cursor:
         cursor.execute(DEACTIVATE_ACTIVE_SEMESTER)
         cursor.execute(ACTIVATE_SEMESTER, semester_tup)
+
+    # Send email notification of activated semester
+    compose_open_semester_email(semester_tup[0])
+
 
 def add_semester(query):
     """

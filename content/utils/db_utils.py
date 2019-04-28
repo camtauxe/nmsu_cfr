@@ -521,16 +521,18 @@ def get_approver_data(cursor: CursorBase) -> dict:
 
     return data
 # Helper function to parse emails into a list
+# Parameter: emails is a list of tuples 
 def list_emails(emails):
     email_list = []
     for address in emails:
-        email_list.append(address[0])
+        if address[0] != None:
+            email_list.append(address[0])
     return email_list
 
 # Function to get emails for all users
 # Returns a list of emails
 def get_all_emails():
-    with Transaction as cursor:
+    with Transaction() as cursor:
         cursor.execute(ALL_EMAILS, params=None)
         all_emails = cursor.fetchall()
 
@@ -549,7 +551,8 @@ def get_emails_by_dept(dept_name):
     return email_list
 
 # Functions to get emails of users of a certain type
-# Parameter is a string of user type: submitter', approver', 'admin'
+# Parameter is a string of user type: 
+# submitter', approver', 'admin'
 # Returns a list of emails
 def get_emails_by_type(type):
     with Transaction() as cursor:
