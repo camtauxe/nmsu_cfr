@@ -8,3 +8,4 @@ testfiles/
 .debug_cookies
 .curl_cookies
 reset_db.sh
+docker-compose-local.yml

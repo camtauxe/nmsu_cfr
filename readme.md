@@ -22,10 +22,14 @@ Python for backend code via WSGI.
 
 ### Build and run
 ```
-docker-compose up -d --build
+docker-compose -f "docker-compose-hostmode.yml" up -d --build
 ```
 This will rebuild the image and start the docker container in the background. It will be bound to Port 80 on the host machine. Simply open a
 web browser and navigate to *localhost*
+
+Depending on your setup, you may want to use *docker-compose-bridgemode.yml* as the the docker-compose file instead. Host mode doesn't work on Windows and MacOS, but you won't be able to connect to a local database through 'localhost.' If you need to customize
+the build further, you can create your own docker-compose file and call
+it *docker-compose-local.yml* which will be ignored by git.
 
 If you get the following error:
 ```
