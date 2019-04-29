@@ -256,12 +256,8 @@ def new_cfr_from_courses(user: User, course_list):
 
         # Send email notifiction
         if revision:
-            submitter_emails = db_utils.get_emails_by_dept(dept_name)
-            approver_emails = db_utils.get_emails_by_type('approver')
             email_notification.compose_cfr_revision_email(dept_name)
         else:
-            submitter_emails = db_utils.get_emails_by_dept(dept_name)
-            approver_emails = db_utils.get_emails_by_type('approver')
             email_notification.compose_new_cfr_email(dept_name)
         
     else:
@@ -362,12 +358,8 @@ def new_cfr_from_sal_savings(user: User, sal_list):
         
         # Send email notifiction
         if revision:
-            submitter_emails = db_utils.get_emails_by_dept(dept_name)
-            approver_emails = db_utils.get_emails_by_type('approver')
             email_notification.compose_cfr_revision_email(dept_name)
         else:
-            submitter_emails = db_utils.get_emails_by_dept(dept_name)
-            approver_emails = db_utils.get_emails_by_type('approver')
             email_notification.compose_new_cfr_email(dept_name)
 
     else:
