@@ -520,9 +520,10 @@ def get_approver_data(cursor: CursorBase) -> dict:
             [course+course_approvals[i] for (i, course) in enumerate(courses)])
 
     return data
+
 # Helper function to parse emails into a list
 # Parameter: emails is a list of tuples 
-def list_emails(emails):
+def _list_emails(emails):
     email_list = []
     for address in emails:
         if address[0] != None:
@@ -536,7 +537,7 @@ def get_all_emails():
         cursor.execute(ALL_EMAILS, params=None)
         all_emails = cursor.fetchall()
 
-    email_list = list_emails(all_emails)
+    email_list = _list_emails(all_emails)
     return email_list
 
 # Function to get emails of submitters for a department
@@ -547,7 +548,7 @@ def get_emails_by_dept(dept_name):
         cursor.execute(EMAILS_BY_DEPT, (dept_name,))
         dept_emails = cursor.fetchall()
 
-    email_list = list_emails(dept_emails)
+    email_list = _list_emails(dept_emails)
     return email_list
 
 # Functions to get emails of users of a certain type
@@ -559,5 +560,5 @@ def get_emails_by_type(type):
         cursor.execute(EMAILS_BY_TYPE, (type,))
         emails_by_type = cursor.fetchall()
 
-    email_list = list_emails(emails_by_type)
+    email_list = _list_emails(emails_by_type)
     return email_list
