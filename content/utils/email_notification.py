@@ -1,12 +1,8 @@
 import smtplib
 from . import db_utils
+from . import cfrenv
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-
-# SET AS ENVIRONMENT VARIABLES:
-SENDER_ADDRESS = 'CFR@nmsu.edu'
-# not the real password
-PASSWORD = 'password place holder'
 
 def send_email_notification(composed_email):
     """
@@ -17,13 +13,22 @@ def send_email_notification(composed_email):
     MIMEMultipart email message.
     """
 
+    if not cfrenv.can_do_email():
+        # If email isn't configured, forget it
+        return
+
+    host      = cfrenv.getenv('SMTP_SERVER')
+    address     = cfrenv.getenv('SMTP_ADDRESS')
+    password    = cfrenv.getenv('SMTP_PASSWORD')
+    port        = cfrenv.getenv('SMTP_PORT')
+
     try:
-        server = smtplib.SMTP(host='smtp.nmsu.edu', port=587)
+        server = smtplib.SMTP(host=host, port=port)
         server.starttls()
-        server.login(SENDER_ADDRESS, PASSWORD)
+        server.login(address, password)
         server.send_message(composed_email)
-    except Exception as e:
-        print(e)
+    except Exception:
+        pass
     finally:
         server.quit()
 
@@ -47,11 +52,11 @@ def compose_new_cfr_email(dept):
     # set up message parameters
     email_to_submitter['Subject'] = f'{dept} CFR Submission'
     email_to_submitter['To'] = ','.join(submitter_emails)
-    email_to_submitter['From'] = SENDER_ADDRESS
+    email_to_submitter['From'] = cfrenv.getenv('SMTP_ADDRESS')
 
     email_to_approvers['Subject'] = f'{dept} CFR Submission'
     email_to_approvers['To'] = ','.join(approver_emails)
-    email_to_approvers['From'] = SENDER_ADDRESS
+    email_to_approvers['From'] = cfrenv.getenv('SMTP_ADDRESS')
 
     # add message body
     message_to_submitter = f'Your Course Funding Request for {dept} has been submitted.'
@@ -84,11 +89,11 @@ def compose_cfr_revision_email(dept):
     # set up message parameters
     email_to_submitter['Subject'] = f'{dept} CFR Revision'
     email_to_submitter['To'] = ','.join(submitter_emails)
-    email_to_submitter['From'] = SENDER_ADDRESS
+    email_to_submitter['From'] = cfrenv.getenv('SMTP_ADDRESS')
 
     email_to_approvers['Subject'] = f'{dept} CFR Revision'
     email_to_approvers['To'] = ','.join(approver_emails)
-    email_to_approvers['From'] = SENDER_ADDRESS
+    email_to_approvers['From'] = cfrenv.getenv('SMTP_ADDRESS')
 
     # add message body
     message_to_submitter = f'Your revision has been submitted for {dept}.'
@@ -117,7 +122,7 @@ def compose_cfr_status_email(dept):
     # set up message parameters
     email_to_submitter['Subject'] = f'{dept} CFR Status Update'
     email_to_submitter['To'] = ','.join(submitter_emails)
-    email_to_submitter['From'] = SENDER_ADDRESS
+    email_to_submitter['From'] = cfrenv.getenv('SMTP_ADDRESS')
 
     # add message body
     message_to_submitter = f'The status of {dept}\'s Course Funding Request has been determined.'
@@ -143,7 +148,7 @@ def compose_open_semester_email(season):
     # Set up parameters
     email_message['Subject'] = 'CFR season now open'
     email_message['TO'] = ','.join(email_adresses)
-    email_message['From'] = SENDER_ADDRESS
+    email_message['From'] = cfrenv.getenv('SMTP_ADDRESS')
 
     # Add message body
     message = f'Course funding request season for {season} is now open'
