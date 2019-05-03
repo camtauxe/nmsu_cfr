@@ -269,7 +269,7 @@ function CFRsubmit() {
         cell[7].innerText = "0";
       }
       //if invalid id the cell will turn red and an error message will display at the bottom of the column
-      else if (cell[7].innerText.trim()<800000000){
+      else if (cell[7].innerText.trim()<800000000 && cell[7].innerText.trim() != "0"){
         cell[7].className = "danger";
         fcell[7].style.visibility = "visible";
         test = test - 1;

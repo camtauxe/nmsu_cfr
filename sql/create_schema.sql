@@ -8,6 +8,7 @@ CREATE TABLE user (
     usr_password   VARBINARY(64)  NOT NULL,   /* Password Hast */
     banner_id      NUMERIC(9,0)   NOT NULL,
     type           ENUM('submitter', 'approver', 'admin') NOT NULL, /* Role */
+    email          VARCHAR(64),
 
     PRIMARY KEY (username)
 );

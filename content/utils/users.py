@@ -7,10 +7,11 @@ from .errors import Error400
 from . import db_utils
 
 # Query to insert a new user into the database
-# Parameters are username, usr_password, banner_id and type (role)
+# Parameters are username, usr_password, banner_id, type (role) and email
 ADD_USER = """
-INSERT INTO user VALUES (
-    %s, %s, %s, %s
+INSERT INTO user (username, usr_password, banner_id, type, email)
+VALUES (
+    %s, %s, %s, %s, %s
 )
 """
 
@@ -98,7 +99,12 @@ def add_user(query):
         'passwordconfirm': Should match 'password'
         'banner_id': An integer
         'role': A string; either 'submitter', 'approver' or 'admin'
+        'email': A string (optional)
     If 'role' is 'submitter', there must be an additional field: 'dept_name'
+
+    Note that since this functions expects query to be the result of parsing
+    form data, each of these fields should actually be a list with the value
+    as the first element.
     """
     fields = ['username', 'password', 'passwordconfirm', 'banner_id', 'role']
     if not all(k in query for k in fields):
@@ -130,8 +136,14 @@ def add_user(query):
         if role not in ['submitter', 'approver','admin']:
             raise Error400("'role' must be 'submitter','approver' or 'admin'!")
 
+        # 'email' is an optional field
+        if 'email' in query:
+            email = query['email'][0]
+        else:
+            email = None
+
         # Insert user
-        insert_data = (username, password_hash, banner_id, role)
+        insert_data = (username, password_hash, banner_id, role, email)
         cursor.execute(ADD_USER, insert_data)
 
         # If the user is a submitter, insert them and their department
