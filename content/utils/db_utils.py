@@ -212,6 +212,29 @@ DEPARTMENTS_QUERY = """
 SELECT DISTINCT dept_name FROM submitter
 """
 
+# Query to get emails of all users
+# Returned columns are: email
+ALL_EMAILS = """
+SELECT email
+FROM user
+"""
+
+# Query to get emails of submitters in a certain department
+# Returned columns are: email
+EMAILS_BY_DEPT = """
+SELECT email
+FROM user u, submitter s
+WHERE u.username = s.username AND s.dept_name = %s
+"""
+
+# Query to get emails of users of a certain type
+# Returned columns are: email
+EMAILS_BY_TYPE = """
+SELECT email
+FROM user
+WHERE type = %s
+"""
+
 def quick_exec(function: callable, *args):
     """
     Execute another db_utils function as an atomic transaction
@@ -497,3 +520,45 @@ def get_approver_data(cursor: CursorBase) -> dict:
             [course+course_approvals[i] for (i, course) in enumerate(courses)])
 
     return data
+
+# Helper function to parse emails into a list
+# Parameter: emails is a list of tuples 
+def _list_emails(emails):
+    email_list = []
+    for address in emails:
+        if address[0] != None:
+            email_list.append(address[0])
+    return email_list
+
+# Function to get emails for all users
+# Returns a list of emails
+def get_all_emails():
+    with Transaction() as cursor:
+        cursor.execute(ALL_EMAILS, params=None)
+        all_emails = cursor.fetchall()
+
+    email_list = _list_emails(all_emails)
+    return email_list
+
+# Function to get emails of submitters for a department
+# Parameter is a tuple with the department name
+# Returns a list of emails
+def get_emails_by_dept(dept_name):
+    with Transaction() as cursor:
+        cursor.execute(EMAILS_BY_DEPT, (dept_name,))
+        dept_emails = cursor.fetchall()
+
+    email_list = _list_emails(dept_emails)
+    return email_list
+
+# Functions to get emails of users of a certain type
+# Parameter is a string of user type: 
+# submitter', approver', 'admin'
+# Returns a list of emails
+def get_emails_by_type(type):
+    with Transaction() as cursor:
+        cursor.execute(EMAILS_BY_TYPE, (type,))
+        emails_by_type = cursor.fetchall()
+
+    email_list = _list_emails(emails_by_type)
+    return email_list

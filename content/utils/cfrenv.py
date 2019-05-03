@@ -23,6 +23,14 @@ Optional:
     DEBUG           Enable showing additonal debug information if set
                     to 'yes.' Does nothing if set to anything else
                     or nonexistant
+
+The following variables are optional, but if any of them are excluded,
+then email notifications will not work:
+    SMTP_SERVER     The hostname of the smtp server to send email from
+    SMTP_ADDRESS    The email address emails will be sent from
+    SMTP_PASSWORD   The password for this address on the SMTP server
+    SMTP_PORT       The port to connect to the SMTP server
+
 """
 
 import os
@@ -55,6 +63,11 @@ def init_environ(wsgi_environ: dict):
 
     _init_var('DEBUG',          wsgi_environ)
 
+    _init_var('SMTP_SERVER',    wsgi_environ)
+    _init_var('SMTP_ADDRESS',   wsgi_environ)
+    _init_var('SMTP_PASSWORD',  wsgi_environ)
+    _init_var('SMTP_PORT',      wsgi_environ)
+
 def getenv(varname):
     """
     Get the value for the variable with the given name from
@@ -79,3 +92,16 @@ def verify_environ() -> bool:
 
     return valid
 
+def can_do_email() -> bool:
+    """
+    Verify that all email-related environment variables are
+    present and not None.
+    """
+    valid = True
+
+    valid = valid and environ['SMTP_SERVER'] is not None
+    valid = valid and environ['SMTP_ADDRESS'] is not None
+    valid = valid and environ['SMTP_PASSWORD'] is not None
+    valid = valid and environ['SMTP_PORT'] is not None
+
+    return valid
