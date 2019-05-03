@@ -480,8 +480,8 @@ def approve_courses(current_user: User, approved_courses):
                 #cost, course, section and approver's username
                 cursor.execute(APPROVE_COURSES, update_course + cfr_key)
                 ret_string += f"{course['course']} {course['sec']} \n"
-            else: 
-                print(f"{course['course']} {course['sec']} not approved, no commitment code found")
+
+        email_notification.compose_approve_course_email(approved_courses['dept_name'], approved_courses['courses'])
     
     return ret_string
 
@@ -516,5 +516,3 @@ def commit_cfr(commitment_list: list):
             cfr_data = (cfr[0], cfr[1], cfr[2], cfr[5])
 
             cursor.execute(ADD_COMMITMENT, (amount,)+cfr_data)
-            #sent email notification to submitters in a department
-            email_notification.compose_cfr_status_email(dept_name)

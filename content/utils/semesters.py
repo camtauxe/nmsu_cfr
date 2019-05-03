@@ -59,7 +59,7 @@ def change_semester(query):
         cursor.execute(ACTIVATE_SEMESTER, semester_tup)
 
     # Send email notification of activated semester
-    compose_open_semester_email(semester_tup[0])
+    compose_open_semester_email(semester_tup[0], semester_tup[1])
 
 
 def add_semester(query):

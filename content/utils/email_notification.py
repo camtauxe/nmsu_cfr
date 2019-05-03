@@ -32,6 +32,13 @@ def send_email_notification(composed_email):
     finally:
         server.quit()
 
+def create_message(body: str) -> str:
+    """
+    Wrap the body of an email message with a greeting and footer and
+    return the new string
+    """
+    return f"Hello!\n\n{body}\n\n- Course Funding Request System\n (Do not reply to this email)"
+
 def compose_new_cfr_email(dept):
     """
     Composes a an email notification to be sent when a new
@@ -59,10 +66,10 @@ def compose_new_cfr_email(dept):
     email_to_approvers['From'] = cfrenv.getenv('SMTP_ADDRESS')
 
     # add message body
-    message_to_submitter = f'Your Course Funding Request for {dept} has been submitted.'
+    message_to_submitter = create_message(f'Your Course Funding Request for {dept} has been submitted.')
     email_to_submitter.attach(MIMEText(message_to_submitter, 'plain'))
 
-    message_to_approvers = f'A Course Funding Request for {dept} has been submitted.'
+    message_to_approvers = create_message(f'A Course Funding Request for {dept} has been submitted.')
     email_to_approvers.attach(MIMEText(message_to_approvers, 'plain'))
 
     # send message
@@ -96,42 +103,59 @@ def compose_cfr_revision_email(dept):
     email_to_approvers['From'] = cfrenv.getenv('SMTP_ADDRESS')
 
     # add message body
-    message_to_submitter = f'Your revision has been submitted for {dept}.'
+    message_to_submitter = create_message(f'Your revision has been submitted for {dept}.')
     email_to_submitter.attach(MIMEText(message_to_submitter, 'plain'))
 
-    message_to_approvers = f'A revision has been made to {dept}\'s Course Funding Request.'
+    message_to_approvers = create_message(f'A new revision for {dept}\'s Course Funding Request has been submitted.')
     email_to_approvers.attach(MIMEText(message_to_approvers, 'plain'))
 
     # send message
     send_email_notification(email_to_submitter)
     send_email_notification(email_to_approvers)
 
-def compose_cfr_status_email(dept):
+def compose_approve_course_email(dept, course_list):
     """
-    Composes a an email notification to be sent when the
-    status of a CFR changes dues to approvals/denials.
+    Compose an email notification to be sent when courses
+    are approved.
 
-    dept is the name of the department the submission is for
+    dept is the name of the department the courses belong to
+    course_list is a list of dicts describing the approved courses
+        each with the fields 'course' and 'sec'
     """
-    # Get a list of submitter emails for a department
-    submitter_emails = db_utils.get_emails_by_dept(dept)
+
+    submitter_emails    = db_utils.get_emails_by_dept(dept)
+    approver_emails     = db_utils.get_emails_by_type('approver')
 
     # create message
     email_to_submitter = MIMEMultipart()
+    email_to_approvers = MIMEMultipart()
 
     # set up message parameters
-    email_to_submitter['Subject'] = f'{dept} CFR Status Update'
+    email_to_submitter['Subject'] = f'{dept} CFR Approval'
     email_to_submitter['To'] = ','.join(submitter_emails)
     email_to_submitter['From'] = cfrenv.getenv('SMTP_ADDRESS')
 
-    # add message body
-    message_to_submitter = f'The status of {dept}\'s Course Funding Request has been determined.'
+    email_to_approvers['Subject'] = f'{dept} CFR Approval'
+    email_to_approvers['To'] = ','.join(approver_emails)
+    email_to_approvers['From'] = cfrenv.getenv('SMTP_ADDRESS')
+
+    if len(course_list) > 0:
+        course_description = "Approved Courses:\n"+"\n".join([f"{c['course']} - {c['sec']}" for c in course_list])
+    else:
+        # If no courses approved, forget it
+        return
+
+    message_to_submitter = create_message(f"Some of the courses in {dept}'s request have been approved.\n\n{course_description}")
     email_to_submitter.attach(MIMEText(message_to_submitter, 'plain'))
+
+    message_to_approvers = create_message(f"Your approvals in {dept}'s request have been received.\n\n{course_description}")
+    email_to_approvers.attach(MIMEText(message_to_approvers, 'plain'))
 
     # send message
     send_email_notification(email_to_submitter)
+    send_email_notification(email_to_approvers)
 
-def compose_open_semester_email(season):
+def compose_open_semester_email(season, year):
     """
     Composes an email notification to be sent to all users
     when a cfr semester has been opened
@@ -151,7 +175,7 @@ def compose_open_semester_email(season):
     email_message['From'] = cfrenv.getenv('SMTP_ADDRESS')
 
     # Add message body
-    message = f'Course funding request season for {season} is now open'
+    message = create_message(f'Course funding request season for {season} {year} is now open')
     email_message.attach(MIMEText(message, 'plain'))
 
     # Send email
