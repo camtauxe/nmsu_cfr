@@ -222,6 +222,14 @@ def application(environ, start_response):
         respond()
         return page_builder.soup_to_bytes(page)
 
+    def hande_help(**kwargs):
+        """
+        Return the help page
+        """
+        page = page_builder.build_help_page(kwargs['user'])
+        respond()
+        return page_builder.soup_to_bytes(page)
+
     ###########################################
     # POST HANDLERS
     #   These are responses to POST requests
@@ -347,6 +355,7 @@ def application(environ, start_response):
         'salary_saving':        handle_salary_saving,
         'previous_semesters':   handle_previous_semesters,
         'revisions':            handle_revisions,
+        'help':                 hande_help,
         'add_course':           handle_cfr_from_courses,
         'add_sal_savings':      handle_cfr_from_sal_savings,
         'approve_courses' :     handle_approve_courses,

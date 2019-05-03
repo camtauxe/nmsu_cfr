@@ -353,6 +353,15 @@ def build_previous_semesters_page(user: User, dept_override: str = None):
     page = build_page_around_content(content)
     return page
 
+def build_help_page(user: User):
+    """
+    Build a help page for the given user and return it as a BeautifulSoup
+    """
+    if user.role == UserRole.SUBMITTER:
+        return build_page_from_file("help_submitter.html")
+    else:
+        return build_page_from_file("help_approver.html")
+
 def build_admin_page():
     """
     Build the admin controls page and return it as a BeautifulSoup
