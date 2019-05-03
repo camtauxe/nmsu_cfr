@@ -35,22 +35,32 @@ If you get the following error:
 ```
 ERROR: Couldn't find env file: /path/to/nmsu_cfr/cfr.env
 ```
-Read **Connecting to a Database** below for how to configure a set of environment variables to pass to docker-compose.
+Read **Configuring the Environnment** below for how to configure a set of environment variables to pass to docker-compose.
 
-### Connecting to a Database
-In order to work, the system needs to be connected to an external MySQL database that will contain all of its data (users, requests, revisions, etc.). The credintials for this database are provided as environment variables that docker-compose passes to the container at startup. Copy *cfr.env.example* to a new file *cfr.env* and edit the variables provided for the database you wish to connect to.
+### Configuring the Environnment
+When the Docker container is built, it looks for the file *cfr.env* which will contain environment variables giving credintials to connect to
+a MySQL database for data and to an SMTP server for email notifications. Copy *cfr.env.example* to a new file *cfr.env* and edit the variables provided.
 ```env
 DB_HOST=example.com
 DB_USER=myuser
 DB_PASS=password
 DB_DATABASE=mydatabase
 
+SMTP_SERVER=smtp.example.com
+SMTP_ADDRESS=noreply@example.com
+SMTP_PASSWORD=password
+SMTP_PORT=587
+
 DEBUG=yes
 ```
+If any of the Database environment variables are not specified, the system will not work and a "The environment has not been configured" message
+will be displayed when accessing it in a browser. If any of the SMTP variables are missing, the system will still work, but email notifications
+will not be sent.
+
 Because the *cfr.env* file is specific to you and because it may contain private information (such as a database password), it is ignored by git.
 
 ### First-time setup
-Log on to the database, you have connected to and run the following scripts in order
+Log on to the database you have connected to and run the following scripts in order
 - *sql/clear_db.sql*
 - *create_schema.sql*
 - *init_db.sql*
