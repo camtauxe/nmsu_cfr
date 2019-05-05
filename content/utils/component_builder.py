@@ -155,6 +155,7 @@ def replace_cell_with_checkbox(cell: Tag, attrs = {}):
         del cell.attrs['contenteditable']
     if 'class' in cell.attrs and cell.attrs['class'] == "editable":
         del cell.attrs['class']
+    cell.attrs['class'] = "noprint"
 
     cell.append(checkbox.input)
 
